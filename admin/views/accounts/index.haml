@@ -10,14 +10,14 @@
     .inner
       %table.table
         %tr
-          %th.first=mat(:account, :id)
+          %th.first=mat(:account, :username)
           %th=mat(:account, :name)
           %th=mat(:account, :surname)
           %th=mat(:account, :email)
           %th.last="&nbsp;"
         -@accounts.each do |account|
           %tr
-            %td.first=account.id
+            %td.first=account.username
             %td=account.name
             %td=account.surname
             %td=account.email
