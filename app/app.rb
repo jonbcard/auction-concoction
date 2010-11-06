@@ -2,7 +2,7 @@ class AuctionNow < Padrino::Application
   register Padrino::Mailer
   register Padrino::Helpers
   register CompassInitializer
-
+  register Padrino::Admin::AccessControl
 
   ##
   # Application configuration options
@@ -17,6 +17,7 @@ class AuctionNow < Padrino::Application
   # layout  :my_layout          # Layout can be in views/layouts/foo.ext or views/foo.ext (default :application)
   #
 
+
   ##
   # You can configure for a specified environment like:
   #
@@ -25,7 +26,7 @@ class AuctionNow < Padrino::Application
   #     disable :asset_stamp # no asset timestamping for dev
   #   end
   #
-
+  #
   ##
   # You can manage errors like:
   #

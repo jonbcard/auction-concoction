@@ -1,0 +1,24 @@
+.group
+  =f.label :title
+  =f.error_message_on :title
+  =f.text_field :title, :class => :text_field
+
+.group
+  =f.label :auction_date
+  =f.error_message_on :auction_date
+  =f.text_field :auction_date, :class => :text_field
+
+.group
+  =f.label :description
+  =f.error_message_on :description
+  =f.text_field :description, :class => :text_field
+
+.group.navform.wat-cf
+  =f.submit pat(:save), :class => :form_button
+  &nbsp;|&nbsp;
+  =link_to pat(:cancel), url(:auctions, :index), :class => :button_to
+
+:javascript
+  $(document).ready(function(){
+    $( "#auction_auction_date" ).datepicker();
+  });

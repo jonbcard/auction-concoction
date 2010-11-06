@@ -1,0 +1,28 @@
+!!! Strict
+%html{:lang => "en", :xmlns => "http://www.w3.org/1999/xhtml"}
+  %head
+    %meta{:content => "text/html; charset=utf-8", "http-equiv" => "Content-Type"}
+    %title Auction Floor
+    =stylesheet_link_tag :layout, :theme, 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css'
+    %script{:type => 'text/javascript',
+            :src => 'http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js'}
+    %script{:type => 'text/javascript',
+            :src => 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js'}
+  %body
+    #container
+      #header
+        %h1=link_to "Auction Floor"
+        #user-navigation
+          %ul.wat-cf
+            %li=link_to 'Logout', '/admin/sessions/destroy', :method => :delete
+        #main-navigation
+          %ul.wat-cf
+            Main Navigation
+      #wrapper.wat-cf
+        #main
+          =yield
+          #footer
+            .block
+              %p
+                Copyright &copy; #{Time.now.year} Pliosoft - Auction Floor
+        #sidebar=yield_content :sidebar

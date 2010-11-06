@@ -1,0 +1,11 @@
+.block
+  .secondary-navigation
+    %ul.wat-cf
+      %li.first=link_to pat(:list), url(:auctions, :index)
+      %li=link_to pat(:new), url(:auctions, :new)
+      %li.active=link_to pat(:edit), url(:auctions, :edit, :id => @auction.id)
+  .content
+    %h2.title Edit Auction
+    .inner
+      -form_for :auction, url(:auctions, :edit, :id => @auction.id), :method => :put, :class => :form do |f|
+        =partial "auctions/form", :locals => { :f => f }

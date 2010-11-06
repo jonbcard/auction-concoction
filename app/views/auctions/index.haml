@@ -1,0 +1,25 @@
+.block
+  .secondary-navigation
+    %ul.wat-cf
+      %li.first.active=link_to pat(:list), url(:auctions, :index)
+      %li=link_to pat(:new), url(:auctions, :new)
+  .content
+    %h2.title All Auctions
+    .inner
+      %table.table
+        %tr
+          %th.first=mat(:auction, :title)
+          %th=mat(:auction, :auction_date)
+          %th=mat(:auction, :description)
+          %th.last="&nbsp;"
+        -@auctions.each do |auction|
+          %tr
+            %td.first=auction.title
+            %td=auction.auction_date
+            %td=auction.description
+            %td.last
+              =button_to pat(:edit), url(:auctions, :edit, :id => "#{auction.id}"), :method => :get, :class => :button_to
+              ="|"
+              =button_to pat(:cancel_auction), url(:auctions, :destroy, :id => "#{auction.id}"), :method => :delete, :class => :button_to
+      .actions-bar.wat-cf
+        .actions="&nbsp;"

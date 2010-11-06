@@ -1,4 +1,6 @@
 @import "compass/css3";
+@import "fancy-buttons";
+
 
 $white : #FFF;
 $green: #222;
@@ -142,11 +144,9 @@ hr {
 /* tables */
 .table {
   th {
+    padding: 5px;
     background: #253618;
     color: $white; }
-
-  tr th { 
-    padding: 5px; }
 
   td {
     border-bottom:1px solid #F0F0EE;}
@@ -166,6 +166,8 @@ hr {
 }
 
 .form input.button {
+  // Deprecated: use fancy-buttons instead
+  // TODO: Remove uses of this
   padding: 5px 10px 5px 10px;
   background-color:$dark-green;
   text-decoration:none;
@@ -174,10 +176,22 @@ hr {
   font-size: 14px;
   border:0px;
   margin:0px;
+
+  &:hover {
+    background: #81B953;
+  }
 }
 
-.form .button:hover {
-  background: #81B953;
+.form input.form_button {
+  padding: 5px 10px;
+  @include fancy-button($dark-green);
+}
+
+.form a {
+  // TODO: Some layout leaking in here
+  font-size:12px;
+  color:#A72D2E;
+  cursor:pointer;
 }
 
 /* flash-messages */
