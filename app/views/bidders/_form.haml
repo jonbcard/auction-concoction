@@ -1,0 +1,24 @@
+.group
+  =f.label :number
+  =f.error_message_on :number
+  =f.text_field :number, :class => :text_field
+
+.group
+  =f.label :first_name
+  =f.error_message_on :first_name
+  =f.text_field :first_name, :class => :text_field
+
+.group
+  =f.label :last_name
+  =f.error_message_on :last_name
+  =f.text_field :last_name, :class => :text_field
+
+.group
+  =f.label :id_number
+  =f.error_message_on :id_number
+  =f.text_field :id_number, :class => :text_field
+
+.group.navform.wat-cf
+  =f.submit pat(:save), :class => :form_button
+  &nbsp;|&nbsp;
+  =link_to pat(:cancel), url(:bidders, :index, :auctions_id => @auction.id), :class => :button_to
