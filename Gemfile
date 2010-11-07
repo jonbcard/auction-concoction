@@ -8,6 +8,7 @@ gem 'thin' # or mongrel
 # Component requirements
 gem 'compass'
 gem 'haml'
+gem 'fancy-buttons'
 gem 'mongo_mapper'
 gem 'bson_ext', :require => "mongo"
 

@@ -13,7 +13,7 @@
           %th=mat(:auction, :description)
           %th.last="&nbsp;"
         -@auctions.each do |auction|
-          %tr
+          %tr{:onClick => "document.location=\'/auctions/#{auction.id}/bidders\'"}
             %td.first=auction.title
             %td=auction.auction_date
             %td=auction.description

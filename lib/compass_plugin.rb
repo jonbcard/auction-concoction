@@ -5,6 +5,7 @@
 module CompassInitializer
   def self.registered(app)
     require 'sass/plugin/rack'
+    require 'fancy-buttons'
 
     Compass.configuration do |config|
       config.project_path = Padrino.root

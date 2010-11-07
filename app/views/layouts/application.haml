@@ -17,8 +17,10 @@
             %li=link_to 'Logout', '/admin/sessions/destroy', :method => :delete
         #main-navigation
           %ul.wat-cf
-            Main Navigation
+            %li
+              =link_to "Auctions", "/auctions"
       #wrapper.wat-cf
+        .flash=[:error, :warning, :notice].map { |type| flash_tag(type, :class => "message #{type}") }.join
         #main
           =yield
           #footer

@@ -1,10 +1,10 @@
 @import "compass/css3";
 @import "fancy-buttons";
 
-
 $white : #FFF;
 $green: #222;
 $dark-green: #3B5526;
+$highlight: #ffc;
 
 .small { font-size:11px; }
 .hightlight { background-color:#d6e7c7; }
@@ -147,6 +147,10 @@ hr {
     padding: 5px;
     background: #253618;
     color: $white; }
+    
+  tr {
+    &:hover {
+      background: $highlight; }}
 
   td {
     border-bottom:1px solid #F0F0EE;}
@@ -163,23 +167,6 @@ hr {
 .form input.text_field, .form input.password_field, .form textarea.text_area {
   width: 100%;
   border: 1px solid #262626;
-}
-
-.form input.button {
-  // Deprecated: use fancy-buttons instead
-  // TODO: Remove uses of this
-  padding: 5px 10px 5px 10px;
-  background-color:$dark-green;
-  text-decoration:none;
-  cursor: pointer;
-  color: $white;
-  font-size: 14px;
-  border:0px;
-  margin:0px;
-
-  &:hover {
-    background: #81B953;
-  }
 }
 
 .form input.form_button {

@@ -3,7 +3,7 @@
   %head
     %meta{:content => "text/html; charset=utf-8", "http-equiv" => "Content-Type"}
     %title Auction Floor :: Login
-    =stylesheet_link_tag "/stylesheets/base.css", "/stylesheets/style.css"
+    =stylesheet_link_tag "/stylesheets/layout.css", "/stylesheets/theme.css"
   %body
     #container
       #box
@@ -21,4 +21,4 @@
                   %label.label.right Password
                 .right=password_field_tag :password, :value => params[:password], :class => :text_field
               .group.navform.wat-cf
-                .right=submit_tag('Sign In', :class => :button)
+                .right=submit_tag('Sign In', :class => :form_button)
