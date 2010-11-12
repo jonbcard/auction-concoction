@@ -1,0 +1,106 @@
+:javascript
+  // This page could use a more unobtrusive JS approach, but gets 
+  // the trick done for now
+  $(document).ready(function(){ 
+    // Setup to submit the form when 'enter' is pressed
+    $('input').keypress(function(e){
+      if(e.which == 13){
+        $('#sale').submit();
+      }
+    });
+    ko.applyBindings(viewModel);
+  });
+  
+  $(function() {
+    $("#lot").focus();
+    $('#qty').val('1');
+  });
+  
+  var viewModel = {
+      validateSale: function(){
+        // Do pre-submit JS validation
+        // TODO : implement
+        return true;
+      },
+      lastErrorsFull: new ko.observable(""),
+      lastErrors: new ko.observable({}),
+      sales: new ko.observableArray(#{@auction.sales.nil? ? '[]' : @auction.sales.to_json}),
+      error: function(field) {
+        var val = viewModel.lastErrors()[field];
+        return val == undefined ? "" : val;
+      },
+      addSale: function (form) {
+        $.ajax({
+            type: "post", 
+            url: "/auctions/#{@auction.id}/sales/new", 
+            data: $("#sale").serialize(), 
+            dataType: 'json',
+            success: function(results){
+              if(results.errors){
+                viewModel.lastErrorsFull(results.errors_full);
+                viewModel.lastErrors(results.errors);
+              } else {
+                viewModel.lastErrorsFull("");
+                viewModel.lastErrors({lot:"", description:"", bidder:"", price:"", quantity:""});
+                viewModel.sales.unshift(results);
+                $('#sale')[0].reset();
+                $('#qty').val('1');
+                $('#lot').focus();
+                
+              }
+            },
+            error: function(request, status, error_thrown){
+              alert(error_thrown);  
+            }
+        });
+      }
+    };  
+.flash
+  .message.error{:'data-bind' => "text: lastErrorsFull, visible: lastErrorsFull() != ''"} 
+.block
+  .secondary-navigation
+    %ul.wat-cf
+      %li.first.active=link_to pat(:record)
+  .content
+    %h2.title Auction :: #{@auction.title} :: Sales
+    .inner
+      %div{:'data-bind' => 'template: "salesListTemplate"'}
+      %script{:type => "text/html", :id => "salesListTemplate"}
+        %form.form{:id => 'sale',:method => 'post', :"data-bind" => 'submit: addSale'}
+          %table.table
+            %tr
+              %th.first Lot #
+              %th Description
+              %th Bidder
+              %th Price
+              %th Qty.
+              %th.last
+            %tr
+              %td
+                %input{:id => 'lot', :type => 'text', :name => 'sale[lot]', :class => "text_field", :style => "width:50px"  } 
+              %td
+                %input{:type => 'text', :name => 'sale[description]', :class => "text_field", :style => "width:160px" }
+              %td
+                %input{:type => 'text', :name=> 'sale[bidder]', :class => "text_field", :style => "width:50px" }  
+              %td
+                %input{:type => 'text', :name => 'sale[price]', :class => "text_field", :style => "width:50px" } 
+              %td
+                %input{:id => 'qty', :type => 'text', :name => 'sale[quantity]', :class => "text_field", :style => "width:30px" } 
+              %td
+                %input.formButton{:id => 'submit', :type => 'submit', :name => 'Submit', 
+                                  :class => "form_button",:tabindex => "6"}
+            \{{each(i, sale) sales()}} 
+            %tr
+              %td
+                %span{:'data-bind' => "text: sale.lot"} 
+              %td
+                %span{:'data-bind' => "text: sale.description"} 
+              %td
+                %span{:'data-bind' => "text: sale.bidder"} 
+              %td
+                %span{:'data-bind' => "text: sale.price"} 
+              %td
+                %span{:'data-bind' => "text: sale.quantity"}
+              %td
+                
+            \{{/each}}

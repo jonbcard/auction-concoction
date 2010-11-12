@@ -23,7 +23,7 @@ class Account
   validates_uniqueness_of   :username,    :case_sensitive => false
   validates_uniqueness_of   :email,    :case_sensitive => false
   validates_format_of       :email,    :with => /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i
-  validates_format_of       :role,     :with => /[A-Za-z]/
+  validates_format_of       :role,     :with => /[A-Za-z]/m
 
   # Callbacks
   before_save :generate_password

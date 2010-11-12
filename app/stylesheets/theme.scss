@@ -38,8 +38,7 @@ hr {
 
     h2 { margin-left: 15px; }}
 
-  .content { border: 1px solid #81B953; }
-}
+  .content { border: 1px solid #81B953; }}
 
 #sidebar {
   h3 {
@@ -60,8 +59,7 @@ hr {
       text-decoration: none; }
     &:hover, &:active {
       background: #D3E8C1;
-      color: $white; }}
-}
+      color: $white; }}}
 
 #main-navigation {
   background: #44721e;
@@ -86,11 +84,7 @@ hr {
 
       &:hover,&:link,&:visited,&:active {
         text-decoration: none;
-        color: $white;
-      }
-    }
-  }
-}
+        color: $white; }}}}
 
 .secondary-navigation {
   background: $dark-green;
@@ -121,16 +115,14 @@ hr {
 
   p {
     margin: 0;
-    padding: 5px; }
-}
+    padding: 5px; }}
 
 /* pagination */
 
 .pagination span.current {
   background: #262626;
   color: $white;
-  border-color: #262626;
-}
+  border-color: #262626; }
 
 .pagination a {
   color: #262626;
@@ -138,8 +130,7 @@ hr {
 
   &:hover {
     color: $white;
-    background: #262626; }
-}
+    background: #262626; }}
 
 /* tables */
 .table {
@@ -262,7 +253,7 @@ ul.list li .item .avatar {
 
 #sidebar, #sidebar .block, #main .block, 
 #sidebar ul.navigation, ul.list li, 
-#footer .block, .form input.button, #box .block {
+#footer .block, #box .block {
   @include border-bottom-left-radius(4px);
   @include border-bottom-right-radius(4px);
 }

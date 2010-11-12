@@ -8,13 +8,15 @@ AuctionNow.controllers :bidders, :parent => :auctions do
   
   get :new do
     @auction = Auction.find(params[:auctions_id])
+    @bidder = Bidder.new()
     render 'bidders/new'
   end
 
   post :new do
+    @bidder = Bidder.new(params[:bidder])
     @auction = Auction.find(params[:auctions_id])
-    @auction.bidders << Bidder.new(params[:bidder])
-    if @auction.save
+    @auction.bidders << @bidder
+    if @bidder.valid? && @auction.save
       flash[:notice] = 'Bidder was successfully created.'
       redirect url(:bidders, :index, :auctions_id => params[:auctions_id])
     else
@@ -31,13 +33,13 @@ AuctionNow.controllers :bidders, :parent => :auctions do
 
   put :edit, :with => :id do
     @auction = Auction.find(params[:auctions_id])
-    @bidder = @auction.bidders.detect {|bidder| bidder.id.to_s == params[:id]}
-    if @bidder.update_attributes(params[:bidder])
-      puts "UPDATED ATTRIBUTES"
+    existing_bidder = @auction.bidders.detect {|bidder|  bidder.id.to_s == params[:id] }
+    # TODO: ugly as heck 
+    @bidder = Bidder.new(params[:bidder])
+    if @bidder.valid? && existing_bidder.update_attributes(params[:bidder])
       flash[:notice] = 'Bidder was successfully updated.'
       redirect url(:bidders, :index, :auctions_id => params[:auctions_id])
     else
-      puts "COULD NOT UPDATE ATTRIBUTES"
       render 'bidders/edit'
     end
   end

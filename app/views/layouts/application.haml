@@ -8,6 +8,9 @@
             :src => 'http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js'}
     %script{:type => 'text/javascript',
             :src => 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js'}
+    %script{:type => 'text/javascript', :src => '/javascripts/jquery.tmpl.js'}
+    %script{:type => 'text/javascript', :src => '/javascripts/json2.js'}
+    %script{:type => 'text/javascript', :src => '/javascripts/knockout-1.1.0.js'}
   %body
     #container
       #header
@@ -27,4 +30,5 @@
             .block
               %p
                 Copyright &copy; #{Time.now.year} Pliosoft - Auction Floor
-        #sidebar=yield_content :sidebar
+        -# Yeah - it's a pretty ugly way to determine the partial to render... TODO 
+        #sidebar=@auction.nil? ? "": partial('/auctions/sidebar')
