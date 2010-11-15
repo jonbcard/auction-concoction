@@ -15,8 +15,7 @@ AuctionNow.controllers :bidders, :parent => :auctions do
   post :new do
     @bidder = Bidder.new(params[:bidder])
     @auction = Auction.find(params[:auctions_id])
-    @auction.bidders << @bidder
-    if @bidder.valid? && @auction.save
+    if @auction.add_bidder_and_save(@bidder)
       flash[:notice] = 'Bidder was successfully created.'
       redirect url(:bidders, :index, :auctions_id => params[:auctions_id])
     else

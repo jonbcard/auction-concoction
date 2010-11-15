@@ -4,18 +4,28 @@ class Bidder
 
   # Keys
   key  :number,     String, :required => true
-  key  :first_name, String
-  key  :last_name,  String
-  key  :id_number,  String
+  key  :first_name, String, :required => true
+  key  :last_name,  String, :required => true
+  key  :id_number,  String, :required => true
   timestamps!
-  
+
   belongs_to :auction
 
-  # Validations
-  #validates_presence_of :first_name
-  #validates_associated  :bidders
-  # Validations
-  #validates_presence_of     :title
-  #validates_length_of       :title, :within => 1..40
-  
+  validate :validate_number
+
+  private
+  def validate_number
+    self.auction.bidders.each { |bidder|
+      if(not bidder.number.equal?(self) && bidder.number == number)
+        errors.add(:number, "cannot be duplicate")
+      end
+    }
+    #self.auction.bidders.find { |bidder|
+    #  true
+    #}
+
+    #unless self.auction.bidders { |b| b != self && b.number == number}.nil?
+    #  errors.add(:number, "cannot be null")
+    #end
+  end
 end
