@@ -13,7 +13,7 @@
           %th=mat(:bidder, :last_name)
           %th.last="&nbsp;"
         -@auction.bidders.each do |bidder|
-          %tr{:onClick => "document.location=\'\'"}
+          %tr{:onClick => "document.location=\'bidders/checkout/#{bidder.id}\'"}
             %td.first=bidder.number
             %td=bidder.first_name
             %td=bidder.last_name

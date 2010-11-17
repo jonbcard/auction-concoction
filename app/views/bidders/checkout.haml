@@ -1,0 +1,16 @@
+.block
+  .secondary-navigation
+    %ul.wat-cf
+      %li.first=link_to pat(:list), url(:bidders, :index, :auctions_id => "#{@auction.id}")
+      %li=link_to pat(:new), url(:bidders, :new, :auctions_id => "#{@auction.id}")
+  .content
+    %h2.title Checkout Bidder
+    .inner
+      %table.table
+        -@sales.each do |sale|
+          %tr
+            %td.first=sale.lot
+            %td=sale.description
+            %td=sale.price
+            %td=sale.quantity
+            %td.last [TOTAL GOES HERE]

@@ -25,21 +25,26 @@ AuctionNow.controllers :bidders, :parent => :auctions do
   
   get :edit, :with => :id do
     @auction = Auction.find(params[:auctions_id])
-    # TODO : should be written better
-    @bidder = @auction.bidders.detect { |bidder| bidder.id.to_s == params[:id]}
+    @bidder = @auction.bidders.find(params[:id])
     render 'bidders/edit'
   end
 
   put :edit, :with => :id do
     @auction = Auction.find(params[:auctions_id])
-    existing_bidder = @auction.bidders.detect {|bidder|  bidder.id.to_s == params[:id] }
-    # TODO: ugly as heck 
-    @bidder = Bidder.new(params[:bidder])
-    if @bidder.valid? && existing_bidder.update_attributes(params[:bidder])
+    @bidder = @auction.bidders.detect {|bidder|  bidder.id.to_s == params[:id] }
+    @bidder.assign(params[:bidder])
+    if(@bidder.valid? && @bidder.save!)
       flash[:notice] = 'Bidder was successfully updated.'
       redirect url(:bidders, :index, :auctions_id => params[:auctions_id])
     else
       render 'bidders/edit'
     end
+  end
+
+  get :checkout, :with=> :id do
+    @auction = Auction.find(params[:auctions_id])
+    @bidder = @auction.bidders.find(params[:id])
+    @sales = @auction.sales.find_all {|s|s.bidder == @bidder.number}
+    render 'bidders/checkout'
   end
 end

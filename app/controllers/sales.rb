@@ -8,7 +8,7 @@ AuctionNow.controllers :sales, :parent => :auctions do
   post :new do
     @auction = Auction.find(params[:auctions_id])
     sale = Sale.new(params[:sale])
-    if sale.valid? && @auction.sales << sale && @auction.save
+    if @auction.add_sale_and_save(sale)
       sale.to_json
     else
       {:errors => sale.errors.errors, :errors_full => sale.errors.full_messages}.to_json

@@ -2,7 +2,7 @@ AuctionNow.controllers :auctions do
   # TODO : Not a big fan of the current URL-scheme. To fix.
 
   get :index do
-    @auctions = Auction.all
+    @auctions = Auction.sort(:auction_date).all
     render 'auctions/index'
   end
 
