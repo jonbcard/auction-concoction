@@ -24,7 +24,7 @@
       },
       lastErrorsFull: new ko.observable(""),
       lastErrors: new ko.observable({}),
-      sales: new ko.observableArray(#{@auction.sales.nil? ? '[]' : @auction.sales.to_json}),
+      sales: new ko.observableArray(#{@auction.sales.nil? ? '[]' : @auction.sales.to_json}.reverse()),
       error: function(field) {
         var val = viewModel.lastErrors()[field];
         return val == undefined ? "" : val;

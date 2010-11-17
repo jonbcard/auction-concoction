@@ -6,8 +6,8 @@ class Sale
   key  :lot,          String, :required => true
   key  :description,  String, :required => true
   key  :bidder,       String, :required => true
-  key  :price,        String, :required => true
-  key  :quantity,     String, :required => true
+  key  :price,        Money,  :required => true
+  key  :quantity,     Integer, :required => true
   timestamps!
   
   embedded_in :auction
@@ -18,11 +18,18 @@ class Sale
   # different bidders when there is a quantity of more than 1.
   # Lots are not an indivisible unit.
   validate :validate_bidder
+  validate :validate_price
 
   private
   def validate_bidder
     unless auction.bidder_numbers.include?(bidder)
       errors.add(:bidder, "number must be registered.")
+    end
+  end
+  
+  def validate_price
+    unless price.cents > 0 
+      errors.add(:price, "must be in valid form and greater than zero")
     end
   end
 end

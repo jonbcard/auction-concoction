@@ -7,10 +7,23 @@
     %h2.title Checkout Bidder
     .inner
       %table.table
+        %tr
+          %th.first Lot
+          %th Description
+          %th Price/Unit
+          %th Qty
+          %th.last Total
+        -sum = Money.new(0)
         -@sales.each do |sale|
           %tr
-            %td.first=sale.lot
+            %td=sale.lot
             %td=sale.description
-            %td=sale.price
+            %td=sale.price.format
             %td=sale.quantity
-            %td.last [TOTAL GOES HERE]
+            -line_total = sale.price * sale.quantity
+            -sum += line_total
+            %td=line_total.format
+        %tr
+          %td{:colspan =>"4"} TOTAL AMOUNT:
+          %td=sum.format
+          

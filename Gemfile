@@ -9,6 +9,7 @@ gem 'thin' # or mongrel
 gem 'compass'
 gem 'haml'
 gem 'fancy-buttons'
+gem 'money'
 gem 'mongo_mapper'
 gem 'bson_ext', :require => "mongo"
 
