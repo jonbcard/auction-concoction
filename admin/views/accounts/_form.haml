@@ -1,22 +1,7 @@
-.group
-  =f.label :username
-  =f.error_message_on :username
-  =f.text_field :username, :class => :text_field
-
-.group
-  =f.label :first_name
-  =f.error_message_on :name
-  =f.text_field :name, :class => :text_field
-
-.group
-  =f.label :last_name
-  =f.error_message_on :surname
-  =f.text_field :surname, :class => :text_field
-
-.group
-  =f.label :email
-  =f.error_message_on :email
-  =f.text_field :email, :class => :text_field
+.group=f.simple_field :username
+.group=f.simple_field :first_name
+.group=f.simple_field :last_name
+.group=f.simple_field :email
 
 .group
   =f.label :password
@@ -34,5 +19,5 @@
   =f.select :role, :options => access_control.roles
 
 .group.navform.wat-cf
-  =f.submit pat(:save), :class => :button
-  =f.submit pat(:cancel), :onclick => "window.location='#{url(:accounts, :index)}';return false", :class => :button
+  =f.submit pat(:save), :class => :form_button
+  =f.submit pat(:cancel), :onclick => "window.location='#{url(:accounts, :index)}';return false", :class => :form_button

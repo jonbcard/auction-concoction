@@ -8,7 +8,7 @@
     #container
       #box
         #block-login.block
-          %h2 Login Box
+          %h2 Login
           .content.login
             .flash=[:error, :warning, :notice].map { |type| flash_tag(type, :class => "message #{type}") }.join
             -form_tag(url(:sessions, :create), :class => 'form login') do
