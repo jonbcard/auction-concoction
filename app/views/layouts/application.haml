@@ -3,14 +3,10 @@
   %head
     %meta{:content => "text/html; charset=utf-8", "http-equiv" => "Content-Type"}
     %title Auction Floor
-    =stylesheet_link_tag :layout, :theme, 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css'
-    %script{:type => 'text/javascript',
-            :src => 'http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js'}
-    %script{:type => 'text/javascript',
-            :src => 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js'}
-    %script{:type => 'text/javascript', :src => '/javascripts/jquery.tmpl.js'}
-    %script{:type => 'text/javascript', :src => '/javascripts/json2.js'}
-    %script{:type => 'text/javascript', :src => '/javascripts/knockout-1.1.0.js'}
+    = stylesheet_link_tag :layout, :theme, 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css'
+    = javascript_include_tag 'http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js', |
+      'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js', |
+      :"jquery.tmpl", :json2, :"knockout-1.1.0", :application
   %body
     #container
       #header
@@ -20,8 +16,7 @@
             %li=link_to 'Logout', '/admin/sessions/destroy', :method => :delete
         #main-navigation
           %ul.wat-cf
-            %li
-              =link_to "Auctions", "/auctions"
+            %li.active=link_to "Auctions", "/auctions"
       #wrapper.wat-cf
         .flash=[:error, :warning, :notice].map { |type| flash_tag(type, :class => "message #{type}") }.join
         #main
