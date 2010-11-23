@@ -47,4 +47,10 @@ AuctionNow.controllers :bidders, :parent => :auctions do
     @sales = @auction.sales.find_all {|s|s.bidder == @bidder.number}
     render 'bidders/checkout'
   end
+
+  post :checkout, :with => :id do
+    @auction = Auction.find(params[:auctions_id])
+    @bidder = @auction.bidders.find(params[:id])
+    @bidder.status = "INACTIVE"
+  end
 end

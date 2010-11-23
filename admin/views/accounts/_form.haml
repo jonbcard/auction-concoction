@@ -5,7 +5,4 @@
 .group=f.simple_field :password, :type => :password
 .group=f.simple_field :password_confirmation, :type => :password
 .group=f.simple_field :role, :type => :select, :options => access_control.roles
-.group.navform.wat-cf
-  
-  =f.submit pat(:save), :class => :form_button
-  =f.submit pat(:cancel), :onclick => "window.location='#{url(:accounts, :index)}';return false", :class => :form_button
+.group.navform.wat-cf=f.simple_submit url(:accounts, :index)

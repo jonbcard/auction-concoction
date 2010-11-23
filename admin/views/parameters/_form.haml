@@ -1,4 +1,2 @@
-.group
-  =f.label :username
-  =f.error_message_on :username
-  =f.text_field :username, :class => :text_field
+.group=f.simple_field :standard_fee_pct
+.group.navform.wat-cf=f.simple_submit url(:parameters, :index)

@@ -24,6 +24,15 @@
             -sum += line_total
             %td=line_total.format
         %tr
+          %td{:colspan =>"4"} Subtotal:
+          %td=sum.format
+        %tr
+          %td{:colspan =>"3"} Buyer's Fee:
+          %td=AppParameters.get.standard_fee_pct
+          %td=(AppParameters.get.standard_fee_pct/100)+1
+        %tr
           %td{:colspan =>"4"} TOTAL AMOUNT:
           %td=sum.format
+      -form_for :auction, nil, :method => :put, :class => :form do |f|
+        =f.simple_submit("/auctions/#{@auction.id}/bidders", :submit_text => "Checkout")
           

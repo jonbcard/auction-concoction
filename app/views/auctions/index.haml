@@ -13,7 +13,7 @@
           %th=mat(:auction, :description)
           %th.last="&nbsp;"
         -@auctions.each do |auction|
-          %tr{:onClick => "document.location=\'/auctions/#{auction.id}/bidders\'"}
+          %tr.clickable{:onClick => "document.location=\'/auctions/#{auction.id}/bidders\'"}
             %td.first=auction.title
             %td=auction.auction_date
             %td=auction.description
@@ -21,6 +21,7 @@
               =button_to pat(:edit), url(:auctions, :edit, :id => "#{auction.id}"), :method => :get, :class => :button_to
               ="|"
               =button_to( pat(:cancel_auction), url(:auctions, :destroy, :id => "#{auction.id}"), 
-                      :method => :delete, :class => :button_to)
+                      :method => :delete, :class => :button_to, 
+                      :'data-confirm' => "Are you sure you want to remove this record?")
       .actions-bar.wat-cf
         .actions="&nbsp;"

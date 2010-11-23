@@ -140,8 +140,9 @@ hr {
     color: $white; }
     
   tr {
-    &:hover {
-      background: $highlight; }}
+    &.clickable:hover {
+      background: $highlight;
+      cursor: pointer; }}
 
   td {
     border-bottom:1px solid #F0F0EE;}

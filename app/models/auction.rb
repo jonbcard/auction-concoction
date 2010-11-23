@@ -14,6 +14,7 @@ class Auction
   many :sales
 
   def add_bidder_and_save(bidder)
+    bidder.status = "ACTIVE"
     bidders << bidder
     bidder.valid? && save
   end

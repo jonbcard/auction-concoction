@@ -1,3 +1,21 @@
+:javascript
+  String.prototype.startsWith = function(str){
+    // TODO: kind of slow implementation. It would be nice
+    // to have this check as lightening fast as possible.
+    return (this.indexOf(str) === 0);
+  }
+
+  $(document).ready(function(){
+    ko.applyBindings(viewModel);
+  });
+
+  var viewModel = {
+    numberFilter : new ko.observable(""),
+    showInactive : new ko.observable(false),
+    bidders : new ko.observableArray(#{@auction.bidders.nil? ? '[]' : @auction.bidders.to_json})
+
+  };
+
 .block
   .secondary-navigation
     %ul.wat-cf
@@ -6,18 +24,36 @@
   .content
     %h2.title Auction :: #{@auction.title} :: Bidders
     .inner
-      %table.table
-        %tr
-          %th.first=mat(:bidder, :number)
-          %th=mat(:bidder, :first_name)
-          %th=mat(:bidder, :last_name)
-          %th.last="&nbsp;"
-        -@auction.bidders.each do |bidder|
-          %tr{:onClick => "document.location=\'bidders/checkout/#{bidder.id}\'"}
-            %td.first=bidder.number
-            %td=bidder.first_name
-            %td=bidder.last_name
+      Filter by Number:
+      %input{:type => 'text', :class => "text_field", :style => "width:50px", :'data-bind' => 'value:numberFilter,valueUpdate:"keyup"' }
+      &nbsp;&nbsp;|&nbsp;&nbsp;Show Inactive?
+      %input{:type => 'checkbox', :'data-bind' => 'value: showInactive'}
+      %br
+      %br
+      %div{:'data-bind' => 'template: "biddersListTemplate"'}
+      %script{:type => "text/html", :id => "biddersListTemplate"}
+        %table.table
+          %tr
+            %th.first=mat(:bidder, :number)
+            %th=mat(:bidder, :first_name)
+            %th=mat(:bidder, :last_name)
+            %th=mat(:bidder, :status)
+            %th.last="&nbsp;"
+          \{{each(i, bidder) bidders()}}
+          %tr.clickable{:'data-bind' => "visible: bidder.number.startsWith(viewModel.numberFilter())",
+                        :onClick => "document.location=\'bidders/checkout/${bidder.id}\'"}
+            %td
+              %span{:'data-bind' => "text: bidder.number"}
+            %td
+              %span{:'data-bind' => "text: bidder.first_name"}
+            %td
+              %span{:'data-bind' => "text: bidder.last_name"}
+            %td
+              %span{:'data-bind' => "text: bidder.status, style: { color: bidder.status == 'ACTIVE' ? 'green' : 'red' }"}
             %td.last
-              =button_to pat(:edit), url(:bidders, :edit, :id => "#{bidder.id}", :auctions_id => "#{@auction.id}"), :method => :get, :class => :button_to
+              %form{:class => "button_to", :method=> "get", :action=>"bidders/edit/${bidder.id}"}
+                %input{:type=>"submit", :value=>"Edit"}
+          \{{/each}}
+
       .actions-bar.wat-cf
         .actions="&nbsp;"
