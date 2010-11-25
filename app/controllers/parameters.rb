@@ -1,4 +1,4 @@
-Admin.controllers :parameters do
+AuctionNow.controllers :parameters do
 
   get :index do
     @app_parameters = AppParameters.get

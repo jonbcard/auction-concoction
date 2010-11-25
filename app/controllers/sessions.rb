@@ -1,4 +1,4 @@
-Admin.controllers :sessions do
+AuctionNow.controllers :sessions do
 
   get :new do
     render "/sessions/new", nil, :layout => false

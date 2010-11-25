@@ -1,4 +1,4 @@
-Admin.controllers :accounts do
+AuctionNow.controllers :accounts do
 
   get :index do
     @accounts = Account.all

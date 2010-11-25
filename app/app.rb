@@ -17,7 +17,24 @@ class AuctionNow < Padrino::Application
   # layout  :my_layout          # Layout can be in views/layouts/foo.ext or views/foo.ext (default :application)
   #
   set :default_builder, 'SimpleFormBuilder'
-  
+  set :login_page, "/sessions/new"
+  disable :store_location
+
+  access_control.roles_for :any do |role|
+    role.protect "/"
+    role.allow "/sessions"
+  end
+
+  access_control.roles_for :admin do |role|
+    role.project_module :auctions, "/auctions"
+    role.project_module :accounts, "/accounts"
+    role.project_module :parameters, "/parameters"
+  end
+
+  access_control.roles_for :clerk do |role|
+    role.project_module :auctions, "/auctions"
+  end
+
   ##
   # You can configure for a specified environment like:
   #

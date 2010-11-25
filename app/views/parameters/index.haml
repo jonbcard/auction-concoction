@@ -7,5 +7,3 @@
     .inner
       -form_for @app_parameters, url(:parameters, :update), :method => :put, :class => :form do |f|
         =partial "parameters/form", :locals => { :f => f }
-
--content_for :sidebar, partial("base/sidebar")
