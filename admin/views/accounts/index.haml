@@ -16,7 +16,7 @@
           %th=mat(:account, :email)
           %th.last="&nbsp;"
         -@accounts.each do |account|
-          %tr
+          %tr{:class => cycle('odd','even')}
             %td.first=account.username
             %td=account.name
             %td=account.surname

@@ -12,9 +12,30 @@
   var viewModel = {
     numberFilter : new ko.observable(""),
     showInactive : new ko.observable(false),
-    bidders : new ko.observableArray(#{@auction.bidders.nil? ? '[]' : @auction.bidders.to_json})
+    bidders : #{@auction.bidders.nil? ? '[]' : @auction.bidders.to_json}
 
   };
+
+  // Some total rookie Javascript
+  // We'll see how this whole idea holds up under a stress test
+  viewModel.displayedBidders = ko.dependentObservable(function() {
+    var displayCount = 0;
+    var displayedBidders = [];
+    for ( var i = 0; i < this.bidders.length; i++ ) {
+      var b = this.bidders[i];
+      if( (viewModel.showInactive() || b.status == 'ACTIVE') &&
+           b.number.startsWith(viewModel.numberFilter())){
+        displayedBidders.push(b);
+        displayCount++;
+        if(displayCount == 20) break;
+      }
+    }
+    return displayedBidders;
+  }, viewModel);
+
+  viewModel.displayCount = ko.dependentObservable(function() {
+    return "Showing " + this.displayedBidders().length + " of " + this.bidders.length;
+  }, viewModel);
 
 .block
   .secondary-navigation
@@ -24,12 +45,13 @@
   .content
     %h2.title Auction :: #{@auction.title} :: Bidders
     .inner
-      Filter by Number:
-      %input{:type => 'text', :class => "text_field", :style => "width:50px", :'data-bind' => 'value:numberFilter,valueUpdate:"keyup"' }
-      &nbsp;&nbsp;|&nbsp;&nbsp;Show Inactive?
-      %input{:type => 'checkbox', :'data-bind' => 'value: showInactive'}
-      %br
-      %br
+      .block
+        %form.form
+          Filter by Number:
+          %input{:type => 'text', :class => "text_field", :style => "width:50px", :'data-bind' => 'value:numberFilter,valueUpdate:"keyup"' }
+          &nbsp;&nbsp;|&nbsp;&nbsp;Show Inactive?
+          %input{:type => 'checkbox', :'data-bind' => 'value: showInactive'}
+     
       %div{:'data-bind' => 'template: "biddersListTemplate"'}
       %script{:type => "text/html", :id => "biddersListTemplate"}
         %table.table
@@ -39,9 +61,8 @@
             %th=mat(:bidder, :last_name)
             %th=mat(:bidder, :status)
             %th.last="&nbsp;"
-          \{{each(i, bidder) bidders()}}
-          %tr.clickable{:'data-bind' => "visible: bidder.number.startsWith(viewModel.numberFilter())",
-                        :onClick => "document.location=\'bidders/checkout/${bidder.id}\'"}
+          \{{each(i, bidder) displayedBidders()}}
+          %tr.clickable{:onClick => "document.location=\'bidders/checkout/${bidder.id}\'", :'data-bind' => 'css:{odd : i%2==0, even: i%2==1}'}
             %td
               %span{:'data-bind' => "text: bidder.number"}
             %td
@@ -54,6 +75,7 @@
               %form{:class => "button_to", :method=> "get", :action=>"bidders/edit/${bidder.id}"}
                 %input{:type=>"submit", :value=>"Edit"}
           \{{/each}}
-
+          %span.highlight{:'data-bind' => 'text: displayCount'}
       .actions-bar.wat-cf
-        .actions="&nbsp;"
+        
+        .actions

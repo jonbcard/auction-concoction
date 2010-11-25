@@ -52,5 +52,13 @@ AuctionNow.controllers :bidders, :parent => :auctions do
     @auction = Auction.find(params[:auctions_id])
     @bidder = @auction.bidders.find(params[:id])
     @bidder.status = "INACTIVE"
+    if(@bidder.save!)
+      flash[:notice] = 'Bidder successfully checked out.'
+      redirect url(:bidders, :index, :auctions_id => params[:auctions_id])
+    else
+      # TODO: Handle the error case properly
+      flash[:error] = 'Unexpected error checking bidder out.'
+      redirect url(:bidders, :index, :auctions_id => params[:auctions_id])
+    end
   end
 end

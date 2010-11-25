@@ -39,6 +39,7 @@ AuctionNow.controllers :auctions do
     # TODO : Do not allow an auction to be
     # removed if it has associated data
     auction = Auction.find(params[:id])
+    
     if auction.destroy
       flash[:notice] = 'Auction was successfully destroyed.'
     else

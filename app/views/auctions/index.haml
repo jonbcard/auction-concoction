@@ -13,8 +13,8 @@
           %th=mat(:auction, :description)
           %th.last="&nbsp;"
         -@auctions.each do |auction|
-          %tr.clickable{:onClick => "document.location=\'/auctions/#{auction.id}/bidders\'"}
-            %td.first=auction.title
+          %tr.clickable{:onClick => "document.location=\'/auctions/#{auction.id}/bidders\'", :class => cycle('odd','even')}
+            %td=auction.title
             %td=auction.auction_date
             %td=auction.description
             %td.last
