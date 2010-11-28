@@ -1,0 +1,95 @@
+:javascript
+  // This page could use a more unobtrusive JS approach, but gets 
+  // the trick done for now
+  $(document).ready(function(){ 
+    // Setup to submit the form when 'enter' is pressed
+    $('input').keypress(function(e){
+      if(e.which == 13){
+        $('#sale').submit();
+      }
+    });
+    ko.applyBindings(viewModel);
+  });
+  
+  $(function() {
+    $("#lot").focus();
+    $('#qty').val('1');
+  });
+  
+  var viewModel = {
+      validateSale: function(){
+        // Do pre-submit JS validation
+        // TODO : implement
+        return true;
+      },
+      lastErrorsFull: new ko.observable(""),
+      lastErrors: new ko.observable({}),
+      sales: new ko.observableArray(#{@auction.sales.nil? ? '[]' : @auction.sales.to_json}.reverse()),
+      error: function(field) {
+        var val = viewModel.lastErrors()[field];
+        return val == undefined ? "" : val;
+      },
+      addSale: function (form) {
+        $.ajax({
+            type: "post", 
+            url: "/auctions/#{@auction.id}/lots/new",
+            data: $("#sale").serialize(), 
+            dataType: 'json',
+            success: function(results){
+              if(results.errors){
+                viewModel.lastErrorsFull(results.errors_full);
+                viewModel.lastErrors(results.errors);
+              } else {
+                viewModel.lastErrorsFull("");
+                viewModel.lastErrors({lot:"", description:"", bidder:"", price:"", quantity:""});
+                viewModel.sales.unshift(results);
+                $('#sale')[0].reset();
+                $('#qty').val('1');
+                $('#lot').focus();
+                
+              }
+            },
+            error: function(request, status, error_thrown){
+              alert(error_thrown);  
+            }
+        });
+      }
+    };  
+.flash
+  .message.error{:'data-bind' => "text: lastErrorsFull, visible: lastErrorsFull() != ''"} 
+.block
+  .secondary-navigation
+    %ul.wat-cf
+      %li.first.active=link_to pat(:record)
+  .content
+    %h2.title Auction :: #{@auction.title} :: Lots
+    .inner
+      %div{:'data-bind' => 'template: "lotsListTemplate"'}
+      %script{:type => "text/html", :id => "lotsListTemplate"}
+        %form.form{:id => 'lot',:method => 'post', :"data-bind" => 'submit: addLot'}
+          %table.table
+            %tr
+              %th.first Lot #
+              %th Description
+              %th Qty.
+              %th.last
+            %tr
+              %td
+                %input{:id => 'lot', :type => 'text', :name => 'lot[lot]', :class => "text_field", :style => "width:50px"  }
+              %td
+                %input{:type => 'text', :name => 'lot[description]', :class => "text_field", :style => "width:160px" }
+              %td
+                %input{:id => 'qty', :type => 'text', :name => 'lot[quantity]', :class => "text_field", :style => "width:30px" }
+              %td
+                %input.formButton{:id => 'submit', :type => 'submit', :name => 'Submit', 
+                                  :class => "form_button",:tabindex => "6"}
+            \{{each(i, lot) lots()}}
+            %tr
+              %td
+                %span{:'data-bind' => "text: lot.lot"}
+              %td
+                %span{:'data-bind' => "text: lot.description"}
+              %td
+                %span{:'data-bind' => "text: lot.quantity"}
+              %td  
+            \{{/each}}

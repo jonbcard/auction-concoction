@@ -1,10 +1,4 @@
 :javascript
-  String.prototype.startsWith = function(str){
-    // TODO: kind of slow implementation. It would be nice
-    // to have this check as lightening fast as possible.
-    return (this.indexOf(str) === 0);
-  }
-
   $(document).ready(function(){
     ko.applyBindings(viewModel);
   });
@@ -16,21 +10,11 @@
 
   };
 
-  // Some total rookie Javascript
-  // We'll see how this whole idea holds up under a stress test
   viewModel.displayedBidders = ko.dependentObservable(function() {
-    var displayCount = 0;
-    var displayedBidders = [];
-    for ( var i = 0; i < this.bidders.length; i++ ) {
-      var b = this.bidders[i];
-      if( (viewModel.showInactive() || b.status == 'ACTIVE') &&
-           b.number.startsWith(viewModel.numberFilter())){
-        displayedBidders.push(b);
-        displayCount++;
-        if(displayCount == 20) break;
-      }
-    }
-    return displayedBidders;
+    return ko.utils.arrayFilter(this.bidders, function(bidder) {
+      return (viewModel.showInactive() || bidder.status == 'ACTIVE') &&
+             bidder.number.startsWith(viewModel.numberFilter());
+    });
   }, viewModel);
 
   viewModel.displayCount = ko.dependentObservable(function() {
