@@ -34,7 +34,7 @@
           Filter by Number:
           %input{:type => 'text', :class => "text_field", :style => "width:50px", :'data-bind' => 'value:numberFilter,valueUpdate:"keyup"' }
           &nbsp;&nbsp;|&nbsp;&nbsp;Show Inactive?
-          %input{:type => 'checkbox', :'data-bind' => 'value: showInactive'}
+          %input{:type => 'checkbox', :'data-bind' => 'checked: showInactive'}
      
       %div{:'data-bind' => 'template: "biddersListTemplate"'}
       %script{:type => "text/html", :id => "biddersListTemplate"}
@@ -61,5 +61,4 @@
           \{{/each}}
           %span.highlight{:'data-bind' => 'text: displayCount'}
       .actions-bar.wat-cf
-        
         .actions
