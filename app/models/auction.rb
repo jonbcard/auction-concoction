@@ -12,6 +12,7 @@ class Auction
 
   many :bidders
   many :sales
+  many :lots
 
   def add_bidder_and_save(bidder)
     bidder.status = "ACTIVE"
@@ -22,6 +23,11 @@ class Auction
   def add_sale_and_save(sale)
     sales << sale
     sale.valid? && save
+  end
+
+  def add_lot_and_save(lot)
+    lots << lot
+    lot.valid? && save
   end
 
   def bidder_numbers

@@ -155,6 +155,9 @@ hr {
 
 
 /* forms */
+.form textarea.text_area {
+  resize: none;
+}
 
 .form input.text_field, .form input.password_field, .form textarea.text_area {
   width: 100%;

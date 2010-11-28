@@ -3,11 +3,7 @@
   // the trick done for now
   $(document).ready(function(){ 
     // Setup to submit the form when 'enter' is pressed
-    $('input').keypress(function(e){
-      if(e.which == 13){
-        $('#sale').submit();
-      }
-    });
+    submitOnEnter('#sale');
     ko.applyBindings(viewModel);
   });
   
@@ -22,9 +18,11 @@
         // TODO : implement
         return true;
       },
+      currentLot: new ko.observable(""),
       lastErrorsFull: new ko.observable(""),
       lastErrors: new ko.observable({}),
       sales: new ko.observableArray(#{@auction.sales.nil? ? '[]' : @auction.sales.to_json}.reverse()),
+      lots : #{@auction.lots.nil? ? '[]' : @auction.lots.to_json},
       error: function(field) {
         var val = viewModel.lastErrors()[field];
         return val == undefined ? "" : val;
@@ -46,7 +44,7 @@
                 $('#sale')[0].reset();
                 $('#qty').val('1');
                 $('#lot').focus();
-                
+                viewModel.currentLot("");
               }
             },
             error: function(request, status, error_thrown){
@@ -54,7 +52,15 @@
             }
         });
       }
-    };  
+  };
+
+  viewModel.currentLotDescription = ko.dependentObservable(function() {
+    for (var i = 0, j = this.lots.length; i < j; i++)
+      if (this.lots[i].number == viewModel.currentLot())
+        return this.lots[i].description;
+    return "";
+  }, viewModel);
+
 .flash
   .message.error{:'data-bind' => "text: lastErrorsFull, visible: lastErrorsFull() != ''"} 
 .block
@@ -76,17 +82,17 @@
               %th Qty.
               %th.last
             %tr
-              %td
-                %input{:id => 'lot', :type => 'text', :name => 'sale[lot]', :class => "text_field", :style => "width:50px"  } 
-              %td
-                %input{:type => 'text', :name => 'sale[description]', :class => "text_field", :style => "width:160px" }
-              %td
+              %td{:valign => 'top'}
+                %input{:id => 'lot', :type => 'text', :name => 'sale[lot]', :class => "text_field", :style => "width:50px", :'data-bind' => "value:currentLot"}
+              %td{:valign => 'top'}
+                %textarea{:name => 'sale[description]', :class => "text_area", :style => "width:200px", :'data-bind' => "text:currentLotDescription()"}
+              %td{:valign => 'top'}
                 %input{:type => 'text', :name=> 'sale[bidder]', :class => "text_field", :style => "width:50px" }  
-              %td
+              %td{:valign => 'top'}
                 %input{:type => 'text', :name => 'sale[price]', :class => "text_field", :style => "width:50px" } 
-              %td
+              %td{:valign => 'top'}
                 %input{:id => 'qty', :type => 'text', :name => 'sale[quantity]', :class => "text_field", :style => "width:30px" } 
-              %td
+              %td{:valign => 'top'}
                 %input.formButton{:id => 'submit', :type => 'submit', :name => 'Submit', 
                                   :class => "form_button",:tabindex => "6"}
             \{{each(i, sale) sales()}} 
