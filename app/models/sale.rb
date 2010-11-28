@@ -1,6 +1,5 @@
 class Sale
   include MongoMapper::EmbeddedDocument
-  plugin MongoMapper::Plugins::Timestamps 
 
   # Keys
   key  :lot,          String, :required => true
@@ -8,7 +7,6 @@ class Sale
   key  :bidder,       String, :required => true
   key  :price,        Money,  :required => true
   key  :quantity,     Integer, :required => true
-  timestamps!
   
   embedded_in :auction
   

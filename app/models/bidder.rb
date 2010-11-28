@@ -1,6 +1,5 @@
 class Bidder
   include MongoMapper::EmbeddedDocument
-  plugin MongoMapper::Plugins::Timestamps
 
   BIDDER_STATES = ["ACTIVE", "INACTIVE"]
 
@@ -10,7 +9,6 @@ class Bidder
   key  :last_name,  String, :required => true
   key  :id_number,  String, :required => true
   key  :status,     String
-  timestamps!
 
   embedded_in :auction
 

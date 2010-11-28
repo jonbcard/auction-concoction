@@ -7,7 +7,7 @@
   });
 
   $(function() {
-    $("#lot").focus();
+    $("#lot_number").focus();
     $('#qty').val('1');
   });
 
@@ -40,7 +40,7 @@
                 viewModel.lots.unshift(results);
                 $('#lot')[0].reset();
                 $('#qty').val('1');
-                $('#number').focus();
+                $('#lot_number').focus();
 
               }
             },
@@ -70,7 +70,7 @@
               %th.last
             %tr
               %td{:valign => 'top'}
-                %input{:id => 'lot', :type => 'text', :name => 'lot[number]', :class => "text_field", :style => "width:50px"  }
+                %input{:id => 'lot_number', :type => 'text', :name => 'lot[number]', :class => "text_field", :style => "width:50px"  }
               %td{:valign => 'top'}
                 %textarea{:name => 'lot[description]', :class => "text_area", :style => "width:200px" }
               %td{:valign => 'top'}
