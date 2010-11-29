@@ -6,13 +6,14 @@ AuctionNow.controllers :lots, :parent => :auctions do
   end
   
   post :new do
-    p "RECORDING NEW"
-    @auction = Auction.find(params[:auctions_id])
+    auction_id = BSON::ObjectId.from_string(params[:auctions_id])
     lot = Lot.new(params[:lot])
-    if @auction.add_lot_and_save(lot)
-      lot.to_json
-    else
-      {:errors => lot.errors.errors, :errors_full => lot.errors.full_messages}.to_json
+    if(not lot.valid?)
+      return {:errors => lot.errors.errors,
+              :errors_full => lot.errors.full_messages}.to_json
     end
+
+    Auction.push(auction_id, :lots => lot.to_mongo, :safe => true)
+    lot.to_json
   end
 end

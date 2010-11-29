@@ -2,10 +2,10 @@ class Sale
   include MongoMapper::EmbeddedDocument
 
   # Keys
-  key  :lot,          String, :required => true
-  key  :description,  String, :required => true
-  key  :bidder,       String, :required => true
-  key  :price,        Money,  :required => true
+  key  :lot,          String,  :required => true
+  key  :description,  String,  :required => true
+  key  :bidder,       String,  :required => true
+  key  :price,        Money,   :required => true
   key  :quantity,     Integer, :required => true
   
   embedded_in :auction
@@ -15,7 +15,7 @@ class Sale
   # can be resold multiple times (at different prices) to 
   # different bidders when there is a quantity of more than 1.
   # Lots are not an indivisible unit.
-  validate :validate_bidder
+  #validate :validate_bidder TODO: bring back validate_bidder (somehow)
   validate :validate_price
 
   private

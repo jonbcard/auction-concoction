@@ -8,7 +8,7 @@ class Lot
   
   embedded_in :auction
 
-  validate :validate_number
+  #validate :validate_number
 
   private
   def validate_number
