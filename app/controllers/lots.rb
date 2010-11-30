@@ -6,14 +6,12 @@ AuctionNow.controllers :lots, :parent => :auctions do
   end
   
   post :new do
-    auction_id = BSON::ObjectId.from_string(params[:auctions_id])
+    auction = Auction.find(params[:auctions_id])
     lot = Lot.new(params[:lot])
-    if(not lot.valid?)
+    if(!auction.add_lot(lot))
       return {:errors => lot.errors.errors,
               :errors_full => lot.errors.full_messages}.to_json
     end
-
-    Auction.push(auction_id, :lots => lot.to_mongo, :safe => true)
     lot.to_json
   end
 end

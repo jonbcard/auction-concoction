@@ -15,15 +15,7 @@ class Sale
   # can be resold multiple times (at different prices) to 
   # different bidders when there is a quantity of more than 1.
   # Lots are not an indivisible unit.
-  #validate :validate_bidder TODO: bring back validate_bidder (somehow)
   validate :validate_price
-
-  private
-  def validate_bidder
-    unless auction.bidder_numbers.include?(bidder)
-      errors.add(:bidder, "number must be registered.")
-    end
-  end
   
   def validate_price
     unless price.cents > 0 

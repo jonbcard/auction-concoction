@@ -1,10 +1,12 @@
 .block
   .secondary-navigation
     %ul.wat-cf
-      %li.first=link_to pat(:list), url(:bidders, :index, :auctions_id => "#{@auction.id}")
-      %li=link_to pat(:new), url(:bidders, :new, :auctions_id => "#{@auction.id}")
+      %li.first=link_to pat(:list), url(:bidders, :index, :auctions_id => @auction.id)
+      %li=link_to pat(:new), url(:bidders, :new, :auctions_id => @auction.id)
   .content
     %h2.title Edit Bidder
     .inner
       -form_for :bidder, nil, :method => :put, :class => :form do |f|
+        =f.hidden_field :id
+        =f.hidden_field :status
         =partial "bidders/form", :locals => { :f => f }

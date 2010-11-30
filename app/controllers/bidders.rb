@@ -15,7 +15,7 @@ AuctionNow.controllers :bidders, :parent => :auctions do
   post :new do
     @bidder = Bidder.new(params[:bidder])
     @auction = Auction.find(params[:auctions_id])
-    if @auction.add_bidder_and_save(@bidder)
+    if @auction.add_bidder(@bidder)
       flash[:notice] = 'Bidder was successfully created.'
       redirect url(:bidders, :index, :auctions_id => params[:auctions_id])
     else
@@ -31,12 +31,15 @@ AuctionNow.controllers :bidders, :parent => :auctions do
 
   put :edit, :with => :id do
     @auction = Auction.find(params[:auctions_id])
-    @bidder = @auction.bidders.detect {|bidder|  bidder.id.to_s == params[:id] }
-    @bidder.assign(params[:bidder])
-    if(@bidder.valid? && @bidder.save!)
+    @bidder = Bidder.new(params[:bidder])
+    @bidder.id = params[:id]
+    p "BEFORE"
+    if(@auction.update_bidder(@bidder))
       flash[:notice] = 'Bidder was successfully updated.'
       redirect url(:bidders, :index, :auctions_id => params[:auctions_id])
     else
+      p "INVALID - RENDERING"
+      p @bidder.errors.errors
       render 'bidders/edit'
     end
   end
@@ -52,13 +55,9 @@ AuctionNow.controllers :bidders, :parent => :auctions do
     @auction = Auction.find(params[:auctions_id])
     @bidder = @auction.bidders.find(params[:id])
     @bidder.status = "INACTIVE"
-    if(@bidder.save!)
-      flash[:notice] = 'Bidder successfully checked out.'
-      redirect url(:bidders, :index, :auctions_id => params[:auctions_id])
-    else
-      # TODO: Handle the error case properly
-      flash[:error] = 'Unexpected error checking bidder out.'
-      redirect url(:bidders, :index, :auctions_id => params[:auctions_id])
-    end
+    @bidder.save!
+    flash[:notice] = 'Bidder successfully checked out.'
+    redirect url(:bidders, :index, :auctions_id => params[:auctions_id])
+   
   end
 end
