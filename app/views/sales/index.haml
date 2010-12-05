@@ -1,16 +1,19 @@
 :javascript
-  // This page could use a more unobtrusive JS approach, but gets 
-  // the trick done for now
-  $(document).ready(function(){ 
-    // Setup to submit the form when 'enter' is pressed
-    submitOnEnter('#sale');
+  $(document).ready(function(){     
     ko.applyBindings(viewModel);
+    submitOnEnter('#sale');
+    reset();
   });
-  
-  $(function() {
-    $("#lot").focus();
+
+  reset = function(){
+    // TODO : kind of a weird mish-mash between dom and view-model handling.
+    viewModel.lastErrorsFull("");
+    viewModel.lastErrors({lot:"", description:"", bidder:"", price:"", quantity:""});
+    $('#sale')[0].reset();
     $('#qty').val('1');
-  });
+    $('#lot').focus();
+    viewModel.currentLot("");
+  }
   
   var viewModel = {
       validateSale: function(){
@@ -38,13 +41,8 @@
                 viewModel.lastErrorsFull(results.errors_full);
                 viewModel.lastErrors(results.errors);
               } else {
-                viewModel.lastErrorsFull("");
-                viewModel.lastErrors({lot:"", description:"", bidder:"", price:"", quantity:""});
                 viewModel.sales.unshift(results);
-                $('#sale')[0].reset();
-                $('#qty').val('1');
-                $('#lot').focus();
-                viewModel.currentLot("");
+                reset();
               }
             },
             error: function(request, status, error_thrown){

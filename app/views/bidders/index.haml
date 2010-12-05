@@ -56,8 +56,7 @@
             %td
               %span{:'data-bind' => "text: bidder.status, style: { color: bidder.status == 'ACTIVE' ? 'green' : 'red' }"}
             %td.last
-              %form{:class => "button_to", :method=> "get", :action=>"bidders/edit/${bidder.id}"}
-                %input{:type=>"submit", :value=>"Edit"}
+              =button_to "Edit", "bidders/edit/${bidder.id}", :method => :get, :class => :button_to
           \{{/each}}
           %span.highlight{:'data-bind' => 'text: displayCount'}
       .actions-bar.wat-cf

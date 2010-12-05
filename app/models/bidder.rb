@@ -10,6 +10,8 @@ class Bidder
   key  :id_number,  String, :required => true
   key  :status,     String
 
+  one  :receipt, :class_name => 'BidderReceipt'
+
   embedded_in :auction
 
   validate :validate_status

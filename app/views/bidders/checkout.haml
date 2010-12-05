@@ -4,35 +4,41 @@
       %li.first=link_to pat(:list), url(:bidders, :index, :auctions_id => @auction.id)
       %li=link_to pat(:new), url(:bidders, :new, :auctions_id => @auction.id)
   .content
-    %h2.title Checkout Bidder
+    %h2.title Checkout Bidder :: #{@receipt.last_name}, #{@receipt.first_name} (#{@receipt.number})
     .inner
-      %table.table
-        %tr
-          %th.first Lot
-          %th Description
-          %th Price/Unit
-          %th Qty
-          %th.last Total
-        -sum = Money.new(0)
-        -@sales.each do |sale|
+      -unless @receipt.purchases.nil?
+        %table.table
           %tr
-            %td=sale.lot
-            %td=sale.description
-            %td=sale.price.format
-            %td=sale.quantity
-            -line_total = sale.price * sale.quantity
-            -sum += line_total
-            %td=line_total.format
-        %tr
-          %td{:colspan =>"4"} Subtotal:
-          %td=sum.format
-        %tr
-          %td{:colspan =>"3"} Buyer's Fee:
-          %td=AppParameters.get.standard_fee_pct
-          %td=(AppParameters.get.standard_fee_pct/100)+1
-        %tr
-          %td{:colspan =>"4"} TOTAL AMOUNT:
-          %td=sum.format
-      -form_for :auction, nil, :method => :post, :class => :form do |f|
-        =f.simple_submit("/auctions/#{@auction.id}/bidders", :submit_text => "Checkout")
-          
+            %th.first Lot
+            %th Description
+            %th Price/Unit
+            %th Qty
+            %th.last Total
+          -@receipt.purchases.each do |sale|
+            %tr
+              %td=sale.lot
+              %td=sale.description
+              %td=sale.price.format
+              %td=sale.quantity
+              %td=sale.item_total.format
+          %tr
+            %td{:colspan =>"4"} Subtotal:
+            %td=@receipt.sub_total.format
+          %tr
+            %td{:colspan =>"3"} Buyer's Fee:
+            %td=@receipt.fee_percent.to_s + "%"
+            %td=@receipt.fee_amount.format
+          -@receipt.tax_lines.each do |tax|
+            %tr
+              %td{:colspan =>"3"}=tax.name
+              %td=tax.percent.to_s + "%"
+              %td=tax.amount.format
+          %tr
+            %td{:colspan =>"4"} TOTAL AMOUNT:
+            %td=@receipt.total.format
+      -if @receipt.new?
+        -form_for @receipt, nil, :method => :post, :class => :form do |f|
+          =f.simple_submit("/auctions/#{@auction.id}/bidders", :submit_text => "Checkout")
+      -else
+        %p Bidder has already been checked-out.
+        =button_to "Return to Bidders", "/auctions/#{@auction.id}/bidders", :method => :get, :class => :button_to

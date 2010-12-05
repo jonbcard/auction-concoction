@@ -5,6 +5,7 @@ class Auction
   key :title,            String, :required => true
   key :auction_date,     Date,   :required => true
   key :description,      String
+  
 
   many :bidders
   many :sales
@@ -42,6 +43,38 @@ class Auction
       validate_lot_unique(lot) &&
       push(:lots => lot.to_mongo) &&
       lots << lot
+  end
+
+  def create_receipt(bidder_id)
+    bidder = bidders.find(bidder_id)
+    bidder_receipt = BidderReceipt.new(
+      :auction    => self,
+      :bidder_id  => bidder.id,
+      :number     => bidder.number,
+      :first_name => bidder.first_name,
+      :last_name  => bidder.last_name,
+      :id_number  => bidder.id_number
+    )
+   
+    bidder_sales = sales.find_all {|s| s.bidder == bidder_receipt.number}
+    bidder_sales.each do |sale|
+      sale_hash = sale.to_mongo
+      sale_hash.delete(:bidder)
+      bidder_receipt.purchases << Purchase.new(sale_hash)
+    end
+    bidder_receipt.calculate_totals
+    bidder_receipt
+  end
+
+  def checkout_bidder(bidder_id)
+    receipt = create_receipt(bidder_id)
+    receipt.save!
+
+    bidder = bidders.find(bidder_id)
+    bidder.status = "INACTIVE"
+    bidder.receipt = receipt
+    update_bidder(bidder)
+    receipt
   end
 
   def bidder_numbers
