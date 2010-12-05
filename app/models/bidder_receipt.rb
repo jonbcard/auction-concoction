@@ -4,7 +4,7 @@ class BidderReceipt
   belongs_to  :auction
 
   # Keys
-  key  :bidder_id,  BSON::ObjectID, :index => true
+  key  :bidder_id,  BSON::ObjectId, :index => true
   key  :number,     String, :required => true
   key  :first_name, String, :required => true
   key  :last_name,  String, :required => true
