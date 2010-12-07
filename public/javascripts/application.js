@@ -19,19 +19,30 @@ var submitOnEnter = function(formId){
 $(document).ready(function(){
     // Setup for input fields
     $('input[data-type|="date"]').datepicker();
-	
-    // Setup for confirmation dialogs
-    $('form[data-confirm]').live('click', function(e) {
-        e.preventDefault();
-        $('#dialog').dialog({
-            resizable : false,
-            modal : true
-        });
-        $("#dialog").dialog("open");
-        return false;
-        if (!confirm($(this).attr('data-confirm'))) {
-            return false;
+
+    // Setup any confirmation dialogs
+    $("#dialog").dialog({
+      modal:true,
+      closeOnEscape:false,
+      autoOpen:false
+    });    
+    $("form[data-confirm]").bind("click",function(e){
+        var dialogText = $(this).attr("data-confirm");
+        var form = $(this);
+        $("#dialog").html(dialogText);
+        $("#dialog").dialog({
+        buttons : {
+          "Confirm" : function() {
+           form.trigger("submit")
+          },
+          "Cancel" : function() {
+            $(this).dialog("close");
+
+          }
         }
+      });
+      $("#dialog").dialog('open');
+      return false;
     });
-	
+    	
 });

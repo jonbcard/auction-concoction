@@ -21,8 +21,8 @@ module Padrino
         def simple_submit(cancel_url, options={})
             submit_text = options[:submit_text ]||"Save"
             submit(submit_text, :class => :form_button) \
-            + "&nbsp;&nbsp;|&nbsp;&nbsp;" \
-            + link_to("Cancel", cancel_url, :class => :button_to) \
+              + "&nbsp;&nbsp;|&nbsp;&nbsp;" \
+              + link_to("Cancel", cancel_url, :class => :button_to) \
         end
         
         def date_field(field, options={})

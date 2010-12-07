@@ -37,7 +37,8 @@
             %td{:colspan =>"4"} TOTAL AMOUNT:
             %td=@receipt.total.format
       -if @receipt.new?
-        -form_for @receipt, nil, :method => :post, :class => :form do |f|
+        -form_for @receipt, nil, :method => :post, :class => :form,
+          :'data-confirm' => "Would you like to complete checkout for this bidder?" do |f|
           =f.simple_submit("/auctions/#{@auction.id}/bidders", :submit_text => "Checkout")
       -else
         %p Bidder has already been checked-out.

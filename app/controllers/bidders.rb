@@ -44,14 +44,15 @@ AuctionNow.controllers :bidders, :parent => :auctions do
   get :checkout, :with=> :id do
     @auction = Auction.find(params[:auctions_id])
     bidder = @auction.bidders.find(params[:id])
-    @receipt =  !bidder.receipt.nil? ? bidder.receipt : @auction.create_receipt(params[:id])
+    @receipt =  !bidder.receipt.nil? ? bidder.receipt : bidder.create_receipt
     render 'bidders/checkout'
   end
 
   post :checkout, :with => :id do
     auction = Auction.find(params[:auctions_id])
+    bidder = auction.bidders.find(params[:id])
     # TODO : add some sort of checksum to make sure bidder has not changed
-    auction.checkout_bidder(params[:id])
+    bidder.checkout
     flash[:notice] = 'Bidder successfully checked out.'
     redirect url(:bidders, :index, :auctions_id => params[:auctions_id])
   end

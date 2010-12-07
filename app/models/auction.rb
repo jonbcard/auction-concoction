@@ -6,7 +6,6 @@ class Auction
   key :auction_date,     Date,   :required => true
   key :description,      String
   
-
   many :bidders
   many :sales
   many :lots
@@ -45,44 +44,6 @@ class Auction
       lots << lot
   end
 
-  def create_receipt(bidder_id)
-    bidder = bidders.find(bidder_id)
-    bidder_receipt = BidderReceipt.new(
-      :auction    => self,
-      :bidder_id  => bidder.id,
-      :number     => bidder.number,
-      :first_name => bidder.first_name,
-      :last_name  => bidder.last_name,
-      :id_number  => bidder.id_number
-    )
-   
-    bidder_sales = sales.find_all {|s| s.bidder == bidder_receipt.number}
-    bidder_sales.each do |sale|
-      sale_hash = sale.to_mongo
-      sale_hash.delete(:bidder)
-      bidder_receipt.purchases << Purchase.new(sale_hash)
-    end
-    bidder_receipt.calculate_totals
-    bidder_receipt
-  end
-
-  def checkout_bidder(bidder_id)
-    receipt = create_receipt(bidder_id)
-    receipt.save!
-
-    bidder = bidders.find(bidder_id)
-    bidder.status = "INACTIVE"
-    bidder.receipt = receipt
-    update_bidder(bidder)
-    receipt
-  end
-
-  def bidder_numbers
-    nums = []
-    bidders.each { |bidder| nums << bidder.number }
-    nums
-  end
-
   private
     def validate_bidder_unique(new_bidder)
       bidders.each do |bidder|
@@ -93,10 +54,10 @@ class Auction
       end
       return true
     end
-
+    
     def validate_bidder_exists(sale)
-      unless bidder_numbers.include?(sale.bidder)
-        sale.errors.add(:bidder, "number must be registered.")
+      unless active_bidders.include?(sale.bidder)
+        sale.errors.add(:bidder, "number must be registered and active.")
         return false
       end
       return true
@@ -110,5 +71,11 @@ class Auction
         end
       end
       return true
+    end
+
+    def active_bidders
+      nums = []
+      bidders.each { |bidder| nums << bidder.number if bidder.status=="ACTIVE"}
+      nums
     end
 end
