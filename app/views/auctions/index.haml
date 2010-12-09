@@ -6,22 +6,9 @@
   .content
     %h2.title All Auctions
     .inner
-      %table.table
-        %tr
-          %th.first=mat(:auction, :title)
-          %th=mat(:auction, :auction_date)
-          %th=mat(:auction, :description)
-          %th.last="&nbsp;"
-        -@auctions.each do |auction|
-          %tr.clickable{:onClick => "document.location=\'/auctions/#{auction.id}/bidders\'", :class => cycle('odd','even')}
-            %td=auction.title
-            %td=auction.auction_date
-            %td=auction.description
-            %td.last
-              =button_to pat(:edit), url(:auctions, :edit, :id => "#{auction.id}"), :method => :get, :class => :button_to
-              ="|"
-              =button_to( pat(:cancel_auction), url(:auctions, :destroy, :id => "#{auction.id}"), 
-                      :method => :delete, :class => :button_to, 
-                      :'data-confirm' => "Are you sure you want to completely remove this auction record?")
+      =simple_table(@auctions,[:title,:auction_date,:description],
+            :edit =>   "auctions/edit/${row.id}",
+            :delete => "auctions/destroy/${row.id}",
+            :click =>  "auctions/${row.id}/bidders")
       .actions-bar.wat-cf
         .actions="&nbsp;"

@@ -135,6 +135,9 @@ hr {
 /* tables */
 .table {
   th {
+    &.clickable:hover {
+      cursor: pointer; }
+
     padding: 5px;
     background: #253618;
     color: $white; }

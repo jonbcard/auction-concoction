@@ -44,6 +44,10 @@ class Auction
       lots << lot
   end
 
+  def remove_lot(lot_id)
+    pull(:lots => {:_id => lot_id})
+  end
+
   private
     def validate_bidder_unique(new_bidder)
       bidders.each do |bidder|

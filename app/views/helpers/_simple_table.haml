@@ -1,0 +1,44 @@
+:javascript
+  tableModel = {
+    sortAscending: ko.observable(true),
+    sortColumn: ko.observable("#{properties.first}"),
+    data : #{list.nil? ? '[]' : list.to_json} // TODO - the fields should actually be filtered
+  }
+
+  tableModel.orderedRows = ko.dependentObservable(function() {
+    var sorted = sortArrayByProperty(tableModel.data, tableModel.sortColumn());
+    if(!tableModel.sortAscending()) sorted.reverse();
+    return sorted;
+  }, tableModel);
+
+  var applySort = function(column) {
+    if(column === tableModel.sortColumn()){
+      tableModel.sortAscending(!tableModel.sortAscending());
+    } else {
+      tableModel.sortColumn(column);
+      tableModel.sortAscending(true);  // always reset when sort on new column
+    }
+  };
+
+  $(document).ready(function(){
+    ko.applyBindings(tableModel);
+  });
+%div{:'data-bind' => 'template: "listTemplate"'}
+%script{:type => "text/html", :id => "listTemplate"}
+  %table.table
+    %tr
+      -properties.each_index do |i|
+        %th.clickable{:class=> (i==0 ? 'first':''), :onClick=>"applySort('#{properties.at(i)}')", :title=>"Sort by #{properties.at(i)}"}=pat(properties.at(i))
+      %th.last="&nbsp;"
+    \{{each(i, row) orderedRows()}}
+    %tr{:'data-bind' => 'css:{odd : i%2==0, even: i%2==1}', 
+        :class => ('clickable' if options.has_key?(:click)),
+        :onClick => ("document.location.href='#{options[:click]}'" if options.has_key?(:click))}
+      -properties.each do |col|
+        %td ${row.#{col}}
+      %td.last
+        =button_to_edit(options[:edit]) if options.has_key?(:edit)
+        =" | " if options.has_key?(:edit) && options.has_key?(:delete)
+        =button_to_delete(options[:delete], :'data-bind' => "confirm:'Are you sure?'") if options.has_key?(:delete)
+        =yield if block_given?
+    \{{/each}}

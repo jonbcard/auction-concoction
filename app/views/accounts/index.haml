@@ -8,22 +8,8 @@
       =pat(:all)
       =mt(:account)
     .inner
-      %table.table
-        %tr
-          %th.first=mat(:account, :username)
-          %th=mat(:account, :name)
-          %th=mat(:account, :surname)
-          %th=mat(:account, :email)
-          %th.last="&nbsp;"
-        -@accounts.each do |account|
-          %tr{:class => cycle('odd','even')}
-            %td.first=account.username
-            %td=account.name
-            %td=account.surname
-            %td=account.email
-            %td.last
-              =button_to pat(:edit), url(:accounts, :edit, :id => account.id), :method => :get, :class => :button_to
-              ="|"
-              =button_to pat(:delete), url(:accounts, :destroy, :id => account.id), :method => :delete, :class => :button_to
+      =simple_table(@accounts,[:username, :name, :surname, :email],
+         :edit => "accounts/edit/${row.id}",
+         :delete => "accounts/destroy/${row.id}") 
       .actions-bar.wat-cf
         .actions="&nbsp;"
