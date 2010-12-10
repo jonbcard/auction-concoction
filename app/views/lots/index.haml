@@ -1,6 +1,4 @@
 :javascript
-  // This page could use a more unobtrusive JS approach, but gets
-  // the trick done for now
   $(document).ready(function(){
     submitOnEnter('#lot');
     ko.applyBindings(viewModel);
@@ -70,14 +68,14 @@
           %tr
             %form.form{:id => 'lot',:method => 'post', :"data-bind" => 'submit: addLot'}
               %td{:valign => 'top'}
-                %input{:id => 'lot_number', :type => 'text', :name => 'lot[number]', :class => "text_field", :style => "width:50px"  }
+                %input{:id => 'lot_number', :type => 'text', :name => 'lot[number]',
+                       :class => "text_field", :style => "width:50px"  }
               %td{:valign => 'top'}
                 %textarea{:name => 'lot[description]', :class => "text_area", :style => "width:200px" }
               %td{:valign => 'top'}
                 %input{:id => 'qty', :type => 'text', :name => 'lot[qty_available]', :class => "text_field", :style => "width:30px" }
               %td{:valign => 'top'}
-                %input.formButton{:id => 'submit', :type => 'submit', :name => 'Submit',
-                                  :class => "form_button",:tabindex => "4"}
+                %input.form_button{:id => 'submit', :type => 'submit', :name => 'Submit',:tabindex => "4"}
           \{{each(i, lot) lots()}}
           %tr
             %td
@@ -87,5 +85,6 @@
             %td
               %span{:'data-bind' => "text: lot.qty_available"}
             %td
-              =button_to( pat(:remove), "lots/destroy/${lot.id}", :method => :delete, :class => :button_to)
+              =button_to( pat(:remove), "lots/destroy/${lot.id}", :method => :delete, :class => :button_to,
+                          :'data-bind' => "confirm:'Are you sure you want to remove this lot record?'")
           \{{/each}}

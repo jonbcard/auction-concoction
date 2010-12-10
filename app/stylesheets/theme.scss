@@ -158,16 +158,19 @@ hr {
 
 
 /* forms */
+.form .error {
+  background-color: #fdd;}
+
 .form textarea.text_area {
   resize: none;
 }
 
-.form input.text_field, .form input.password_field, .form textarea.text_area {
+input.text_field, input.password_field, textarea.text_area {
   width: 100%;
   border: 1px solid #262626;
 }
 
-.form input.form_button {
+input.form_button {
   padding: 5px 10px;
   @include fancy-button($dark-green);
 }

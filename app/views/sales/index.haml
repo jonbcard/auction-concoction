@@ -60,7 +60,7 @@
   }, viewModel);
 
 .flash
-  .message.error{:'data-bind' => "text: lastErrorsFull, visible: lastErrorsFull() != ''"} 
+  .message.error{:'data-bind' => "text: lastErrorsFull, visible: !nullOrEmpty(lastErrorsFull())"}
 .block
   .secondary-navigation
     %ul.wat-cf
@@ -81,18 +81,23 @@
               %th.last
             %tr
               %td{:valign => 'top'}
-                %input{:id => 'lot', :type => 'text', :name => 'sale[lot]', :class => "text_field", :style => "width:50px", :'data-bind' => "value:currentLot"}
+                %input{:id => 'lot', :type => 'text', :name => 'sale[lot]',
+                       :class => "text_field", :style => "width:50px",
+                       :'data-bind' => "value:currentLot, css: {error: !nullOrEmpty(lastErrors().lot)}"}
               %td{:valign => 'top'}
-                %textarea{:name => 'sale[description]', :class => "text_area", :style => "width:200px", :'data-bind' => "text:currentLotDescription()"}
+                %textarea{:name => 'sale[description]', :class => "text_area", :style => "width:200px", 
+                       :'data-bind' => "text:currentLotDescription(), css: {error: !nullOrEmpty(lastErrors().description)}"}
               %td{:valign => 'top'}
-                %input{:type => 'text', :name=> 'sale[bidder]', :class => "text_field", :style => "width:50px" }  
+                %input{:type => 'text', :name=> 'sale[bidder]', :class => "text_field", :style => "width:50px",
+                       :'data-bind' => "css: {error: !nullOrEmpty(lastErrors().bidder)}"}
               %td{:valign => 'top'}
-                %input{:type => 'text', :name => 'sale[price]', :class => "text_field", :style => "width:50px" } 
+                %input{:type => 'text', :name => 'sale[price]', :class => "text_field", :style => "width:50px",
+                       :'data-bind' => "css: {error: !nullOrEmpty(lastErrors().price)}" }
               %td{:valign => 'top'}
-                %input{:id => 'qty', :type => 'text', :name => 'sale[quantity]', :class => "text_field", :style => "width:30px" } 
+                %input{:id => 'qty', :type => 'text', :name => 'sale[quantity]', :class => "text_field", :style => "width:30px",
+                       :'data-bind' => "css: {error: !nullOrEmpty(lastErrors().price)}" }
               %td{:valign => 'top'}
-                %input.formButton{:id => 'submit', :type => 'submit', :name => 'Submit',
-                                  :class => "form_button",:tabindex => "6"}
+                %input.form_button{:id => 'submit', :type => 'submit', :name => 'Submit',:tabindex => "6"}
             \{{each(i, sale) sales()}} 
             %tr
               %td
