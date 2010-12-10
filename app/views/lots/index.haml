@@ -1,6 +1,6 @@
 :javascript
   $(document).ready(function(){
-    submitOnEnter('#lot');
+    //submitOnEnter('#lot');
     ko.applyBindings(viewModel);
   });
 
@@ -57,16 +57,15 @@
   .content
     %h2.title Auction :: #{@auction.title} :: Lots
     .inner
-      %div{:'data-bind' => 'template: "lotsListTemplate"'}
-      %script{:type => "text/html", :id => "lotsListTemplate"}
+      %form.form{:id => 'lot',:method => 'post', :"data-bind" => 'submit: addLot'}
         %table.table
-          %tr
-            %th.first Lot #
-            %th Description
-            %th Qty.
-            %th.last
-          %tr
-            %form.form{:id => 'lot',:method => 'post', :"data-bind" => 'submit: addLot'}
+          %thead
+            %tr
+              %th.first Lot #
+              %th Description
+              %th Qty.
+              %th.last
+            %tr
               %td{:valign => 'top'}
                 %input{:id => 'lot_number', :type => 'text', :name => 'lot[number]',
                        :class => "text_field", :style => "width:50px"  }
@@ -76,15 +75,16 @@
                 %input{:id => 'qty', :type => 'text', :name => 'lot[qty_available]', :class => "text_field", :style => "width:30px" }
               %td{:valign => 'top'}
                 %input.form_button{:id => 'submit', :type => 'submit', :name => 'Submit',:tabindex => "4"}
-          \{{each(i, lot) lots()}}
-          %tr
-            %td
-              %span{:'data-bind' => "text: lot.number"}
-            %td
-              %span{:'data-bind' => "text: lot.description"}
-            %td
-              %span{:'data-bind' => "text: lot.qty_available"}
-            %td
-              =button_to( pat(:remove), "lots/destroy/${lot.id}", :method => :delete, :class => :button_to,
-                          :'data-bind' => "confirm:'Are you sure you want to remove this lot record?'")
-          \{{/each}}
+          %tbody{:'data-bind'=>'template: { name: "lotsListTemplate", foreach: lots }'}
+
+%script{:type => "text/html", :id => "lotsListTemplate"}
+  %tr
+    %td
+      %span{:'data-bind' => "text: number"}
+    %td
+      %span{:'data-bind' => "text: description"}
+    %td
+      %span{:'data-bind' => "text: qty_available"}
+    %td
+      =button_to( pat(:remove), "lots/destroy/${id}", :method => :delete, :class => :button_to,
+                 :'data-bind' => "confirm:'Are you sure you want to remove this lot record?'")

@@ -1,14 +1,14 @@
 :javascript
   $(document).ready(function(){     
-    ko.applyBindings(viewModel);
-    submitOnEnter('#sale');
+    //submitOnEnter('#sale');
     reset();
+    ko.applyBindings(viewModel);
   });
 
   reset = function(){
     // TODO : kind of a weird mish-mash between dom and view-model handling.
     viewModel.lastErrorsFull("");
-    viewModel.lastErrors({lot:"", description:"", bidder:"", price:"", quantity:""});
+    viewModel.lastErrors({});
     $('#sale')[0].reset();
     $('#qty').val('1');
     $('#lot').focus();
@@ -68,10 +68,9 @@
   .content
     %h2.title Auction :: #{@auction.title} :: Sales
     .inner
-      %div{:'data-bind' => 'template: "salesListTemplate"'}
-      %script{:type => "text/html", :id => "salesListTemplate"}
-        %form.form{:id => 'sale',:method => 'post', :"data-bind" => 'submit: addSale'}
-          %table.table
+      %form.form{:id => 'sale',:method => 'post', :"data-bind" => 'submit: addSale'}
+        %table.table
+          %thead
             %tr
               %th.first Lot #
               %th Description
@@ -85,7 +84,7 @@
                        :class => "text_field", :style => "width:50px",
                        :'data-bind' => "value:currentLot, css: {error: !nullOrEmpty(lastErrors().lot)}"}
               %td{:valign => 'top'}
-                %textarea{:name => 'sale[description]', :class => "text_area", :style => "width:200px", 
+                %textarea{:name => 'sale[description]', :class => "text_area", :style => "width:200px",
                        :'data-bind' => "text:currentLotDescription(), css: {error: !nullOrEmpty(lastErrors().description)}"}
               %td{:valign => 'top'}
                 %input{:type => 'text', :name=> 'sale[bidder]', :class => "text_field", :style => "width:50px",
@@ -98,17 +97,18 @@
                        :'data-bind' => "css: {error: !nullOrEmpty(lastErrors().price)}" }
               %td{:valign => 'top'}
                 %input.form_button{:id => 'submit', :type => 'submit', :name => 'Submit',:tabindex => "6"}
-            \{{each(i, sale) sales()}} 
-            %tr
-              %td
-                %span{:'data-bind' => "text: sale.lot"} 
-              %td
-                %span{:'data-bind' => "text: sale.description"} 
-              %td
-                %span{:'data-bind' => "text: sale.bidder"} 
-              %td
-                %span{:'data-bind' => "text: sale.price"} 
-              %td
-                %span{:'data-bind' => "text: sale.quantity"}
-              %td  
-            \{{/each}}
+          %tbody{:'data-bind'=>'template: { name: "salesListTemplate", foreach: sales }'}
+
+%script{:type => "text/html", :id => "salesListTemplate"}
+  %tr
+    %td
+      %span{:'data-bind' => "text: lot"}
+    %td
+      %span{:'data-bind' => "text: description"}
+    %td
+      %span{:'data-bind' => "text: bidder"} 
+    %td
+      %span{:'data-bind' => "text: price"} 
+    %td
+      %span{:'data-bind' => "text: quantity"}
+    %td

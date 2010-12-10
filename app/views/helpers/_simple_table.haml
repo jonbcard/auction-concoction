@@ -39,6 +39,6 @@
       %td.last
         =button_to_edit(options[:edit]) if options.has_key?(:edit)
         =" | " if options.has_key?(:edit) && options.has_key?(:delete)
-        =button_to_delete(options[:delete], :'data-bind' => "confirm:'Are you sure?'") if options.has_key?(:delete)
+        =button_to_delete(options[:delete], :'data-bind' => "confirm:'Are you sure you want to remove this record?'") if options.has_key?(:delete)
         =yield if block_given?
     \{{/each}}
