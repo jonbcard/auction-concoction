@@ -1,6 +1,31 @@
 :javascript
   $(document).ready(function(){     
-    //submitOnEnter('#sale');
+    $("#sale").validate({
+       // the remote valation isn't playing well with onkeyup
+       onkeyup: false,
+       submitHandler: function() {
+         viewModel.addSale();
+       },
+       errorPlacement: function(error, element) {
+         var errorDiv = element.next();
+         error.appendTo(errorDiv);
+       },
+       highlight: function(element, errorClass, validClass) {
+         $(element).addClass(errorClass).removeClass(validClass);
+         var errorDiv = $(element).next();
+         $(errorDiv).show();
+       },
+       unhighlight: function(element, errorClass, validClass) {
+         if(element != null){
+           $(element).removeClass(errorClass).addClass(validClass);
+           var errorDiv = $(element).next();
+           $(errorDiv).hide();
+         }
+       },
+       messages:{
+         "sale[bidder]" : { remote : "Unregistered number" }
+       }
+     });
     reset();
     ko.applyBindings(viewModel);
   });
@@ -8,7 +33,6 @@
   reset = function(){
     // TODO : kind of a weird mish-mash between dom and view-model handling.
     viewModel.lastErrorsFull("");
-    viewModel.lastErrors({});
     $('#sale')[0].reset();
     $('#qty').val('1');
     $('#lot').focus();
@@ -16,38 +40,18 @@
   }
   
   var viewModel = {
-      validateSale: function(){
-        // Do pre-submit JS validation
-        // TODO : implement
-        return true;
-      },
       currentLot: new ko.observable(""),
       lastErrorsFull: new ko.observable(""),
-      lastErrors: new ko.observable({}),
       sales: new ko.observableArray(#{@auction.sales.nil? ? '[]' : @auction.sales.to_json}.reverse()),
       lots : #{@auction.lots.nil? ? '[]' : @auction.lots.to_json},
-      error: function(field) {
-        var val = viewModel.lastErrors()[field];
-        return val == undefined ? "" : val;
-      },
-      addSale: function (form) {
-        $.ajax({
-            type: "post", 
-            url: "/auctions/#{@auction.id}/sales/new", 
-            data: $("#sale").serialize(), 
-            dataType: 'json',
-            success: function(results){
+      addSale: function() {
+        ajaxSubmit($("#sale"), function(results){
               if(results.errors){
                 viewModel.lastErrorsFull(results.errors_full);
-                viewModel.lastErrors(results.errors);
               } else {
                 viewModel.sales.unshift(results);
                 reset();
               }
-            },
-            error: function(request, status, error_thrown){
-              alert(error_thrown);  
-            }
         });
       }
   };
@@ -68,7 +72,8 @@
   .content
     %h2.title Auction :: #{@auction.title} :: Sales
     .inner
-      %form.form{:id => 'sale',:method => 'post', :"data-bind" => 'submit: addSale'}
+      %form.form{:id => 'sale',:method => 'post', :autocomplete => "false",
+                 :action=>"/auctions/#{@auction.id}/sales/new"}
         %table.table
           %thead
             %tr
@@ -80,22 +85,25 @@
               %th.last
             %tr
               %td{:valign => 'top'}
-                %input{:id => 'lot', :type => 'text', :name => 'sale[lot]',
-                       :class => "text_field", :style => "width:50px",
-                       :'data-bind' => "value:currentLot, css: {error: !nullOrEmpty(lastErrors().lot)}"}
+                %input.text_field.required{:id => 'lot', :type => 'text',
+                       :name => 'sale[lot]', :style => "width:50px",
+                       :'data-bind' => "value:currentLot"}
+                .floating-error
               %td{:valign => 'top'}
-                %textarea{:name => 'sale[description]', :class => "text_area", :style => "width:200px",
-                       :'data-bind' => "text:currentLotDescription(), css: {error: !nullOrEmpty(lastErrors().description)}"}
+                %textarea.text_area.required.text_area{:name => 'sale[description]', 
+                       :style => "width:200px", :'data-bind' => "text: currentLotDescription()"}
+                .floating-error
               %td{:valign => 'top'}
-                %input{:type => 'text', :name=> 'sale[bidder]', :class => "text_field", :style => "width:50px",
-                       :'data-bind' => "css: {error: !nullOrEmpty(lastErrors().bidder)}"}
+                %input.text_field.required{:type => 'text', :name=> 'sale[bidder]', 
+                      :remote => "sales/check_bidder_number", :style => "width:50px"}
+                .floating-error
               %td{:valign => 'top'}
-                %input{:type => 'text', :name => 'sale[price]', :class => "text_field", :style => "width:50px",
-                       :'data-bind' => "css: {error: !nullOrEmpty(lastErrors().price)}" }
+                %input.text_field.required{:type => 'text', :name => 'sale[price]', :style => "width:50px"}
+                .floating-error
               %td{:valign => 'top'}
-                %input{:id => 'qty', :type => 'text', :name => 'sale[quantity]', :class => "text_field", :style => "width:30px",
-                       :'data-bind' => "css: {error: !nullOrEmpty(lastErrors().price)}" }
-              %td{:valign => 'top'}
+                %input.text_field.required{:id => 'qty', :type => 'text', :name => 'sale[quantity]', :style => "width:30px"}
+                .floating-error
+              %td.required{:valign => 'top'}
                 %input.form_button{:id => 'submit', :type => 'submit', :name => 'Submit',:tabindex => "6"}
           %tbody{:'data-bind'=>'template: { name: "salesListTemplate", foreach: sales }'}
 

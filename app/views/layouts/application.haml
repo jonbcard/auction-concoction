@@ -4,9 +4,9 @@
     %meta{:content => "text/html; charset=utf-8", "http-equiv" => "Content-Type"}
     %title Auction Floor
     = stylesheet_link_tag :layout, :theme, 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css'
-    = javascript_include_tag 'http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js', |
+    = javascript_include_tag :jquery, |
       'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js', |
-      :"jquery.tmpl", :json2, :"knockout-1.1.1", :application
+      :"jquery.tmpl", :"jquery.validate", :json2, :"knockout-1.1.1", :application |
   %body
     #container
       #header

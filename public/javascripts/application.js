@@ -67,6 +67,21 @@ setupConfirmationDialog = function(dialogHandle, domHandle, dialogText){
     });
 }
 
+ajaxSubmit = function(form, successHandler){
+    var type = form.attr("method");
+    var method = form.attr("action");
+    $.ajax({
+        type: form.attr("method"),
+        url: form.attr("action"),
+        data: form.serialize(),
+        dataType: 'json',
+        success: successHandler,
+        error: function(request, status, error_thrown){
+            alert(error_thrown);
+        }
+    });
+}
+
 var submitOnEnter = function(formId){
     $('input').keypress(function(e){
         if(e.which == 13){
@@ -82,6 +97,6 @@ ko.bindingHandlers.confirm = {
         setupConfirmationDialog($("#dialog"), $(element), valueUnwrapped);
     },
     update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        // NO-OP - for now, no support for dynamic dialog text.
+    // NO-OP - for now, no support for dynamic dialog text.
     }
 }

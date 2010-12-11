@@ -30,6 +30,10 @@ class Auction
     end
   end
 
+  def has_active_bidder?(bidder_id)
+    active_bidders.include?(bidder_id)
+  end
+
   def add_sale(sale)
     sale.valid? &&
       validate_bidder_exists(sale) &&

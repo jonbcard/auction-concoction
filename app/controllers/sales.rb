@@ -14,4 +14,12 @@ AuctionNow.controllers :sales, :parent => :auctions do
     end
     sale.to_json
   end
+
+  get :check_bidder_number do
+    p "CHECKING FOR BIDDER"
+    sale_hash = params[:sale]
+    @auction = Auction.find(params[:auctions_id])
+    val = @auction.has_active_bidder?(sale_hash[:bidder])
+    return "#{val}"
+  end
 end

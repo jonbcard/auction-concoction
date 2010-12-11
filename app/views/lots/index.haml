@@ -1,6 +1,32 @@
 :javascript
   $(document).ready(function(){
-    //submitOnEnter('#lot');
+    $("#lot").validate({
+       // the remote valation isn't playing well with onkeyup
+       onkeyup: false,
+       submitHandler: function() {
+         viewModel.addLot();
+       },
+       errorPlacement: function(error, element) {
+         var errorDiv = element.next();
+         error.appendTo(errorDiv);
+       },
+       highlight: function(element, errorClass, validClass) {
+         $(element).addClass(errorClass).removeClass(validClass);
+         var errorDiv = $(element).next();
+         $(errorDiv).show();
+       },
+       unhighlight: function(element, errorClass, validClass) {
+         if(element != null){
+           $(element).removeClass(errorClass).addClass(validClass);
+           var errorDiv = $(element).next();
+           $(errorDiv).hide();
+         }
+       }
+    });
+    jQuery.validator.addMethod("uniqueLot", function(value, element) {
+        return !viewModel.lotNumberExists(value);
+    }, "Duplicate lot");
+    $("#lot_number").rules("add", {uniqueLot : true} );
     ko.applyBindings(viewModel);
   });
 
@@ -16,38 +42,28 @@
         return true;
       },
       lastErrorsFull: new ko.observable(""),
-      lastErrors: new ko.observable({}),
       lots: new ko.observableArray(#{@auction.lots.nil? ? '[]' : @auction.lots.to_json}.reverse()),
-      error: function(field) {
-        var val = viewModel.lastErrors()[field];
-        return val == undefined ? "" : val;
-      },
-      addLot: function (form) {
-        $.ajax({
-            type: "post",
-            url: "/auctions/#{@auction.id}/lots/new",
-            data: $("#lot").serialize(),
-            dataType: 'json',
-            success: function(results){
-              if(results.errors){
-                viewModel.lastErrorsFull(results.errors_full);
-                viewModel.lastErrors(results.errors);
-              } else {
-                viewModel.lastErrorsFull("");
-                viewModel.lastErrors({number:"", description:"", qty_available:""});
-                viewModel.lots.unshift(results);
-                $('#lot')[0].reset();
-                $('#qty').val('1');
-                $('#lot_number').focus();
+      addLot: function() {
+        ajaxSubmit($("#lot"), function(results){
+          if(results.errors){
+            viewModel.lastErrorsFull(results.errors_full);
+          } else {
+            viewModel.lastErrorsFull("");
+            viewModel.lots.unshift(results);
+            $('#lot')[0].reset();
+            $('#qty').val('1');
+            $('#lot_number').focus();
 
-              }
-            },
-            error: function(request, status, error_thrown){
-              alert(error_thrown);
-            }
+          }
         });
+      },
+      lotNumberExists: function(number) {
+        for(x in this.lots()){
+          if(this.lots()[x].number == number) return true;
+        }
+        return false;
       }
-    };
+  };
 .flash
   .message.error{:'data-bind' => "text: lastErrorsFull, visible: lastErrorsFull() != ''"}
 .block
@@ -57,7 +73,7 @@
   .content
     %h2.title Auction :: #{@auction.title} :: Lots
     .inner
-      %form.form{:id => 'lot',:method => 'post', :"data-bind" => 'submit: addLot'}
+      %form.form{:id => 'lot',:method => 'post', :action=> "/auctions/#{@auction.id}/lots/new"}
         %table.table
           %thead
             %tr
@@ -67,12 +83,16 @@
               %th.last
             %tr
               %td{:valign => 'top'}
-                %input{:id => 'lot_number', :type => 'text', :name => 'lot[number]',
-                       :class => "text_field", :style => "width:50px"  }
+                %input.text_field.required{:id => 'lot_number', :type => 'text', 
+                       :name => 'lot[number]', :class => "text_field", :style => "width:50px"  }
+                .floating-error
               %td{:valign => 'top'}
-                %textarea{:name => 'lot[description]', :class => "text_area", :style => "width:200px" }
+                %textarea.text_area.required{:name => 'lot[description]', :style => "width:200px" }
+                .floating-error
               %td{:valign => 'top'}
-                %input{:id => 'qty', :type => 'text', :name => 'lot[qty_available]', :class => "text_field", :style => "width:30px" }
+                %input.text_field.required{:id => 'qty', :type => 'text',
+                       :name => 'lot[qty_available]', :style => "width:30px" }
+                .floating-error
               %td{:valign => 'top'}
                 %input.form_button{:id => 'submit', :type => 'submit', :name => 'Submit',:tabindex => "4"}
           %tbody{:'data-bind'=>'template: { name: "lotsListTemplate", foreach: lots }'}

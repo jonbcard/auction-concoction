@@ -56,4 +56,5 @@ AuctionNow.controllers :bidders, :parent => :auctions do
     flash[:notice] = 'Bidder successfully checked out.'
     redirect url(:bidders, :index, :auctions_id => params[:auctions_id])
   end
+
 end
