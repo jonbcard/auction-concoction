@@ -2,13 +2,26 @@
   tableModel = {
     sortAscending: ko.observable(true),
     sortColumn: ko.observable("#{properties.first}"),
-    data : #{list.nil? ? '[]' : list.to_json} // TODO - the fields should actually be filtered
+    data : #{list.nil? ? '[]' : list.to_json},
+    pageSize: #{options[:paginate] ? options[:page_size] : 0},
+    currentPageIndex : ko.observable(0)
   }
+
 
   tableModel.orderedRows = ko.dependentObservable(function() {
     var sorted = sortArrayByProperty(tableModel.data, tableModel.sortColumn());
     if(!tableModel.sortAscending()) sorted.reverse();
-    return sorted;
+
+    if(this.pageSize > 0){
+      var startIndex = this.pageSize * this.currentPageIndex();
+      return sorted.slice(startIndex, startIndex + this.pageSize);
+    } else {
+      return sorted;
+    }
+  }, tableModel);
+
+  tableModel.totalPages = ko.dependentObservable(function() {
+    return Math.ceil(ko.utils.unwrapObservable(tableModel.data).length / tableModel.pageSize);
   }, tableModel);
 
   var applySort = function(column) {
@@ -17,12 +30,14 @@
     } else {
       tableModel.sortColumn(column);
       tableModel.sortAscending(true);  // always reset when sort on new column
+      tableModel.currentPageIndex(0);
     }
   };
 
-  $(document).ready(function(){
+  $(function(){
     ko.applyBindings(tableModel);
   });
+
 %div{:'data-bind' => 'template: "listTemplate"'}
 %script{:type => "text/html", :id => "listTemplate"}
   %table.table
@@ -42,3 +57,11 @@
         =button_to_delete(options[:delete], :'data-bind' => "confirm:'Are you sure you want to remove this record?'") if options.has_key?(:delete)
         =yield if block_given?
     \{{/each}}
+-if options[:paginate]
+  %div.pagination{:'data-bind' => 'template: "paginationTemplate"'}
+%script{:type => "text/html", :id => "paginationTemplate"}
+  {{each(i) ko.utils.range(1, totalPages() )}}
+  %a{:href => "#", :'data-bind' => "click: function() { currentPageIndex(i) }, css: { selected: i == currentPageIndex() }"}
+    Page ${ i + 1 }
+  &nbsp;
+  {{/each}}

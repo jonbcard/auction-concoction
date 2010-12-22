@@ -8,6 +8,8 @@ AuctionNow.helpers do
   end
 
   def simple_table(list, properties, options={}, &block)
+    # By default, have pagination on with page size of 25
+    options.reverse_merge! :paginate => true, :page_size => 25
     # Using the partial method, the nested code block was not recognized
     render('helpers/_simple_table', :layout=>false,
         :locals => {:list => list, :properties => properties, :options => options}) do |row|
