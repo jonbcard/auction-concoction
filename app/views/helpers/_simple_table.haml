@@ -2,16 +2,25 @@
   tableModel = {
     sortAscending: ko.observable(true),
     sortColumn: ko.observable("#{properties.first}"),
-    data : #{list.nil? ? '[]' : list.to_json},
+    data : #{list.nil? ? '[]' : list.to_json(:only => ([:_id] + properties))},
     pageSize: #{options[:paginate] ? options[:page_size] : 0},
     currentPageIndex : ko.observable(0)
   }
 
+  var identityFilter = function(){return tableModel.data;}
+  tableModel.filter = ko.dependentObservable(#{options.has_key?(:js_filter)? options[:js_filter] : "identityFilter"}, tableModel);
+
 
   tableModel.orderedRows = ko.dependentObservable(function() {
-    var sorted = sortArrayByProperty(tableModel.data, tableModel.sortColumn());
+    //Filter ...
+    dataToSort = this.filter();
+
+    // ... sort ...
+    var sorted = sortArrayByProperty(dataToSort, tableModel.sortColumn());
     if(!tableModel.sortAscending()) sorted.reverse();
 
+
+    // ... and paginate
     if(this.pageSize > 0){
       var startIndex = this.pageSize * this.currentPageIndex();
       return sorted.slice(startIndex, startIndex + this.pageSize);
@@ -38,7 +47,7 @@
     ko.applyBindings(tableModel);
   });
 
-%div{:'data-bind' => 'template: "listTemplate"'}
+%div#simpletable{:'data-bind' => 'template: "listTemplate"'}
 %script{:type => "text/html", :id => "listTemplate"}
   %table.table
     %tr
@@ -46,7 +55,7 @@
         %th.clickable{:class=> (i==0 ? 'first':''), :onClick=>"applySort('#{properties.at(i)}')", :title=>"Sort by #{properties.at(i)}"}=pat(properties.at(i))
       %th.last="&nbsp;"
     \{{each(i, row) orderedRows()}}
-    %tr{:'data-bind' => 'css:{odd : i%2==0, even: i%2==1}', 
+    %tr{:'data-bind' => 'css:{odd : i%2==0, even: i%2==1}',
         :class => ('clickable' if options.has_key?(:click)),
         :onClick => ("document.location.href='#{options[:click]}'" if options.has_key?(:click))}
       -properties.each do |col|

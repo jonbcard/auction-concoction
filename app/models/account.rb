@@ -29,7 +29,8 @@ class Account
   before_save :generate_password
 
   ##
-  # This method is for authentication purpose
+  # Authenticate the user against with the password provided. If authentication
+  # is successful, the user will be returned. Otherwise, this will return nil.
   #
   def self.authenticate(username, password)
     account = first(:username => username) if username.present?
@@ -37,7 +38,7 @@ class Account
   end
 
   ##
-  # This method is used to retrieve the original password.
+  # Retrieve the original decrypted password.
   #
   def password_clean
     crypted_password.decrypt(salt)
@@ -53,4 +54,6 @@ class Account
     def password_required
       crypted_password.blank? || !password.blank?
     end
+
+
 end

@@ -5,7 +5,13 @@ module Padrino
         include Padrino::Helpers::AssetTagHelpers
         include Padrino::Helpers::TagHelpers
         include Padrino::Helpers::OutputHelpers
-        
+
+        ##
+        # Generate a field that follows simple display rules.
+        #
+        # Valid options:
+        # :type => [password, date, select, checkbox]. If not specified, the type will default to a text field.
+        #
         def simple_field(field, options={})
           field_output = case(options[:type])
             when :password then password_field(field, :class => :password_field)

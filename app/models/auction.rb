@@ -10,6 +10,10 @@ class Auction
   many :sales
   many :lots
 
+  ##
+  # Add a detached bidder to this auction. This will set the bidder
+  # status to 'ACTIVE', validate, then update and save the record.
+  #
   def add_bidder(bidder)
     bidder.status = "ACTIVE"
     bidder.valid? &&
@@ -18,6 +22,9 @@ class Auction
       bidders << bidder
   end
 
+  ##
+  # Validate then save an existing bidder.
+  #
   def update_bidder(bidder)
     if(bidder.valid? && validate_bidder_unique(bidder))
       # TODO : More effective way to write this as an in-place update?
@@ -30,9 +37,15 @@ class Auction
     end
   end
 
-  def has_active_bidder?(bidder_id)
-    active_bidders.include?(bidder_id)
+  ##
+  # Check whether the given bidder number corresponds to an 'ACTIVE' bidder
+  # in this auction. Return false if either the bidder number does not exist, or
+  # the bidder is 'INACTIVE'.
+  #
+  def has_active_bidder?(bidder_number)
+    active_bidders.include?(bidder_number)
   end
+
 
   def add_sale(sale)
     sale.valid? &&

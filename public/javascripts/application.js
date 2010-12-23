@@ -1,6 +1,6 @@
 // ---- Stuff we always want to do on load (UJS sort of stuff)  ----
 
-$(document).ready(function(){
+$(function(){
     // Setup for input fields
     $('input[data-type|="date"]').datepicker();
     $("form[data-confirm]").each(function(){
@@ -78,14 +78,6 @@ ajaxSubmit = function(form, successHandler){
         success: successHandler,
         error: function(request, status, error_thrown){
             alert(error_thrown);
-        }
-    });
-}
-
-var submitOnEnter = function(formId){
-    $('input').keypress(function(e){
-        if(e.which == 13){
-            $(formId).submit();
         }
     });
 }

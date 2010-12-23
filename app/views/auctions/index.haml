@@ -7,8 +7,8 @@
     %h2.title All Auctions
     .inner
       =simple_table(@auctions,[:title,:auction_date,:description],
-            :edit =>   "auctions/edit/${row.id}",
-            :delete => "auctions/destroy/${row.id}",
-            :click =>  "auctions/${row.id}/bidders")
+            :edit =>   "auctions/edit/${row._id}",
+            :delete => "auctions/destroy/${row._id}",
+            :click =>  "auctions/${row._id}/bidders")
       .actions-bar.wat-cf
         .actions="&nbsp;"

@@ -9,7 +9,7 @@
       =mt(:account)
     .inner
       =simple_table(@accounts,[:username, :name, :surname, :email],
-         :edit => "accounts/edit/${row.id}",
-         :delete => "accounts/destroy/${row.id}") 
+         :edit => "accounts/edit/${row._id}",
+         :delete => "accounts/destroy/${row._id}") 
       .actions-bar.wat-cf
         .actions="&nbsp;"

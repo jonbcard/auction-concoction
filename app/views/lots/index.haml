@@ -1,5 +1,8 @@
 :javascript
-  $(document).ready(function(){
+  $(function(){
+    $("#lot_number").focus();
+    $('#qty').val('1');
+
     $("#lot").validate({
        // the remote valation isn't playing well with onkeyup
        onkeyup: false,
@@ -28,11 +31,6 @@
     }, "Duplicate lot");
     $("#lot_number").rules("add", {uniqueLot : true} );
     ko.applyBindings(viewModel);
-  });
-
-  $(function() {
-    $("#lot_number").focus();
-    $('#qty').val('1');
   });
 
   var viewModel = {
