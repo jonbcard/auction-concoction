@@ -12,6 +12,7 @@ gem 'fancy-buttons'
 gem 'money'
 gem 'mongo_mapper'
 gem 'bson_ext', :require => "mongo"
+gem 'json'
 
 # Test requirements
 

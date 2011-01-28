@@ -170,7 +170,7 @@ input.text_field, input.password_field, textarea.text_area {
   border: 1px solid #262626;
 }
 
-input.form_button {
+.form_button {
   padding: 5px 10px;
   @include fancy-button($dark-green);
 }

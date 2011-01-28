@@ -21,7 +21,7 @@ module Padrino
             else text_field(field, :class => :text_field)
           end
           
-          label(field) + error_message_on(field) + field_output
+          label(field, options) + error_message_on(field) + field_output
         end
         
         def simple_submit(cancel_url, options={})

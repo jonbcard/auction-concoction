@@ -29,6 +29,7 @@ class AuctionNow < Padrino::Application
     role.project_module :auctions, "/auctions"
     role.project_module :accounts, "/accounts"
     role.project_module :parameters, "/parameters"
+    role.project_module :customizations, "/customizations"
   end
 
   access_control.roles_for :clerk do |role|

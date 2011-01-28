@@ -1,0 +1,83 @@
+:javascript
+  $(function(){
+    $("form").validate({
+        submitHandler: function () { viewModel.save() },
+        errorPlacement: function(error, element) {
+            var errorDiv = element.next();
+            error.appendTo(errorDiv);
+       },
+       highlight: function(element, errorClass, validClass) {
+         $(element).addClass(errorClass).removeClass(validClass);
+         var errorDiv = $(element).next();
+         $(errorDiv).show();
+       },
+       unhighlight: function(element, errorClass, validClass) {
+         if(element != null){
+           $(element).removeClass(errorClass).addClass(validClass);
+           var errorDiv = $(element).next();
+           $(errorDiv).hide();
+         }
+       }
+    });
+
+    ko.applyBindings(viewModel);
+  });
+
+  var viewModel = {
+    customFields: ko.observableArray(
+       #{@custom.custom_fields.nil? ? '[]' : @custom.custom_fields.to_json}
+    ),
+    addField: function () {
+        this.customFields.push({ label: "", field: "", required: false});
+    },
+    removeField: function (field) {
+        this.customFields.remove(field);
+    },
+    save: function() {
+        ko.utils.postJson($("form")[0], {
+            model : "#{@custom.model}",
+            custom_fields : this.customFields
+        });
+    }
+  };
+
+
+.block
+  .secondary-navigation
+    %ul.wat-cf
+      %li.first.active=link_to pat(:edit)
+  .content
+    %h2.title Customize Fields
+    .inner
+      %form.form
+        %table.table
+          %thead
+            %tr
+              %th.first Label
+              %th Field
+              %th Required?
+              %th.last
+          %tbody{:'data-bind' => 'template: { name: "fieldListTemplate", foreach: customFields }'}
+        %button{:'data-bind' => "click: addField"}
+          Add Field
+        %br
+        %br
+        %input.form_button{:type => "submit"}
+        &nbsp;&nbsp;|&nbsp;&nbsp;
+        =link_to("Cancel", "", :class => :button_to)
+%script{:type => "text/html", :id => "fieldListTemplate"}
+  %tr
+    %td
+      %input.text_field.required{:'data-bind' => "value: label, uniqueName: true"}
+      .floating-error
+    %td
+      %input.text_field.required{:'data-bind' => "value: field, uniqueName: true"}
+      .floating-error
+    %td
+      %input.checkbox{:type => "checkbox", :'data-bind' => "checked: required, uniqueName: true"}
+      .floating-error
+    %td
+      %a{:href => "#", :'data-bind'=> "click: function() { viewModel.removeField($data) }"}
+        Delete
+            
+      

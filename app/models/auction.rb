@@ -1,5 +1,6 @@
 class Auction
   include MongoMapper::Document
+  plugin  MongoMapper::Plugins::CustomFieldPlugin
   
   # Keys
   key :title,            String, :required => true

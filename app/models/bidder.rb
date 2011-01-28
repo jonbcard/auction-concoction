@@ -1,5 +1,6 @@
 class Bidder
   include MongoMapper::EmbeddedDocument
+  plugin  MongoMapper::Plugins::CustomFieldPlugin
 
   BIDDER_STATES = ["ACTIVE", "INACTIVE"]
 
