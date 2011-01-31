@@ -47,7 +47,7 @@
     %ul.wat-cf
       %li.first.active=link_to pat(:edit)
   .content
-    %h2.title Customize Fields
+    %h2.title Customize #{pat(@custom.model)} Fields
     .inner
       %form.form
         %table.table
@@ -58,13 +58,12 @@
               %th Required?
               %th.last
           %tbody{:'data-bind' => 'template: { name: "fieldListTemplate", foreach: customFields }'}
-        %button{:'data-bind' => "click: addField"}
-          Add Field
+        %input{:type => "image", :src => "/images/add.png", :'data-bind' => "click: addField"}
         %br
         %br
         %input.form_button{:type => "submit"}
         &nbsp;&nbsp;|&nbsp;&nbsp;
-        =link_to("Cancel", "", :class => :button_to)
+        =link_to("Cancel", url(:customizations, :index), :class => :button_to)
 %script{:type => "text/html", :id => "fieldListTemplate"}
   %tr
     %td

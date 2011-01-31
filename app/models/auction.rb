@@ -11,6 +11,8 @@ class Auction
   many :sales
   many :lots
 
+  validate_custom
+
   ##
   # Add a detached bidder to this auction. This will set the bidder
   # status to 'ACTIVE', validate, then update and save the record.
