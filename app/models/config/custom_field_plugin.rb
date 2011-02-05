@@ -12,12 +12,13 @@ module MongoMapper
 
         def custom_fields
           _customization.custom_fields
+
         end
 
         def validate_custom_required
           _customization.required_fields.each do |field |
-            val = eval field.field
-            errors.add(field.field.intern, "can't be empty") if val.nil? || val.empty?
+            val = eval field.field_name
+            errors.add(field.field_name.intern, "can't be empty") if val.nil? || val.empty?
           end
         end
 

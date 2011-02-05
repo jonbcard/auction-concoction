@@ -3,7 +3,9 @@ class Customization
 
   key :model, :required => true
   many :custom_fields
-
+  
+  validates_associated :custom_fields
+  
   ##
   # Fetch (or create) the given Customization record by model name
   #

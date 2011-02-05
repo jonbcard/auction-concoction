@@ -3,5 +3,5 @@
 .group=f.simple_field :last_name
 .group=f.simple_field :id_number
 -@bidder.custom_fields.each do |custom|
-  .group=f.simple_field custom.field, :caption => custom.label
+  .group=f.simple_field custom.field_name, :caption => custom.label
 .group.navform.wat-cf=f.simple_submit  url(:bidders, :index, :auctions_id => @auction.id)

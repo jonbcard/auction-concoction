@@ -7,8 +7,11 @@ class CustomField
   
   embedded_in :customization
 
+  def field_name
+    "cust_" + field
+  end
+
   def required?
     required
   end
-
 end
