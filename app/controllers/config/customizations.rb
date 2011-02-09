@@ -10,7 +10,6 @@ AuctionNow.controllers :customizations do
   end
 
   post :edit, :with => :model do
-    # TODO : Add proper validation
     @custom = Customization.get_by_model_name(params[:model])
     custom_fields = JSON.parse(params[:custom_fields])
     @custom.custom_fields = custom_fields

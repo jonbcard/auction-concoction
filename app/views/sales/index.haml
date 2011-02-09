@@ -120,3 +120,4 @@
     %td
       %span{:'data-bind' => "text: quantity"}
     %td
+      =button_to( pat(:remove), "sales/destroy/${id}", :method => :delete, :class => :button_to)

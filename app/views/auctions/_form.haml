@@ -1,6 +1,7 @@
 .group=f.simple_field :title
 .group=f.simple_field :auction_date, :type => :date
 .group=f.simple_field :description
--@auction.custom_fields.each do |custom|
-  .group=f.simple_field custom.field_name, :caption => custom.label
+-if(@auction.respond_to?("custom_fields"))
+  -@auction.custom_fields.each do |custom|
+    .group=f.simple_field custom.field_name, :caption => custom.label
 .group.navform.wat-cf=f.simple_submit(url(:auctions, :index))

@@ -7,5 +7,5 @@
   .content
     %h2.title Edit Auction
     .inner
-      -form_for :auction, nil, :method => :put, :class => :form do |f|
+      -form_for :auction, nil, :method => :put, :class => "form simple_form" do |f|
         =partial "auctions/form", :locals => { :f => f }

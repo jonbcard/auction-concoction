@@ -104,5 +104,4 @@
     %td
       %span{:'data-bind' => "text: qty_available"}
     %td
-      =button_to( pat(:remove), "lots/destroy/${id}", :method => :delete, :class => :button_to,
-                 :'data-bind' => "confirm:'Are you sure you want to remove this lot record?'")
+      =button_to( pat(:remove), "lots/destroy/${id}", :method => :delete, :class => :button_to)

@@ -1,6 +1,8 @@
 class Bidder
   include MongoMapper::EmbeddedDocument
-  plugin  MongoMapper::Plugins::CustomFieldPlugin
+  # TODO: Custom field plug-in is causing errors after dynamic class
+  # reloading. Disabled for now.
+  #plugin  MongoMapper::Plugins::CustomFieldPlugin
 
   BIDDER_STATES = ["ACTIVE", "INACTIVE"]
 

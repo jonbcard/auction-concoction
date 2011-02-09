@@ -16,10 +16,19 @@ AuctionNow.controllers :sales, :parent => :auctions do
   end
 
   get :check_bidder_number do
-    p "CHECKING FOR BIDDER"
     sale_hash = params[:sale]
     @auction = Auction.find(params[:auctions_id])
     val = @auction.has_active_bidder?(sale_hash[:bidder])
     return "#{val}"
+  end
+
+  delete :destroy, :with => :id do
+    auction = Auction.find(params[:auctions_id])
+    if auction.remove_sale(params[:id])
+      flash[:notice] = 'Sale was successfully removed.'
+    else
+      flash[:error] = 'Sale could not be removed. The associated bidder may already be checked out.'
+    end
+    redirect url(:sales, :index, :auctions_id => params[:auctions_id])
   end
 end

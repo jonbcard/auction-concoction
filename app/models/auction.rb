@@ -1,6 +1,7 @@
 class Auction
   include MongoMapper::Document
   plugin  MongoMapper::Plugins::CustomFieldPlugin
+  #plugin  MongoMapper::Plugins::MetaData
   
   # Keys
   key :title,            String, :required => true
@@ -57,6 +58,12 @@ class Auction
       sales << sale
   end
 
+  def remove_sale(sale_id)
+    sale = sales.find(sale_id)
+    has_active_bidder?(sale.bidder) &&
+      pull(:sales => {:_id => BSON::ObjectId(sale_id)})
+  end
+
   def add_lot(lot)
     lot.valid? &&
       validate_lot_unique(lot) &&
@@ -65,7 +72,7 @@ class Auction
   end
 
   def remove_lot(lot_id)
-    pull(:lots => {:_id => lot_id})
+    pull(:lots => {:_id => BSON::ObjectId(lot_id)})
   end
 
   private

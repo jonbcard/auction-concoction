@@ -7,6 +7,7 @@ AuctionNow.controllers :auctions do
   end
 
   get :new do
+    @auction = Auction.new()
     render 'auctions/new'
   end
 

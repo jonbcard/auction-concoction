@@ -2,13 +2,24 @@
 
 $(function(){
     // Setup for input fields
-    $('input[data-type|="date"]').datepicker();
+    $('input[data-type|="date"]').datepicker({
+        dateFormat: 'yy-mm-dd'
+    });
     $("form[data-confirm]").each(function(){
         // TODO : The same dialog is re-initialized many times if the confirmation
         // is in a table. This is bad because 1) it wipes out the dialog text, if
         // it is different, and 2) its wasteful.
         setupConfirmationDialog($("#dialog"), $(this), $(this).attr("data-confirm"));
     });
+    // Automatically apply JQuery validation for simple forms
+    // Note that this is currently commented out because it is playing a bit
+    // strangely with some of the other JQuery UI components like the datepicker.
+    //$(".simple_form").validate({
+    //    errorPlacement: function(error, element) {
+    //        error.insertBefore(element);
+    //    }
+    //});
+
 
 });
 
