@@ -44,7 +44,7 @@
   };
 
   $(function(){
-    ko.applyBindings(tableModel);
+    ko.applyBindings(tableModel, document.getElementById("main"));
   });
 
 %div#simpletable{:'data-bind' => 'template: "listTemplate"'}

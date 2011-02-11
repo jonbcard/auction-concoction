@@ -21,13 +21,15 @@
                 =link_to project_module.human_name, project_module.path("/")
       #wrapper.wat-cf
         .flash=[:error, :warning, :notice].map { |type| flash_tag(type, :class => "message #{type}") }.join
+        -# Yeah - it's a pretty ugly way to determine the partial to render... TODO
+        #sidebar
+          =yield_content(:context_panel)
+          =@auction.nil? ? "": partial('/auctions/sidebar')
         #main
           =yield
           #footer
             .block
-              %p
-                Copyright &copy; #{Time.now.year} Pliosoft - Auction Floor
-        -# Yeah - it's a pretty ugly way to determine the partial to render... TODO 
-        #sidebar=@auction.nil? ? "": partial('/auctions/sidebar')
+              %p Copyright &copy; #{Time.now.year} Pliosoft - Auction Floor
+        
   #dialog{ :style=>"display:none;"}
     TEST

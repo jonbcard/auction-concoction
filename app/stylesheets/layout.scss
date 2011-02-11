@@ -20,14 +20,14 @@ body{font-size:12px;font-family:sans-serif;}
 #header{position:relative;padding-top:1px;}
 #header h1{margin:0;padding:10px 0;font-size:26px;}
 #header h1 a:link,#header h1 a:active,#header h1 a:hover,#header h1 a:visited{text-decoration:none;}
-#main{width:73%;float:left;}
+#main{width:73%;float:right;}
 .actions-bar{padding:10px 1px;}
 .actions-bar .actions{float:left;}
 .actions-bar .pagination{float:right;padding:1px 0;}
-#sidebar{width:25%;float:right;}
+#sidebar{width:25%;float:left;}
 #sidebar h3{padding:10px 15px;margin:0;font-size:13px;}
 #sidebar .block{margin-bottom:20px;padding-bottom:10px;}
-#sidebar .block .content{padding:0 15px;}
+#sidebar .block .content{padding:15px 15px 0px 15px}
 #sidebar ul.navigation li a:link,#sidebar ul.navigation li a:visited{display:block;padding:10px 15px;}
 #sidebar .block .sidebar-block,#sidebar .notice{padding:10px;}
 .message.notice,.message.warning,.message.error{padding:10px;}
