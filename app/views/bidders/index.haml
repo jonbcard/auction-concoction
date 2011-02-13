@@ -20,6 +20,17 @@
   viewModel.displayCount = ko.dependentObservable(function() {
     return "Showing " + this.displayedBidders().length + " of " + this.bidders.length;
   }, viewModel);
+-content_for(:context_panel) do
+  #filter.block
+    %h3 Filter Bidders
+    .content
+      %form.form
+        .group
+          Filter by Number:
+          %input{:type => 'text', :class => "text_field", :style => "width:50px", :'data-bind' => 'value:numberFilter,valueUpdate:"keyup"' }
+        .group
+          Show Inactive?
+          %input{:type => 'checkbox', :'data-bind' => 'checked: showInactive'}
 
 .block
   .secondary-navigation
@@ -27,15 +38,8 @@
       %li.first.active=link_to pat(:list), "bidders"
       %li=link_to pat(:new), "bidders/new"
   .content
-    %h2.title Auction :: #{@auction.title} :: Bidders
+    %h2.title Auction :: #{@auction.title} :: Bidders 
     .inner
-      .block
-        %form.form
-          Filter by Number:
-          %input{:type => 'text', :class => "text_field", :style => "width:50px", :'data-bind' => 'value:numberFilter,valueUpdate:"keyup"' }
-          &nbsp;&nbsp;|&nbsp;&nbsp;Show Inactive?
-          %input{:type => 'checkbox', :'data-bind' => 'checked: showInactive'}
-     
       %div{:'data-bind' => 'template: "biddersListTemplate"'}
       %script{:type => "text/html", :id => "biddersListTemplate"}
         %table.table

@@ -34,11 +34,7 @@
   });
 
   var viewModel = {
-      validateLot: function(){
-        // Do pre-submit JS validation
-        // TODO : implement
-        return true;
-      },
+      autoNumber: new ko.observable(false),
       lastErrorsFull: new ko.observable(""),
       lots: new ko.observableArray(#{@auction.lots.nil? ? '[]' : @auction.lots.to_json}.reverse()),
       addLot: function() {
@@ -49,8 +45,13 @@
             viewModel.lastErrorsFull("");
             viewModel.lots.unshift(results);
             $('#lot')[0].reset();
+            if(viewModel.autoNumber()){
+              $('#lot_number').val(viewModel.nextLotNumber());
+              $('#lot_description').focus();
+            } else {
+              $('#lot_number').focus();
+            }
             $('#qty').val('1');
-            $('#lot_number').focus();
 
           }
         });
@@ -62,6 +63,29 @@
         return false;
       }
   };
+  viewModel.nextLotNumber = ko.dependentObservable(function(){
+    if(!viewModel.autoNumber()){
+      return "";
+    }
+    var max = 1;
+    for(x in viewModel.lots()){
+      var val = parseInt(viewModel.lots()[x].number);
+      if(val > max){
+        max = val;
+      }
+    }
+    return max+1;
+  });
+
+-content_for(:context_panel) do
+  #options.block
+    %h3 Options
+    .content
+      %form.form
+        .group
+          Auto-number?
+          %input{:type => 'checkbox', :'data-bind' => 'checked: autoNumber'}
+
 .flash
   .message.error{:'data-bind' => "text: lastErrorsFull, visible: lastErrorsFull() != ''"}
 .block
@@ -82,10 +106,12 @@
             %tr
               %td{:valign => 'top'}
                 %input.text_field.required{:id => 'lot_number', :type => 'text', 
-                       :name => 'lot[number]', :class => "text_field", :style => "width:50px"  }
+                       :name => 'lot[number]', :class => "text_field", :style => "width:50px",
+                       :'data-bind' => "value: nextLotNumber"  }
                 .floating-error
               %td{:valign => 'top'}
-                %textarea.text_area.required{:name => 'lot[description]', :style => "width:200px" }
+                %textarea.text_area.required{:id => 'lot_description', :name => 'lot[description]',
+                       :style => "width:200px" }
                 .floating-error
               %td{:valign => 'top'}
                 %input.text_field.required{:id => 'qty', :type => 'text',
