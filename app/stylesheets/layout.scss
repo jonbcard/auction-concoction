@@ -32,22 +32,24 @@ body{font-size:12px;font-family:sans-serif;}
 #sidebar .block .sidebar-block,#sidebar .notice{padding:10px;}
 .message.notice,.message.warning,.message.error{padding:10px;}
 #wrapper{padding-top:20px;}
+/* Content Header and Title Menu*/
+#main #title{float:left;}
+#main #title-menu{float:right;padding:10px;}
+#main #title-menu ul{margin:0;padding:0;list-style-type:none;}
+#main #title-menu ul li{float:left;margin-right:5px;}
 #main .block{margin-bottom:20px;padding-top:1px;}
 #main .block .content .inner{padding:0 15px 15px;}
 #main .block .content .inner .navform{text-align:left;}
 #main .main p.first{margin-top:0;}
 #user-navigation{position:absolute;top:0px;right:20px;}
 #main-navigation{width:100%;}
-#user-navigation ul,#main-navigation ul,.secondary-navigation ul,#sidebar ul.navigation{margin:0;padding:0;list-style-type:none;}
-#user-navigation ul li,#main-navigation ul li,.secondary-navigation ul li{float:left;}
+#user-navigation ul,#main-navigation ul,#sidebar ul.navigation{margin:0;padding:0;list-style-type:none;}
+#user-navigation ul li,#main-navigation ul li{float:left;}
 #main-navigation ul li{margin-right:5px;}
 #user-navigation ul li{padding:5px 10px;}
 #main-navigation ul li a:link,#main-navigation ul li a:visited,#main-navigation ul li a:hover,#main-navigation ul li a:active,
-.secondary-navigation ul li a:link,.secondary-navigation ul li a:visited,.secondary-navigation ul li a:hover,.secondary-navigation ul li a:active,
 #user-navigation ul li a:link,#user-navigation ul li a:visited,#user-navigation ul li a:hover,#user-navigation ul li a:active{text-decoration:none;}
 #main-navigation ul li a{font-size:14px;line-height:14px;display:block;padding:8px 15px;}
-.secondary-navigation{font-size:13px;border-bottom-width:10px;border-bottom-style:solid;}
-.secondary-navigation ul li a{display:block;padding:10px 15px;}
 #footer{padding-bottom:20px;}
 /* pagination */
 .pagination a,.pagination span{padding:2px 5px;margin-right:5px;display:block;float:left;border-style:solid;border-width:1px;}
@@ -94,15 +96,9 @@ ul.list li .item .avatar{float:left;margin:0 5px 5px 0;width:30px;height:30px;}
 #box .block .content{padding:10px 20px;}
 
 /* Drop-down menu */
-#main-navigation #config-dropdown {
-  float:right;
-  &:hover ul { right: 1em;}
-
+#main-navigation #config-dropdown { float:right; &:hover ul { right: 1em;}
   ul {
-    list-style: none;
-    position: absolute;
-    width: 10em;
-    right: -999em;
+    position: absolute; right: -999em;
     li { float:none; display:block;}
     li:hover { background-color: #36393D; }}
 }

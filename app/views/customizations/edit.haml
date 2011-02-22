@@ -43,11 +43,13 @@
 
 
 .block
-  .secondary-navigation
-    %ul.wat-cf
-      %li.first.active=link_to pat(:edit)
   .content
-    %h2.title Customize #{pat(@custom.model)} Fields
+    #title
+      %h2 Customize #{pat(@custom.model)} Fields
+    #title-menu
+      %ul
+        %li
+          %input{:type => "image", :src => "/images/add.png", :'data-bind' => "click: addField"}
     .inner
       %form.form
         %table.table
@@ -57,10 +59,7 @@
               %th Field
               %th Required?
               %th.last
-          %tbody{:'data-bind' => 'template: { name: "fieldListTemplate", foreach: customFields }'}
-        .actions-bar.wat-cf
-          .actions
-            %input{:type => "image", :src => "/images/add.png", :'data-bind' => "click: addField"}
+          %tbody{:'data-bind' => 'template: { name: "fieldListTemplate", foreach: customFields }'}            
         %br
         %input.form_button{:type => "submit"}
         &nbsp;&nbsp;|&nbsp;&nbsp;

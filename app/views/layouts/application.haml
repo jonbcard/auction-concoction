@@ -27,7 +27,7 @@
               =link_to pat(:sales), "/auctions/#{params[:auctions_id]}/sales" if params[:auctions_id]
             #config-dropdown
               =image_tag("gear.png", :height => "24px", :width => "24px")
-              %ul
+              %ul.list
                 %li=link_to pat(:accounts), "/accounts"
                 %li=link_to pat(:parameters), "/parameters"
                 %li=link_to pat(:customizations), "/customizations"

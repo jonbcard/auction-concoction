@@ -33,12 +33,13 @@
           %input{:type => 'checkbox', :'data-bind' => 'checked: showInactive'}
 
 .block
-  .secondary-navigation
-    %ul.wat-cf
-      %li.first.active=link_to pat(:list), "bidders"
-      %li=link_to pat(:new), "bidders/new"
   .content
-    %h2.title Auction :: #{@auction.title} :: Bidders 
+    #title
+      %h2 Auction :: #{@auction.title} :: Bidders
+    #title-menu
+      %ul
+        %li
+          %a{:href => "bidders/new"}=image_tag("add.png")
     .inner
       %div{:'data-bind' => 'template: "biddersListTemplate"'}
       %script{:type => "text/html", :id => "biddersListTemplate"}
@@ -62,6 +63,7 @@
             %td.last
               =button_to "Edit", "bidders/edit/${bidder.id}", :method => :get, :class => :button_to
           \{{/each}}
-          %span.highlight{:'data-bind' => 'text: displayCount'}
+          
       .actions-bar.wat-cf
         .actions
+          %span{:'data-bind' => 'text: displayCount'}

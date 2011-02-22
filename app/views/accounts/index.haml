@@ -1,15 +1,16 @@
 .block
-  .secondary-navigation
-    %ul.wat-cf
-      %li.first.active=link_to pat(:list), url(:accounts, :index)
-      %li=link_to pat(:new), url(:accounts, :new)
   .content
-    %h2.title
-      =pat(:all)
-      =mt(:account)
+    #title
+      %h2.title
+        =pat(:all)
+        =mt(:accounts)
+    #title-menu
+      %ul
+        %li
+          %a{:href => url(:accounts, :new)}=image_tag("add.png")
     .inner
       =simple_table(@accounts,[:username, :name, :surname, :email],
          :edit => "accounts/edit/${row._id}",
          :delete => "accounts/destroy/${row._id}") 
       .actions-bar.wat-cf
-        .actions="&nbsp;"
+        

@@ -86,24 +86,6 @@ hr {
         text-decoration: none;
         color: $white; }}}}
 
-.secondary-navigation {
-  background: $dark-green;
-  border-bottom: 5px solid #81b953;
-
-  ul li a {
-    display:block;
-    padding: 8px 12px;
-
-    &:hover { background: #81B953; }
-    &:link, &:visited, &:hover, &active {
-      text-decoration: none;
-      color: $white; }}}
-
-  ul li.active {
-    background: #81b953;
-    font-weight: bold;
-    a:hover { background-color: #81B953; }}
-
 #user-navigation ul{
   li {
     a:link, a:visited, a:active { color: $dark-green; }
@@ -240,15 +222,13 @@ ul.list li .item .avatar {
 /* rounded borders */
 
 #main, #main-navigation, #main-navigation li, 
-.secondary-navigation, #main .block, #sidebar .block, 
+#main .block, #sidebar .block, 
 #sidebar h3, ul.list li, #footer .block, 
 .form input.button, #box .block, #box .block h2 {
   @include border-top-left-radius(4px);
   @include border-top-right-radius(4px);
 }
 
-.secondary-navigation li.first a, 
-.secondary-navigation ul li.first, 
 .table th.first, .table th.first {
   @include border-top-left-radius(4px);
 }
@@ -257,9 +237,6 @@ ul.list li .item .avatar {
   @include border-top-right-radius(4px);
 }
 
-.secondary-navigation ul li.first {
-  @include border-top-left-radius(4px);
-}
 
 #sidebar, #sidebar .block, #main .block, 
 #sidebar ul.navigation, ul.list li, 
