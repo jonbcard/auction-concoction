@@ -26,10 +26,10 @@
     .content
       %form.form
         .group
-          Filter by Number:
+          %label Filter by Number:
           %input{:type => 'text', :class => "text_field", :style => "width:50px", :'data-bind' => 'value:numberFilter,valueUpdate:"keyup"' }
         .group
-          Show Inactive?
+          %label Show Inactive?
           %input{:type => 'checkbox', :'data-bind' => 'checked: showInactive'}
 
 .block

@@ -13,23 +13,32 @@
         %h1=link_to "Auction Floor"
         #user-navigation
           %ul.wat-cf
-            %li=link_to 'Logout', '/sessions/destroy', :method => :delete
+            %li=link_to("Logout", "/sessions/destroy", :method => :delete)
+            
         #main-navigation
           %ul.wat-cf
-            -project_modules.each do |project_module|
-              %li{:class => ("active" if request.path_info =~ /^#{project_module.path}/)}
-                =link_to project_module.human_name, project_module.path("/")
+            %li{:class => ("active" if request.path_info =~ /^\/auctions$/)}
+              =link_to pat(:auctions), "/auctions"
+            %li{:class => ("active" if request.path_info =~ /bidders/)}
+              =link_to pat(:bidders), "/auctions/#{params[:auctions_id]}/bidders" if params[:auctions_id]
+            %li{:class => ("active" if request.path_info =~ /lots/)}
+              =link_to pat(:lots), "/auctions/#{params[:auctions_id]}/lots" if params[:auctions_id]
+            %li{:class => ("active" if request.path_info =~ /sales/)}
+              =link_to pat(:sales), "/auctions/#{params[:auctions_id]}/sales" if params[:auctions_id]
+            #config-dropdown
+              =image_tag("gear.png", :height => "24px", :width => "24px")
+              %ul
+                %li=link_to pat(:accounts), "/accounts"
+                %li=link_to pat(:parameters), "/parameters"
+                %li=link_to pat(:customizations), "/customizations"
       #wrapper.wat-cf
         .flash=[:error, :warning, :notice].map { |type| flash_tag(type, :class => "message #{type}") }.join
-        -# Yeah - it's a pretty ugly way to determine the partial to render... TODO
         #sidebar
           =yield_content(:context_panel)
-          =@auction.nil? ? "": partial('/auctions/sidebar')
         #main
           =yield
           #footer
             .block
-              %p Copyright &copy; #{Time.now.year} Pliosoft - Auction Floor
-        
+              %p Copyright &copy; #{Time.now.year} Pliosoft - Auction Floor  
   #dialog{ :style=>"display:none;"}
     TEST

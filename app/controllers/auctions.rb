@@ -5,8 +5,8 @@ AuctionNow.controllers :auctions do
     if(params[:by_range] == "true")
       # Some lazy coding
       @auctions = Auction.where(
-        :auction_date.gte => parse_date_as_utc(params[:start_date],"1000-01-01"),
-        :auction_date.lte => parse_date_as_utc(params[:end_date],"2300-01-01")).sort(:auction_date).all
+        :auction_date.gte => parse_date_as_utc(params[:start_date],"2000-01-01"),
+        :auction_date.lte => parse_date_as_utc(params[:end_date],"2050-01-01")).sort(:auction_date).all
     else
       @auctions = Auction.where(:auction_date.gte => today_as_utc).sort(:auction_date).all
     end

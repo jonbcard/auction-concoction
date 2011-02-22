@@ -1,5 +1,6 @@
 .group=f.simple_field :title
 .group=f.simple_field :auction_date, :type => :date
+.group=f.simple_field :auction_time, :type => :time
 .group=f.simple_field :description
 -if(@auction.respond_to?("custom_fields"))
   -@auction.custom_fields.each do |custom|

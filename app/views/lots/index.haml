@@ -63,6 +63,7 @@
         return false;
       }
   };
+
   viewModel.nextLotNumber = ko.dependentObservable(function(){
     if(!viewModel.autoNumber()){
       return "";
@@ -70,7 +71,7 @@
     var max = 1;
     for(x in viewModel.lots()){
       var val = parseInt(viewModel.lots()[x].number);
-      if(val > max){
+      if(!isNaN(val) && val > max){
         max = val;
       }
     }
@@ -83,7 +84,7 @@
     .content
       %form.form
         .group
-          Auto-number?
+          %label Auto-number?
           %input{:type => 'checkbox', :'data-bind' => 'checked: autoNumber'}
 
 .flash
@@ -130,4 +131,4 @@
     %td
       %span{:'data-bind' => "text: qty_available"}
     %td
-      =button_to( pat(:remove), "lots/destroy/${id}", :method => :delete, :class => :button_to)
+      =button_to( pat(:delete), "lots/destroy/${id}", :method => :delete, :class => :button_to)

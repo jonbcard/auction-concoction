@@ -58,8 +58,9 @@
               %th Required?
               %th.last
           %tbody{:'data-bind' => 'template: { name: "fieldListTemplate", foreach: customFields }'}
-        %input{:type => "image", :src => "/images/add.png", :'data-bind' => "click: addField"}
-        %br
+        .actions-bar.wat-cf
+          .actions
+            %input{:type => "image", :src => "/images/add.png", :'data-bind' => "click: addField"}
         %br
         %input.form_button{:type => "submit"}
         &nbsp;&nbsp;|&nbsp;&nbsp;
