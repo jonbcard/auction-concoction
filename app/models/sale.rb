@@ -7,6 +7,7 @@ class Sale
   key  :bidder,       String,  :required => true
   key  :price,        Money,   :required => true
   key  :quantity,     Integer, :required => true
+  key  :sale_time,    Time,    :required => true
   
   embedded_in :auction
   
@@ -22,4 +23,19 @@ class Sale
       errors.add(:price, "must be in valid form and greater than zero")
     end
   end
+
+  # Chart Visualization methods
+  def js_datapoints
+    "[#{truncated_js_time}, #{quantity}, #{price*quantity}]"
+  end
+
+  private
+    def truncated_js_time
+      year = sale_time.getlocal.year
+      month = sale_time.getlocal.month
+      day = sale_time.getlocal.day
+      hour = sale_time.getlocal.hour
+      min = (sale_time.getlocal.min / 10)*10
+      "new Date(#{year}, #{month}, #{day}, #{hour}, #{min}, 0)"
+    end
 end

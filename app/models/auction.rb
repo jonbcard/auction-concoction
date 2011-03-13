@@ -53,6 +53,7 @@ class Auction
 
 
   def add_sale(sale)
+    sale.sale_time = Time.now
     sale.valid? &&
       validate_bidder_exists(sale) &&
       push(:sales => sale.to_mongo) &&
@@ -75,6 +76,26 @@ class Auction
   def remove_lot(lot_id)
     pull(:lots => {:_id => BSON::ObjectId(lot_id)})
   end
+
+  # Stats methods
+  
+  def gross_sales
+    sales.sum{ |s| s.price * s.quantity }
+  end
+
+  #def rollup
+  #  rollup = AuctionRollup.new(
+  #    :title => title,
+  #    :auction_date => auction_date,
+  #    :auction_time => auction_time,
+  #    :description  => description,
+  #    :active_bidders => active_bidders.size,
+  #    :lots_created => lots.size,
+  #    :lots_sold    => sales.size,
+  #    :total_sales  => sales.sum{ |s| s.price * s.quantity }
+  #  )
+  #
+  #end
 
   private
     def validate_bidder_unique(new_bidder)

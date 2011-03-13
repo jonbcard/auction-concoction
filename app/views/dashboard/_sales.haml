@@ -1,0 +1,30 @@
+#lots_sold_div{:style => "width:700px; height:240px;"}
+:javascript
+
+  google.load('visualization', '1', {'packages':['annotatedtimeline']});
+  google.setOnLoadCallback(drawChart);
+  function drawChart() {
+      var data = new google.visualization.DataTable();
+      data.addColumn('datetime', 'Time');
+      data.addColumn('number', 'Lots Sold');
+      data.addColumn('number', 'Sales Amount');
+      data.addRows([
+        #{@auction.sales.collect{|i| i.js_datapoints}.join(",")}
+      ]);
+
+      var lotsSold = google.visualization.data.group(data, [0],
+            [{'column':1,'aggregation': google.visualization.data.sum, 'type': 'number'},
+             {'column':2,'aggregation': google.visualization.data.sum, 'type': 'number'}]);
+
+      var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('lots_sold_div'));
+      
+      chart.draw(lotsSold, {
+        scaleColumns:[0,1],
+        scaleType:'allfixed',
+        displayAnnotations: true,
+        displayZoomButtons: false,
+        displayRangeSelector: false,
+        dateFormat: 'HH:mm',
+        numberFormats:{1:'¤##.00'}
+      });
+    }

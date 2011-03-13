@@ -7,7 +7,7 @@ AuctionNow.controllers :auctions do
       @auctions = Auction.where(
         :auction_date.gte => parse_date_as_utc(params[:start_date],"2000-01-01"),
         :auction_date.lte => parse_date_as_utc(params[:end_date],"2050-01-01")).sort(:auction_date).all
-    else
+    else  
       @auctions = Auction.where(:auction_date.gte => today_as_utc).sort(:auction_date).all
     end
     

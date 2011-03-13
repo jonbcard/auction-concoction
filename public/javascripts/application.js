@@ -49,6 +49,15 @@ var sortArrayByProperty = function(array, property){
 }
 
 // ---- JQuery helper stuff ----
+registerHotkey = function(elementId, hotkey, displayText){
+    $(window).keypress(function(event) {
+        if (!(event.which == 115 && event.ctrlKey)) return true;
+        alert("Ctrl-S pressed");
+        event.preventDefault();
+        return false;
+    });
+}
+
 setupConfirmationDialog = function(dialogHandle, domHandle, dialogText){
     // Setup the options on the dialog
     dialogHandle.dialog({
