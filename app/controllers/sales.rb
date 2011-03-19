@@ -1,12 +1,13 @@
 AuctionNow.controllers :sales, :parent => :auctions do
-  
-  get :index do
+  before do
     @auction = Auction.find(params[:auctions_id])
+  end
+
+  get :index do
     render 'sales/index'
   end
   
   post :new do
-    @auction = Auction.find(params[:auctions_id])
     sale = Sale.new(params[:sale])
     if(!@auction.add_sale(sale))
       return {:errors => sale.errors.errors,
@@ -17,14 +18,12 @@ AuctionNow.controllers :sales, :parent => :auctions do
 
   get :check_bidder_number do
     sale_hash = params[:sale]
-    @auction = Auction.find(params[:auctions_id])
     val = @auction.has_active_bidder?(sale_hash[:bidder])
     return "#{val}"
   end
 
   delete :destroy, :with => :id do
-    auction = Auction.find(params[:auctions_id])
-    if auction.remove_sale(params[:id])
+    if @auction.remove_sale(params[:id])
       flash[:notice] = 'Sale was successfully removed.'
     else
       flash[:error] = 'Sale could not be removed. The associated bidder may already be checked out.'

@@ -1,5 +1,4 @@
 AuctionNow.controllers :auctions do
-  # TODO : Not a big fan of the current URL-scheme. To fix.
 
   get :index do
     if(params[:by_range] == "true")

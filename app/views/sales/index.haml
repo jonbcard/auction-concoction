@@ -67,7 +67,7 @@
   .message.error{:'data-bind' => "text: lastErrorsFull, visible: !nullOrEmpty(lastErrorsFull())"}
 .block
   .content
-    %h2.title Auction :: #{@auction.title} :: Sales
+    %h2.title #{@auction.title} :: Sales
     .inner
       %form.form{:id => 'sale',:method => 'post', :autocomplete => "false",
                  :action=>"/auctions/#{@auction.id}/sales/new"}

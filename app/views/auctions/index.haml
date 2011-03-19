@@ -39,7 +39,7 @@
         %li
           %a{:href => url(:auctions, :new)}=image_tag("add.png")
     .inner
-      =simple_table(@auctions,[:title,:auction_date,:description],
+      =simple_table(@auctions,[:title,:auction_date,:description,:sales_and_lots],
             :edit =>   "auctions/edit/${row._id}",
             :delete => "auctions/destroy/${row._id}",
             :click =>  "auctions/${row._id}/bidders")

@@ -2,7 +2,7 @@
   tableModel = {
     sortAscending: ko.observable(true),
     sortColumn: ko.observable("#{properties.first}"),
-    data : #{list.nil? ? '[]' : list.to_json(:only => ([:_id] + properties))},
+    data : #{list.nil? ? '[]' : list.to_json(:only => [:_id], :methods => (properties))},
     pageSize: #{options[:paginate] ? options[:page_size] : 0},
     currentPageIndex : ko.observable(0)
   }

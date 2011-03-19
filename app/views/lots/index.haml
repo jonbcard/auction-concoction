@@ -91,7 +91,7 @@
   .message.error{:'data-bind' => "text: lastErrorsFull, visible: lastErrorsFull() != ''"}
 .block
   .content
-    %h2.title Auction :: #{@auction.title} :: Lots
+    %h2.title #{@auction.title} :: Lots
     .inner
       %form.form{:id => 'lot',:method => 'post', :action=> "/auctions/#{@auction.id}/lots/new"}
         %table.table
