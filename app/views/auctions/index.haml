@@ -1,9 +1,46 @@
+-content_for :head do
+  =stylesheet_link_tag :fullcalendar
+  =javascript_include_tag :fullcalendar
 :javascript
   viewModel = {
     byRange : new ko.observable("#{params[:by_range] || 'false'}")
   }
   $(function(){
     ko.applyBindings(viewModel, document.getElementById("search"));
+    $('#accordian').accordion();
+    $('#calendar').fullCalendar({
+      ignoreTimezone: false,
+      allDayDefault: false,
+      selectable: true,
+      selectHelper: true,
+      header: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'month,agendaWeek'
+      },
+      dayClick: function(date, allDay, jsEvent, view) {
+        var d = $.fullCalendar.formatDate(date, 'yyyy-mm-dd');
+        document.location.href="auctions/new?date="+d
+      },
+      select: function(start, end, allDay) {
+        if(allDay){
+          var date = $.fullCalendar.formatDate(start, 'yyyy-MM-dd');
+          document.location.href="auctions/new?auction_date="+date
+        }
+        var s = $.fullCalendar.formatDate(start, 'yyyy-MM-ddTHH:mm');
+        var e = $.fullCalendar.formatDate(end, 'yyyy-MM-ddTHH:mm');
+        document.location.href="auctions/new?start="+s+"&end="+e
+      },
+      eventClick: function(calEvent, jsEvent, view) {
+        document.location.href="auctions/edit/" + calEvent._id
+      },
+      events : #{@auctions.to_json(:only => [:_id, :title, :start, :end])},
+      eventRender: function(event, element) {
+        //element.contextMenu({
+        //
+        //})
+      }
+    })
   });
 
   function clearDates(){
@@ -12,36 +49,30 @@
   }
 -content_for(:context_panel) do
   #search.block
-    %h3 Search For Auctions
-    .content
-      %form.form{:method => "get"}
-        .group
-          %label
-            =radio_button_tag(:by_range, :value => "false", :"data-bind" => "checked:byRange", :onClick => "clearDates()")
-            Current and Upcoming
-        .group
-          %label
-            =radio_button_tag(:by_range, :value => "true", :"data-bind" => "checked:byRange")
-            By Range:
-        .group{:"data-bind" => "visible: byRange() == 'true'"}
-          %label{:for => "start_date"} Start Date:
-          %input#start_date.text_field{:name =>"start_date", :"data-type" => "date", :value => params[:start_date]}
-        .group{:"data-bind" => "visible:byRange() == 'true'"}
-          %label{:for => "end_date"} End Date:
-          %input#end_date.text_field{:name =>"end_date", :"data-type" => "date", :value => params[:end_date]}
-        .group=submit_tag("Search", :class => :form_button)
+    #accordian
+      %h3="&nbsp;&nbsp;&nbsp;Upcoming Auctions"
+      %div{:style => 'padding-left:0px;padding-right:0px;'}
+        %table.table
+          -@auctions.each do |a|
+            %tr.clickable{:style => 'font-size:.8em'}
+              %td{:width => '80px'}=date_string(a.start)
+              %td
+                #{a.title}
+                :javascript
+                  $(function(){
+                    //$("#row-#{a._id}").contextMenu({ menu: 'context-#{a._id}' }, function(){});
+                  });
+                %ul.contextMenu{:id => "context-#{a._id}"}
+                  %li.edit
+                    %a{:href => "#edit"} Edit
+                  %li.delete
+                    %a{:href => "#delete"} Delete
+      %h3="&nbsp;&nbsp;&nbsp;Recent Auctions"
+      %div
+        These are some recent auctions.
+        -@auctions.each do |a|
+          =a.title        
 .block 
   .content
-    #title
-      %h2.title=params[:by_range] == "true" ? "Auctions by Date Range" : "Current and Upcoming Auctions"
-    #title-menu
-      %ul
-        %li
-          %a{:href => url(:auctions, :new)}=image_tag("add.png")
     .inner
-      =simple_table(@auctions,[:title,:auction_date,:description,:sales_and_lots],
-            :edit =>   "auctions/edit/${row._id}",
-            :delete => "auctions/destroy/${row._id}",
-            :click =>  "auctions/${row._id}/bidders")
-      .actions-bar.wat-cf
-        .actions="&nbsp;"
+      #calendar

@@ -5,8 +5,8 @@ class Auction
   
   # Keys
   key :title,            String, :required => true
-  key :auction_date,     Date,   :required => true
-  key :auction_time,     Time
+  key :start,            Time
+  key :end,              Time
   key :description,      String
   
   many :bidders

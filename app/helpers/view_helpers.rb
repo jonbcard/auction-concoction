@@ -40,4 +40,37 @@ AuctionNow.helpers do
     args.reverse_merge!(:method => :delete, :class => :button_to, :'data-confirm' => "Are you sure you want to remove this record?")
     button_to(pat(:delete), url, args)
   end
+
+  def to_events_json(auctions)
+    events = auctions.collect do |a|
+      start = a.start
+      if not start.nil?
+        year = start.getlocal.year
+        month = start.getlocal.month
+        day = start.getlocal.day
+        hour = start.getlocal.hour
+        min = start.getlocal.min
+        start_date = "#{year}-#{month}-#{day} #{hour}:#{min}"
+        "[title:'#{a.title}', start:'#{start_date}']"
+      else
+        nil
+      end
+    end
+    "{" << events.join(",") << "}"
+  end
+
+  def date_string(time)
+    return nil if time.nil?
+    year = time.year
+    month = time.month.to_s.rjust(2,'0')
+    day = time.day.to_s.rjust(2,'0')
+    return "#{year}-#{month}-#{day}"
+  end
+
+  def time_string(time)
+    return nil if time.nil?
+    hour = time.hour.to_s.rjust(2,'0')
+    min  = time.min.to_s.rjust(2,'0')
+    return "#{hour}:#{min}"
+  end
 end

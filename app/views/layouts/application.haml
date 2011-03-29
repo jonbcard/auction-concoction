@@ -7,6 +7,7 @@
     = javascript_include_tag :jquery, |
       'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js', |
       :"jquery.tmpl", :"jquery.validate", :"knockout-1.1.2", :application |
+    = yield_content :head
   %body
     #container
       #header
@@ -37,7 +38,7 @@
       #wrapper.wat-cf
         .flash=[:error, :warning, :notice].map { |type| flash_tag(type, :class => "message #{type}") }.join
         #sidebar
-          =yield_content(:context_panel)
+          =yield_content :context_panel
         #main
           =yield
           #footer

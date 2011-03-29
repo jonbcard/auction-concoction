@@ -19,6 +19,9 @@ puts "=> Located #{Padrino.bundle} Gemfile for #{Padrino.env}"
 # Add here your before load hooks
 #
 Padrino.before_load do
+  # TODO : Realistically, TZ should be coming
+  # from the client.
+  Time.zone = 'America/Denver'
 end
 
 ##

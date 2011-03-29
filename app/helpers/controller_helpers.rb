@@ -7,4 +7,5 @@ AuctionNow.helpers do
     date = param.length > 0 ? Date.parse(param) : Date.parse(default)
     Time.utc(date.year, date.month, date.day, 0, 0, 0, 0)
   end
+
 end

@@ -1,7 +1,31 @@
+-content_for :head do
+  =stylesheet_link_tag :timepicker
+  =javascript_include_tag :timepicker
+:javascript
+  $(function(){
+    $('input[data-type|="_time"]').timepicker();
+  });
 .group=f.simple_field :title
-.group=f.simple_field :auction_date, :type => :date
-.group=f.simple_field :auction_time, :type => :time
-.group=f.simple_field :description
+%table
+  %tr
+    %td{:style => 'width:120px'}
+      .group
+        =label_tag :auction_date
+        %input.text_field{:type => 'text', :'data-type' => 'date',
+                          :value => date_string(@auction.start), :name => 'auction_date'}
+    %td{:style => 'width:60px;padding-left:8px'}
+      .group
+        =label_tag :start
+        %input.text_field{:type => 'text', :'data-type' => '_time',
+                          :value => time_string(@auction.start), :name => 'start'}
+    %td{:style => 'padding-left:8px'}
+      to
+    %td{:style => 'width:60px;padding-left:8px'}
+      .group
+        =label_tag :end
+        %input.text_field{:type => 'text', :'data-type' => '_time',
+                          :value => time_string(@auction.end), :name => 'end'}
+.group=f.simple_field :description, :type => :text_area
 -if(@auction.respond_to?("custom_fields"))
   -@auction.custom_fields.each do |custom|
     .group=f.simple_field custom.field_name, :caption => custom.label
