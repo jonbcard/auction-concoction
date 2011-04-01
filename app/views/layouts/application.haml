@@ -3,11 +3,10 @@
   %head
     %meta{:content => "text/html; charset=utf-8", "http-equiv" => "Content-Type"}
     %title Auction Floor
-    = stylesheet_link_tag :layout, :theme, 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css'
-    = javascript_include_tag :jquery, |
-      'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js', |
+    =stylesheet_link_tag :layout, :theme, :jqueryui
+    =javascript_include_tag :jquery, :jqueryui, |
       :"jquery.tmpl", :"jquery.validate", :"knockout-1.1.2", :application |
-    = yield_content :head
+    =yield_content :head
   %body
     #container
       #header

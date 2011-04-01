@@ -11,14 +11,14 @@ $(function(){
         // it is different, and 2) its wasteful.
         setupConfirmationDialog($("#dialog"), $(this), $(this).attr("data-confirm"));
     });
-    // Automatically apply JQuery validation for simple forms
-    // Note that this is currently commented out because it is playing a bit
-    // strangely with some of the other JQuery UI components like the datepicker.
-    //$(".simple_form").validate({
-    //    errorPlacement: function(error, element) {
-    //        error.insertBefore(element);
-    //    }
-    //});
+// Automatically apply JQuery validation for simple forms
+// Note that this is currently commented out because it is playing a bit
+// strangely with some of the other JQuery UI components like the datepicker.
+//$(".simple_form").validate({
+//    errorPlacement: function(error, element) {
+//        error.insertBefore(element);
+//    }
+//});
 
 
 });
@@ -49,14 +49,28 @@ var sortArrayByProperty = function(array, property){
 }
 
 // ---- JQuery helper stuff ----
-registerHotkey = function(elementId, hotkey, displayText){
-    $(window).keypress(function(event) {
-        if (!(event.which == 115 && event.ctrlKey)) return true;
-        alert("Ctrl-S pressed");
-        event.preventDefault();
-        return false;
-    });
-}
+ConfirmationDialog = $.extend({}, $.ui.dialog.prototype, {
+    options: {
+        onConfirm: function(){
+            alert("'onConfirm' action on dialog not properly specified.")
+        },
+        title: "Confirmation Dialog",
+        modal: true,
+        closeOnEscape: false,
+        resizable: false,
+        buttons: {
+            "Confirm":function(event,ui){
+                $(this).dialog("close");
+                var confirm = $(this).dialog("option", "onConfirm");
+                confirm.call();
+            },
+            "Cancel": function(){
+                $(this).dialog("close");
+            }
+        }
+    }
+});
+$.widget("ui.confirmationDialog", $.ui.dialog, ConfirmationDialog);
 
 setupConfirmationDialog = function(dialogHandle, domHandle, dialogText){
     // Setup the options on the dialog
@@ -67,7 +81,6 @@ setupConfirmationDialog = function(dialogHandle, domHandle, dialogText){
         resizable:false,
         buttons : {
             "Confirm" : function() {
-                $(this).dialog("close");
                 domHandle.get()[0].submit();
             },
             "Cancel" : function() {

@@ -3,25 +3,14 @@ AuctionNow.controllers :auctions do
   
 
   get :index do
-    #if(params[:by_range] == "true")
-    # Some lazy coding
-    #  @auctions = Auction.where(
-    #    :auction_date.gte => parse_date_as_utc(params[:start_date],"2000-01-01"),
-    #    :auction_date.lte => parse_date_as_utc(params[:end_date],"2050-01-01")).sort(:auction_date).all
-    #else
-    #  @auctions = Auction.where(:auction_date.gte => today_as_utc).sort(:auction_date).all
-    #end
     @auctions = Auction.all
-    @auctions_upcoming = Auction.where(:auction_date.gte => today_as_utc).sort(:auction_date).all
-    @auctions_recent   = Auction.where(:auction_date.lte => today_as_utc, :auction_date.gte => (today_as_utc - 60*60*24*7)).sort(:auction_date).all
-    @auctions_json = to_events_json(@auctions)
+    @auctions_upcoming = Auction.where(:start.gte => today_as_utc).sort(:start).all
+    @auctions_recent   = Auction.where(:start.lte => today_as_utc, :start.gte => (today_as_utc - 60*60*24*7)).sort(:start).all
     render 'auctions/index'
   end
 
   get :new do
     @auction = Auction.new()
-    p "STRT"
-    p params[:start]
     @auction.start = Time.parse(params[:start])
     @auction.end = Time.parse(params[:end])
     render 'auctions/new'
@@ -56,9 +45,12 @@ AuctionNow.controllers :auctions do
     end
   end
 
-  delete :destroy, :with => :id do
-    # TODO : Do not allow an auction to be
-    # removed if it has associated data
+  ##
+  # TODO : Obviously this shouldn't be a 'GET' since it has
+  # consequences to the stored data. Also need to update this method
+  # to note remove the record if there is associated data.
+  ##
+  get :destroy, :with => :id do
     auction = Auction.find(params[:id])
     
     if auction.destroy

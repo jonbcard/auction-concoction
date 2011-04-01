@@ -1,6 +1,6 @@
 -content_for :head do
-  =stylesheet_link_tag :fullcalendar
-  =javascript_include_tag :fullcalendar
+  =stylesheet_link_tag :fullcalendar, :contextmenu
+  =javascript_include_tag :fullcalendar, :contextmenu
 :javascript
   viewModel = {
     byRange : new ko.observable("#{params[:by_range] || 'false'}")
@@ -8,6 +8,7 @@
   $(function(){
     ko.applyBindings(viewModel, document.getElementById("search"));
     $('#accordian').accordion();
+
     $('#calendar').fullCalendar({
       ignoreTimezone: false,
       allDayDefault: false,
@@ -31,16 +32,40 @@
         var e = $.fullCalendar.formatDate(end, 'yyyy-MM-ddTHH:mm');
         document.location.href="auctions/new?start="+s+"&end="+e
       },
-      eventClick: function(calEvent, jsEvent, view) {
-        document.location.href="auctions/edit/" + calEvent._id
-      },
       events : #{@auctions.to_json(:only => [:_id, :title, :start, :end])},
       eventRender: function(event, element) {
-        //element.contextMenu({
-        //
-        //})
+        $(element).addClass("clickable");
+        $(element).attr("data-id", event._id);
       }
     })
+
+    $(".clickable").contextMenu({ menu: 'contextMenu' },
+      function(action, el, pos) {
+        var id = $(el).attr("data-id")
+        if(action == "edit"){
+          document.location.href="auctions/edit/" + id;
+        }
+        if(action == "delete"){
+          var text = "Are you sure you want to remove this Auction record? Note that " 
+                  + "it will only be possible to remove the record if it has no associated data.";
+          $("#dialog").html(text);
+          $("#dialog").confirmationDialog({
+            autoStart: true,
+
+            onConfirm: function(){
+              document.location.href="auctions/destroy/" + id + "?_method=delete"
+            }
+          });
+        }
+      }
+    );
+
+    $(".clickable").click(function(event){
+      var id = $(this).attr("data-id");
+      document.location.href = "auctions/" + id + "/dashboard";
+    });
+
+
   });
 
   function clearDates(){
@@ -48,30 +73,33 @@
     $("#end_date").val("");
   }
 -content_for(:context_panel) do
+  %ul.contextMenu{:id => "contextMenu"}
+    %li.edit
+      %a{:href => "#edit"} Edit
+    %li.delete
+      %a{:href => "#delete"} Delete
   #search.block
     #accordian
-      %h3="&nbsp;&nbsp;&nbsp;Upcoming Auctions"
+      %h3="&nbsp;&nbsp;&nbsp;Current and Upcoming"
       %div{:style => 'padding-left:0px;padding-right:0px;'}
         %table.table
-          -@auctions.each do |a|
-            %tr.clickable{:style => 'font-size:.8em'}
+          -@auctions_upcoming.each do |a|
+            -is_today = date_string(a.start)==date_string(today_as_utc)
+            %tr.clickable{:style => "font-size:.8em;#{'font-weight:bold;' if is_today}",
+                          :'data-id' => a._id}
               %td{:width => '80px'}=date_string(a.start)
               %td
-                #{a.title}
-                :javascript
-                  $(function(){
-                    //$("#row-#{a._id}").contextMenu({ menu: 'context-#{a._id}' }, function(){});
-                  });
-                %ul.contextMenu{:id => "context-#{a._id}"}
-                  %li.edit
-                    %a{:href => "#edit"} Edit
-                  %li.delete
-                    %a{:href => "#delete"} Delete
+                %div
+                  #{a.title}
       %h3="&nbsp;&nbsp;&nbsp;Recent Auctions"
-      %div
-        These are some recent auctions.
-        -@auctions.each do |a|
-          =a.title        
+      %div{:style => 'padding-left:0px;padding-right:0px;'}
+        %table.table
+          -@auctions_recent.each do |a|
+            %tr.clickable{:style => 'font-size:.8em', :'data-id' => a._id}
+              %td{:width => '80px'}=date_string(a.start)
+              %td
+                %div
+                  #{a.title}
 .block 
   .content
     .inner
