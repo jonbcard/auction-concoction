@@ -10,7 +10,7 @@
           %a{:href => url(:accounts, :new)}=image_tag("add.png")
     .inner
       =simple_table(@accounts,[:username, :name, :surname, :email],
-         :edit => "accounts/edit/${row._id}",
-         :delete => "accounts/destroy/${row._id}") 
+         :edit => "accounts/edit/${row.id}",
+         :delete => "accounts/destroy/${row.id}") 
       .actions-bar.wat-cf
         

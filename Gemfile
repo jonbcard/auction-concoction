@@ -6,6 +6,7 @@ gem 'rack-flash'
 gem 'thin' # or mongrel
 
 # Component requirements
+gem 'tzinfo'
 gem 'compass'
 gem 'haml'
 gem 'fancy-buttons'
@@ -18,4 +19,4 @@ gem 'json'
 
 
 # Padrino
-gem 'padrino', "0.9.20"
+gem 'padrino', "0.10.0"

@@ -32,10 +32,10 @@
         var e = $.fullCalendar.formatDate(end, 'yyyy-MM-ddTHH:mm');
         document.location.href="auctions/new?start="+s+"&end="+e
       },
-      events : #{@auctions.to_json(:only => [:_id, :title, :start, :end])},
+      events : #{@auctions.to_json(:only => [:id, :title, :start, :end])},
       eventRender: function(event, element) {
         $(element).addClass("clickable");
-        $(element).attr("data-id", event._id);
+        $(element).attr("data-id", event.id);
       }
     })
 
@@ -86,20 +86,26 @@
           -@auctions_upcoming.each do |a|
             -is_today = date_string(a.start)==date_string(today_as_utc)
             %tr.clickable{:style => "font-size:.8em;#{'font-weight:bold;' if is_today}",
-                          :'data-id' => a._id}
+                          :'data-id' => a.id}
               %td{:width => '80px'}=date_string(a.start)
               %td
                 %div
                   #{a.title}
+          -if @auctions_upcoming.empty?
+            %tr
+              %td No upcoming auctions found.
       %h3="&nbsp;&nbsp;&nbsp;Recent Auctions"
       %div{:style => 'padding-left:0px;padding-right:0px;'}
         %table.table
           -@auctions_recent.each do |a|
-            %tr.clickable{:style => 'font-size:.8em', :'data-id' => a._id}
+            %tr.clickable{:style => 'font-size:.8em', :'data-id' => a.id}
               %td{:width => '80px'}=date_string(a.start)
               %td
                 %div
                   #{a.title}
+          -if @auctions_recent.empty?
+            %tr
+              %td No recent auctions found.
 .block 
   .content
     .inner

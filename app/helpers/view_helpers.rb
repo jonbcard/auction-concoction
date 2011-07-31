@@ -17,7 +17,7 @@ AuctionNow.helpers do
   # Valid options:
   # :paginate => [true (default), false]
   # :page_size => If pagination is on, how many records to display per page (Default is 25).
-  # :click => URL to go to if the row is clicked. Use ${row._id} to reference this row's _id field.
+  # :click => URL to go to if the row is clicked. Use ${row.id} to reference this row's id field.
   # :edit => If provided, an [Edit] link will be displayed to the user linking to the URL provided.
   # :delete => If provided, a [Remove] link will be displayed to the user linking to the URL provided.
   #
