@@ -1,25 +1,177 @@
 :javascript
   $(function(){
+    var viewModel =  biddersViewModel();
     ko.applyBindings(viewModel);
   });
 
-  var viewModel = {
-    numberFilter : new ko.observable(""),
-    showInactive : new ko.observable(false),
-    bidders : #{@auction.bidders.nil? ? '[]' : @auction.bidders.to_json}
+  function parse_bidder(viewModel, json){
+    return new bidder(viewModel, json.id, json.number, json.first_name, json.last_name, json.id_number, json.status);
+  }
 
-  };
+  function parse_errors(json){
+    return new bidder_errors(json.number, json.first_name, json.last_name, json.id_number);
+  }
 
-  viewModel.displayedBidders = ko.dependentObservable(function() {
-    return ko.utils.arrayFilter(this.bidders, function(bidder) {
-      return (viewModel.showInactive() || bidder.status == 'ACTIVE') &&
-             bidder.number.startsWith(viewModel.numberFilter());
+  function bidder(viewModel, id, number, first_name, last_name, id_number, status) {
+    this.id = ko.observable(id);
+    this.number = ko.observable(number);
+    this.first_name = ko.observable(first_name);
+    this.last_name = ko.observable(last_name);
+    this.id_number = ko.observable(id_number);
+    this.status = ko.observable(status);
+
+    // functions
+    this.edit = function(){
+      viewModel.activeBidder.init(this);
+      $("#bidderDialog").dialog({title:"Edit Bidder"});
+    }
+
+    this.cancel = function(){
+      viewModel.errors("");
+      viewModel.activeBidder.clear();;
+      $("#bidderDialog").dialog("close");
+    }
+
+    this.save = function(){
+      if(id == undefined){
+        // create the record
+        var self = this;
+        $.ajax({
+          url:  "bidders/new.json",
+          type: "post",
+          data: ko.toJSON(this),
+          contentType: "application/json",
+          success: function(result) {
+            if(result.errors){
+              viewModel.errors(parse_errors(result.errors));
+            } else {
+              viewModel.errors("");
+              viewModel.activeBidder.commit();
+
+              viewModel.bidders.push(viewModel.activeBidder());
+              viewModel.activeBidder.clear();
+              $("#bidderDialog").dialog("close");
+            }
+          }
+        });
+      } else {
+        // save the record
+        $.ajax({
+          url:  "bidders/" + id + ".json",
+          type: "post",
+          data: ko.toJSON(this),
+          contentType: "application/json",
+          success: function(result) {
+            if(result.errors){
+              viewModel.errors(parse_errors(result.errors));
+            } else {
+              viewModel.errors("");
+              viewModel.activeBidder.commit().clear();
+              $("#bidderDialog").dialog("close");
+            }
+          }
+        });
+      }
+    }
+  }
+
+  function bidder_errors(number, first_name, last_name, id_number){
+    this.number = ko.observable(number);
+    this.first_name = ko.observable(first_name);
+    this.last_name = ko.observable(last_name);
+    this.id_number = ko.observable(id_number);
+  }
+
+  function biddersViewModel(){
+    this.bidders = ko.observableArray([]);
+    this.activeBidder = ko.protectedObservable();
+    this.numberFilter = new ko.observable("");
+    this.showInactive = new ko.observable(false);
+
+    this.errors = new ko.observable("");
+
+    // view model functions
+    this.displayedBidders = ko.dependentObservable(function() {
+      return ko.utils.arrayFilter(this.bidders(), function(bidder) {
+        return (this.showInactive() || bidder.status() == 'ACTIVE') &&
+             bidder.number().startsWith(this.numberFilter());
+      });
+    }, this);
+
+    this.displayCount = ko.dependentObservable(function() {
+      return "Showing " + this.displayedBidders().length + " of " + this.bidders().length;
+    }, this);
+
+    this.newBidder = function() {
+      aNewBidder = new bidder(this);
+      aNewBidder.status("ACTIVE");
+      aNewBidder.edit();
+    };
+
+    // Load the initial state from server
+    var self = this;
+    $.get("bidders.json", function(data) {
+        var allBidders = $.map(data, function(json) {
+            return parse_bidder(self, json);
+        });
+        self.bidders(allBidders);
     });
-  }, viewModel);
 
-  viewModel.displayCount = ko.dependentObservable(function() {
-    return "Showing " + this.displayedBidders().length + " of " + this.bidders.length;
-  }, viewModel);
+
+  }
+
+#bidderDialog{ :style=>"display:none;"}
+  %div{:'data-bind' => "template: {name:'bidderForm', data: activeBidder.temp}"}
+
+
+%script{:type => "text/x-jquery-tmpl", :id => "bidderForm"}
+  .flash
+    .message.error{:'data-bind' => "visible: !nullOrEmpty(errors())"}
+      Errors occurred while saving the bidder.
+  %form.form{:id => 'bidderForm'}
+    .group
+      %label{:for=>:number}Number:
+      %span.error{:'data-bind' => "text: errors().number"}
+      %br
+      %input.required{:'data-bind' => "value: number"}
+    .group
+      %label{:for=>:first_name}First Name:
+      %span.error{:'data-bind' => "text: errors().first_name"}
+      %br
+      %input.required{:'data-bind' => "value: first_name"}
+    .group
+      %label{:for=>:last_name}Last Name:
+      %span.error{:'data-bind' => "text: errors().last_name"}
+      %br
+      %input.required{:'data-bind' => "value: last_name"}
+    .group
+      %label{:for=>:id_number}ID Number:
+      %span.error{:'data-bind' => "text: errors().id_number"}
+      %br
+      %input.required{:'data-bind' => "value: id_number"}
+    .group
+      %label{:for=>:id_number}Status:
+      %span{:'data-bind' => "text: status, style: { color: status == 'ACTIVE' ? 'green' : 'red' }"}
+  %button.form_button{:'data-bind' => "click: save"}
+    Save
+  &nbsp;&nbsp;|&nbsp;&nbsp;
+  =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
+
+%script{:type => "text/x-jquery-tmpl", :id => "bidderRow"}
+  %tr.clickable{:onClick => "document.location=\'bidders/checkout/${id}\'"}
+    %td
+      %span{:'data-bind' => "text: number"}
+    %td
+      %span{:'data-bind' => "text: first_name"}
+    %td
+      %span{:'data-bind' => "text: last_name"}
+    %td
+      %span{:'data-bind' => "text: status, style: { color: status() == 'ACTIVE' ? 'green' : 'red' }"}
+    %td.last
+      %span{:onClick => "event.stopPropagation();return false;", :'data-bind' => "click: edit"}
+        =image_tag 'page_white_edit.png'
+
+
 -content_for(:context_panel) do
   #filter.block
     %h3 Filter Bidders
@@ -39,31 +191,16 @@
     #title-menu
       %ul
         %li
-          %a{:href => "bidders/new"}=image_tag("add.png")
+          %a{:href => "", :'data-bind' => "click : newBidder"}=image_tag("add.png")
     .inner
-      %div{:'data-bind' => 'template: "biddersListTemplate"'}
-      %script{:type => "text/html", :id => "biddersListTemplate"}
-        %table.table
-          %tr
-            %th.first=mat(:bidder, :number)
-            %th=mat(:bidder, :first_name)
-            %th=mat(:bidder, :last_name)
-            %th=mat(:bidder, :status)
-            %th.last="&nbsp;"
-          \{{each(i, bidder) displayedBidders()}}
-          %tr.clickable{:onClick => "document.location=\'bidders/checkout/${bidder.id}\'", :'data-bind' => 'css:{odd : i%2==0, even: i%2==1}'}
-            %td
-              %span{:'data-bind' => "text: bidder.number"}
-            %td
-              %span{:'data-bind' => "text: bidder.first_name"}
-            %td
-              %span{:'data-bind' => "text: bidder.last_name"}
-            %td
-              %span{:'data-bind' => "text: bidder.status, style: { color: bidder.status == 'ACTIVE' ? 'green' : 'red' }"}
-            %td.last
-              =button_to "Edit", "bidders/edit/${bidder.id}", :method => :get, :class => :button_to
-          \{{/each}}
-          
+      %table.table
+        %tr
+          %th.first=mat(:bidder, :number)
+          %th=mat(:bidder, :first_name)
+          %th=mat(:bidder, :last_name)
+          %th=mat(:bidder, :status)
+          %th.last="&nbsp;"
+        %tbody{:'data-bind' => "template: {name:'bidderRow', foreach: displayedBidders()}"}
       .actions-bar.wat-cf
         .actions
           %span{:'data-bind' => 'text: displayCount'}

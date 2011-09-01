@@ -5,4 +5,4 @@
 - if(@bidder.respond_to?("custom_fields"))
   - @bidder.custom_fields.each do |custom|
     .group=f.simple_field custom.field_name, :caption => custom.label
-.group.navform.wat-cf=f.simple_submit  url(:bidders, :index, :auctions_id => @auction.id)
+.group.navform.wat-cf=f.simple_submit "/auctions/#{@auction.id}/bidders"

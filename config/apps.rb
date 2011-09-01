@@ -23,3 +23,7 @@
 
 # Mounts the core application for this project
 Padrino.mount("AuctionNow").to('/')
+Padrino.configure_apps do
+  enable :sessions
+  set :session_secret, "changeit"
+end

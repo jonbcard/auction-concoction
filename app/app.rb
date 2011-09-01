@@ -3,6 +3,7 @@ class AuctionNow < Padrino::Application
   register Padrino::Helpers
   register CompassInitializer
   register Padrino::Admin::AccessControl
+  register Padrino::Rendering
   
   use Rack::Session::Cookie
   ##

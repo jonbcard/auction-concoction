@@ -38,7 +38,7 @@ body{font-size:12px;font-family:sans-serif;}
 #main #title-menu ul{margin:0;padding:0;list-style-type:none;}
 #main #title-menu ul li{float:left;margin-right:5px;}
 #main .block{margin-bottom:20px;padding-top:1px;}
-#main .block .content .inner{padding:0 15px 15px;}
+#main .block .content .inner{clear:left;padding:0 15px 15px;}
 #main .block .content .inner .navform{text-align:left;}
 #main .main p.first{margin-top:0;}
 #user-navigation{position:absolute;top:0px;right:20px;}
