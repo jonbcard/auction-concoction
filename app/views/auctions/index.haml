@@ -56,10 +56,12 @@
     end.setSeconds(0); 
     end.setDate(today.getDate() + 7);
     
-    return ko.utils.arrayFilter(this.auctions(), function(auc){
+    var upcoming = ko.utils.arrayFilter(this.auctions(), function(auc){
       var result = $.fullCalendar.parseDate(auc.start())
       return result != null && result.getTime() >= today.getTime() && result.getTime() <= end.getTime();
     });
+    return sortArrayByProperty(upcoming, "auction_date()");
+
   }, viewModel);
 
   viewModel.recentAuctions = ko.dependentObservable(function(){
@@ -74,10 +76,11 @@
     start.setSeconds(0); 
     start.setDate(today.getDate() - 7);
     
-    return ko.utils.arrayFilter(this.auctions(), function(auc){
+    var recent = ko.utils.arrayFilter(this.auctions(), function(auc){
       var result = $.fullCalendar.parseDate(auc.start())
       return result != null && result.getTime() <= today.getTime() && result.getTime() >= start.getTime();
     });
+    return sortArrayByProperty(recent, "auction_date()").reverse();
   }, viewModel);
 
   // Load the initial state from server
@@ -144,7 +147,7 @@
 
     this.is_today = ko.dependentObservable(function(){
       var today = formatDate(new Date(), 'yyyy-MM-dd');
-      return today == self.auction_date;
+      return today == self.auction_date();
     });
 
     this.edit = function(){
@@ -301,7 +304,7 @@
   =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
 
 %script{:type => "text/x-jquery-tmpl", :id => "auctionRow"}
-  %tr.clickable{:onClick => "document.location=\'auctions/${id}/dashboard\'", 'data-bind'=>"fontWeight: is_today() ? 'bold' : '' "}
+  %tr.clickable{:onClick => "document.location=\'auctions/${id}/dashboard\'", 'data-bind'=>"style: { fontWeight: is_today() ? 'bold' : '' }"}
     %td{:width => '80px'}
       %span{'data-bind'=>"text: auction_date"}
     %td
