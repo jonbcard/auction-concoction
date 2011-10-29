@@ -1,13 +1,225 @@
 -content_for :head do
-  =stylesheet_link_tag :fullcalendar, :contextmenu
+  =stylesheet_link_tag    :fullcalendar, :contextmenu
   =javascript_include_tag :fullcalendar, :contextmenu
 :javascript
+  jQuery.fn.applyContextMenu = function() {
+      $(this).contextMenu(
+          { menu: 'contextMenu' },
+          function(action, el, pos) {
+              var id = $(el).attr("data-id");
+              if(action == "edit"){
+                  var auction = ko.utils.arrayFirst(viewModel.auctions(), function(auc) {
+                      return auc.id() == id; });
+                  auction.edit();
+              }
+              if(action == "delete"){
+                  var text = "Are you sure you want to remove this Auction record? Note that " 
+                        + "it will only be possible to remove the record if it has no associated data.";
+                  $("#dialog").html(text);
+                  $("#dialog").confirmationDialog({
+                      autoStart: true,
+                      onConfirm: function(){
+                          $.ajax({
+                            url:  "auctions/destroy/" + id + "?_method=delete",
+                            type: "get",
+                            success: function(result) {
+                                viewModel.auctions.remove(function(item) { return item.id() == id });
+                            }
+
+                          });
+                      }
+                  });
+              }
+          }
+        );
+        $(this).click(function(event){
+            var id = $(this).attr("data-id");
+            document.location.href = "auctions/" + id + "/dashboard";
+        });
+    };
+
   viewModel = {
-    byRange : new ko.observable("#{params[:by_range] || 'false'}")
+    auctions : ko.observableArray([]),
+    activeAuction : ko.protectedObservable(),
+    errors : ko.observable("")
   }
+
+  viewModel.upcomingAuctions = ko.dependentObservable(function(){
+    var today = new Date();
+    today.setHours(0); 
+    today.setMinutes(0); 
+    today.setSeconds(0); 
+    
+    var end = new Date();
+    end.setHours(0); 
+    end.setMinutes(0); 
+    end.setSeconds(0); 
+    end.setDate(today.getDate() + 7);
+    
+    return ko.utils.arrayFilter(this.auctions(), function(auc){
+      var result = $.fullCalendar.parseDate(auc.start())
+      return result != null && result.getTime() >= today.getTime() && result.getTime() <= end.getTime();
+    });
+  }, viewModel);
+
+  viewModel.recentAuctions = ko.dependentObservable(function(){
+    var today = new Date();
+    today.setHours(0); 
+    today.setMinutes(0); 
+    today.setSeconds(0); 
+    
+    var start = new Date();
+    start.setHours(0); 
+    start.setMinutes(0); 
+    start.setSeconds(0); 
+    start.setDate(today.getDate() - 7);
+    
+    return ko.utils.arrayFilter(this.auctions(), function(auc){
+      var result = $.fullCalendar.parseDate(auc.start())
+      return result != null && result.getTime() <= today.getTime() && result.getTime() >= start.getTime();
+    });
+  }, viewModel);
+
+  // Load the initial state from server
+  $.get("auctions.json", function(data) {
+    
+    var allBidders = $.map(data, function(json) {
+      return new auction(json.id, json.title, json.start, json.end, json.description);
+    });
+    viewModel.auctions(allBidders);
+  });
+  
+  // Manually subscribe the Calendar to changes in the set of auctions.
+  // TODO: work on only updating applicable portions..
+  viewModel.auctions.subscribe(function(newValue) {
+    $('#calendar').fullCalendar("refetchEvents");
+  });
+
+  function parse_errors(json){
+    return new auction_errors(json.id, json.title, json.start, json.end);
+  }
+
+  function formatDate(date,format){
+    return $.fullCalendar.formatDate($.fullCalendar.parseDate(date), format);
+  }
+
+  function auction(id, title, start, end, description){
+    this.id = ko.observable(id);
+    this.title = ko.observable(title);
+    this.start = ko.observable(start);
+    this.end = ko.observable(end);
+    this.description = ko.observable(description);
+
+    var self = this;
+    
+    this.auction_date = ko.dependentObservable({
+        read: function () {
+            return formatDate(self.start(), 'yyyy-MM-dd');
+        },
+        write: function (value) {
+            self.start(value + " " + self.start_time());
+        },
+        owner : viewModel
+    });
+
+    this.start_time = ko.dependentObservable({
+        read: function () {
+            return formatDate(self.start(), 'HH:mm');
+        },
+        write: function (value) {
+            self.start(self.auction_date() + " " + value);
+        },
+        owner : viewModel
+    });
+
+    this.end_time = ko.dependentObservable({
+        read: function () {
+            return formatDate(self.end(), 'HH:mm');
+        },
+        write: function (value) {
+            self.end(self.auction_date() + " " + value)
+        },
+        owner : viewModel
+    });
+
+    this.is_today = ko.dependentObservable(function(){
+      var today = formatDate(new Date(), 'yyyy-MM-dd');
+      return today == self.auction_date;
+    });
+
+    this.edit = function(){
+      viewModel.activeAuction.init(this);
+      $("#editDialog").dialog({
+        title: "Edit Auction",
+        modal: true
+      });
+    }
+
+    this.cancel = function(){
+      viewModel.errors("");
+      viewModel.activeAuction.clear();;
+      $("#editDialog").dialog("close");
+    }
+
+    this.save = function(){
+      if(id == undefined){
+        // create the record
+        var self = this;
+        $.ajax({
+          url:  "auctions/new.json",
+          type: "post",
+          data: ko.toJSON(this),
+          contentType: "application/json",
+          success: function(result) {
+            if(result.errors){
+              viewModel.errors(parse_errors(result.errors));
+            } else {
+              viewModel.errors("");
+              viewModel.activeAuction.commit();
+              viewModel.activeAuction().id(result.id);
+              viewModel.auctions.push(viewModel.activeAuction());
+              viewModel.activeAuction.clear();
+              $("#editDialog").dialog("close");
+             
+            }
+          }
+        });
+      } else {
+        // save the record
+        $.ajax({
+          url:  "auctions/" + id + ".json",
+          type: "post",
+          data: ko.toJSON(this),
+          contentType: "application/json",
+          success: function(result) {
+            if(result.errors){
+              viewModel.errors(parse_errors(result.errors));
+            } else {
+              viewModel.errors("");
+              viewModel.activeAuction.commit().clear();
+              $("#editDialog").dialog("close");
+              $('#calendar').fullCalendar("refetchEvents");
+            }
+          }
+        });
+      }
+    }
+  }
+
+  function auction_errors(id, title, auction_date, start, end, description){
+    this.id = ko.observable(id);
+    this.title = ko.observable(title);
+    this.auction_date = ko.observable(auction_date);
+    this.start = ko.observable(start);
+    this.end = ko.observable(start);
+    this.description = ko.observable(description);
+  }
+
   $(function(){
-    ko.applyBindings(viewModel, document.getElementById("search"));
-    $('#accordian').accordion();
+    ko.applyBindings(viewModel);
+    
+
+    $('#accordian').accordion({ autoHeight: false, clearStyle: true });
 
     $('#calendar').fullCalendar({
       ignoreTimezone: false,
@@ -19,59 +231,83 @@
         center: 'title',
         right: 'month,agendaWeek'
       },
-      dayClick: function(date, allDay, jsEvent, view) {
-        var d = $.fullCalendar.formatDate(date, 'yyyy-mm-dd');
-        document.location.href="auctions/new?date="+d
-      },
       select: function(start, end, allDay) {
-        if(allDay){
-          var date = $.fullCalendar.formatDate(start, 'yyyy-MM-dd');
-          document.location.href="auctions/new?auction_date="+date
+        var startTime = $.fullCalendar.formatDate(start, 'yyyy-MM-dd HH:mm');
+        var endTime = $.fullCalendar.formatDate(end, 'yyyy-MM-dd HH:mm' );
+        if(allDay){  
+          var startTime = $.fullCalendar.formatDate(start, 'yyyy-MM-dd')  + ' 12:00';
+          var endTime = $.fullCalendar.formatDate(start, 'yyyy-MM-dd' ) + ' 15:00';
+          new auction(null, null, startTime, endTime).edit();
+
+        } else {
+          new auction(null, null, startTime, endTime).edit();
         }
-        var s = $.fullCalendar.formatDate(start, 'yyyy-MM-ddTHH:mm');
-        var e = $.fullCalendar.formatDate(end, 'yyyy-MM-ddTHH:mm');
-        document.location.href="auctions/new?start="+s+"&end="+e
       },
-      events : #{@auctions.to_json(:only => [:id, :title, :start, :end])},
+      events : function(start, end, callback) { 
+        callback(ko.toJS(viewModel.auctions)) 
+      },
       eventRender: function(event, element) {
         $(element).addClass("clickable");
         $(element).attr("data-id", event.id);
+        $(element).applyContextMenu();
       }
     })
 
-    $(".clickable").contextMenu({ menu: 'contextMenu' },
-      function(action, el, pos) {
-        var id = $(el).attr("data-id")
-        if(action == "edit"){
-          document.location.href="auctions/edit/" + id;
-        }
-        if(action == "delete"){
-          var text = "Are you sure you want to remove this Auction record? Note that " 
-                  + "it will only be possible to remove the record if it has no associated data.";
-          $("#dialog").html(text);
-          $("#dialog").confirmationDialog({
-            autoStart: true,
-
-            onConfirm: function(){
-              document.location.href="auctions/destroy/" + id + "?_method=delete"
-            }
-          });
-        }
-      }
-    );
-
-    $(".clickable").click(function(event){
-      var id = $(this).attr("data-id");
-      document.location.href = "auctions/" + id + "/dashboard";
-    });
-
-
+    $(".clickable").applyContextMenu();
   });
 
   function clearDates(){
     $("#start_date").val("");
     $("#end_date").val("");
   }
+
+#editDialog{ :style=>"display:none;"}
+  %div{:'data-bind' => "template: {name:'auctionForm', data: activeAuction.temp}"}
+
+%script{:type => "text/x-jquery-tmpl", :id => "auctionForm"}
+  .flash
+    .message.error{:'data-bind' => "visible: !nullOrEmpty(viewModel.errors())"}
+      Errors occurred while saving the auction record.
+  %form.form{:id => 'auctionForm'}
+    .group
+      %label{:for=>:title}Title:
+      %span.error{:'data-bind' => "text: viewModel.errors().title"}
+      %br
+      %input.text_field{:'data-bind' => "value: title"}
+    %table
+      %tr
+        %td{:style => 'width:120px'}
+          .group
+            =label_tag :auction_date
+            %input.text_field{:'data-type' => 'date', :'data-bind' => 'value: auction_date'}
+        %td{:style => 'width:60px;padding-left:8px'}
+          .group
+            =label_tag :start
+            %input.text_field{:'data-type' => '_time', :'data-bind' => 'value: start_time'}
+        %td{:style => 'padding-left:8px'}
+          to
+        %td{:style => 'width:60px;padding-left:8px'}
+          .group
+            =label_tag :end
+            %input.text_field{ :'data-type' => '_time', :'data-bind' => 'value: end_time'}
+    .group
+      %label{:for=>:description}Description:
+      %span.error{:'data-bind' => "text: viewModel.errors().description"}
+      %br
+      %textarea.text_area{:'data-bind' => 'value: description'}
+  %button.form_button{:'data-bind' => "click: save"}
+    Save
+  &nbsp;&nbsp;|&nbsp;&nbsp;
+  =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
+
+%script{:type => "text/x-jquery-tmpl", :id => "auctionRow"}
+  %tr.clickable{:onClick => "document.location=\'auctions/${id}/dashboard\'", 'data-bind'=>"fontWeight: is_today() ? 'bold' : '' "}
+    %td{:width => '80px'}
+      %span{'data-bind'=>"text: auction_date"}
+    %td
+      %div 
+        %span{'data-bind'=>"text: title"}
+
 -content_for(:context_panel) do
   %ul.contextMenu{:id => "contextMenu"}
     %li.edit
@@ -80,32 +316,20 @@
       %a{:href => "#delete"} Delete
   #search.block
     #accordian
-      %h3="&nbsp;&nbsp;&nbsp;Current and Upcoming"
+      %h3="&nbsp;&nbsp;&nbsp;Current and Upcoming (JS)"
       %div{:style => 'padding-left:0px;padding-right:0px;'}
         %table.table
-          -@auctions_upcoming.each do |a|
-            -is_today = date_string(a.start)==date_string(today_as_utc)
-            %tr.clickable{:style => "font-size:.8em;#{'font-weight:bold;' if is_today}",
-                          :'data-id' => a.id}
-              %td{:width => '80px'}=date_string(a.start)
-              %td
-                %div
-                  #{a.title}
-          -if @auctions_upcoming.empty?
-            %tr
-              %td No upcoming auctions found.
-      %h3="&nbsp;&nbsp;&nbsp;Recent Auctions"
+          %tbody{:'data-bind' => "template: {name:'auctionRow', foreach: upcomingAuctions()}"}
+            %tr{:'data-bind' => "visible: upcomingAuctions().length == 0"}
+              %td No Upcoming Auctions
+          
+      %h3="&nbsp;&nbsp;&nbsp;Recent Auctions (JS)"
       %div{:style => 'padding-left:0px;padding-right:0px;'}
         %table.table
-          -@auctions_recent.each do |a|
-            %tr.clickable{:style => 'font-size:.8em', :'data-id' => a.id}
-              %td{:width => '80px'}=date_string(a.start)
-              %td
-                %div
-                  #{a.title}
-          -if @auctions_recent.empty?
-            %tr
-              %td No recent auctions found.
+          %tbody{:'data-bind' => "template: {name:'auctionRow', foreach: recentAuctions()}"}
+            %tr{:'data-bind' => "visible: recentAuctions().length == 0"}
+              %td No Recent Auctions
+      
 .block 
   .content
     .inner

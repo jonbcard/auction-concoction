@@ -1,7 +1,5 @@
 AuctionNow.controllers :auctions do
 
-  
-
   get :index do
     @auctions = Auction.all
     @auctions_upcoming = Auction.where(:start.gte => today_as_utc).sort(:start).all
@@ -9,23 +7,35 @@ AuctionNow.controllers :auctions do
     render 'auctions/index'
   end
 
-  get :new do
+  get :new, :provides => [:html] do
     @auction = Auction.new()
     @auction.start = Time.parse(params[:start])
     @auction.end = Time.parse(params[:end])
     render 'auctions/new'
   end
 
-  post :new do
-    @auction = Auction.new(params[:auction])
-    @auction.start = Time.parse(params[:auction_date] + " " + params[:start])
-    @auction.end = Time.parse(params[:auction_date] + " " + params[:end])
-    if @auction.save
-      flash[:notice] = 'Auction was successfully created.'
-      redirect url(:auctions, :index)
-    else
-      render 'auctions/new'
+  post :new, :provides => [:json, :html] do
+    case content_type
+      when :html
+        @auction = Auction.new(params[:auction])
+        @auction.start = Time.parse(params[:auction_date] + " " + params[:start])
+        @auction.end = Time.parse(params[:auction_date] + " " + params[:end])
+        if @auction.save
+          flash[:notice] = 'Auction was successfully created.'
+          redirect url(:auctions, :index)
+        else
+          render 'auctions/new'
+        end
+      when :json
+        @auction = Auction.parse_json(CGI::unescape(request.body.read))
+        success = @auction.save
+        if(!success)
+          return {:errors => @auction.errors}.to_json
+        else
+          return @auction.to_json
     end
+    end
+    
   end
 
   get :edit, :with => :id do
@@ -52,13 +62,33 @@ AuctionNow.controllers :auctions do
   ##
   get :destroy, :with => :id do
     auction = Auction.find(params[:id])
-    
-    if auction.destroy
-      flash[:notice] = 'Auction was successfully destroyed.'
-    else
-      flash[:error] = 'Auction could not be cancelled.'
-    end
-    redirect url(:auctions, :index)
+    return auction.destroy.to_json
+    #if auction.destroy
+    #  flash[:notice] = 'Auction was successfully destroyed.'
+    #else
+    #  flash[:error] = 'Auction could not be cancelled.'
+    #end
+    #redirect url(:auctions, :index)
   end
 
+  
+  # REST-ful JSON endpoints
+  get :index, :provides => :json do
+     Auction.all.to_json
+  end
+  
+  get :index, :with => :id, :provides => :json do
+    return Auction.find(params[:id]).to_json
+  end
+
+  post :index, :with => :id, :provides => :json do
+    @auction = Auction.find(params[:id])
+    @auction.update_from_json(CGI::unescape(request.body.read))
+    success = @auction.save
+    if(!success)
+      return {:errors => @auction.errors}.to_json
+    else
+      return @auction.to_json
+    end
+  end
 end

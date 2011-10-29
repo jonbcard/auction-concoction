@@ -32,6 +32,7 @@
       $("#bidderDialog").dialog("close");
     }
 
+    var self = this;
     this.save = function(){
       if(id == undefined){
         // create the record
@@ -47,7 +48,7 @@
             } else {
               viewModel.errors("");
               viewModel.activeBidder.commit();
-
+              viewModel.activeBidder().id(result.id);
               viewModel.bidders.push(viewModel.activeBidder());
               viewModel.activeBidder.clear();
               $("#bidderDialog").dialog("close");

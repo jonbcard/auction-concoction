@@ -128,11 +128,10 @@ ko.bindingHandlers.confirm = {
 
 ko.protectedObservable = function(initialValue) {
     var result = ko.observable(initialValue);
-
+    var errors = ko.observable();
 
     //expose temp value for binding.  ko.toJS is an easy way to get a clean copy
     result.temp = ko.observable(ko.toJS(initialValue));
-    result.errors = ko.observable();
 
     //apply edits to the original (only goes one level deep)
     result.commit = function() {

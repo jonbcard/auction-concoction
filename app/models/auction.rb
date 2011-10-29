@@ -14,6 +14,24 @@ class Auction
   many :lots
 
   validate_custom
+  
+  def self.parse_json(json)
+    auction_map = JSON.parse(json)
+    auction = Auction.new()
+    auction.title = auction_map['title']
+    auction.description = auction_map['description']
+    auction.start = Time.parse(auction_map['start'])
+    auction.end   = Time.parse(auction_map['end'])
+    return auction
+  end
+  
+  def update_from_json(json)
+    auction_map = JSON.parse(json)
+    self.title = auction_map['title']
+    self.description = auction_map['description']
+    self.start = Time.parse(auction_map['start'])
+    self.end   = Time.parse(auction_map['end'])
+  end
 
   ##
   # Add a detached bidder to this auction. This will set the bidder
