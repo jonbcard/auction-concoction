@@ -1,8 +1,0 @@
-.block
-  .content
-    %h2.title Edit Bidder
-    .inner
-      -form_for :bidder, nil, :method => :put, :class => :form do |f|
-        =f.hidden_field :id
-        =f.hidden_field :status
-        =partial "bidders/form", :locals => { :f => f }

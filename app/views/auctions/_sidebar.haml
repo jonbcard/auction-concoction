@@ -1,6 +1,0 @@
-.block
-  %h3 Actions
-  %ul.navigation
-    %li=link_to "Record Lots", url(:lots, :index, :auctions_id => "#{@auction.id}")
-    %li=link_to "Record Sales", url(:sales, :index, :auctions_id => "#{@auction.id}")
-    %li=link_to "Manage Bidders", url(:bidders, :index, :auctions_id => "#{@auction.id}")

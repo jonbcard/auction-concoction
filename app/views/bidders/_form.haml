@@ -1,8 +1,0 @@
-.group=f.simple_field :number
-.group=f.simple_field :first_name
-.group=f.simple_field :last_name
-.group=f.simple_field :id_number
-- if(@bidder.respond_to?("custom_fields"))
-  - @bidder.custom_fields.each do |custom|
-    .group=f.simple_field custom.field_name, :caption => custom.label
-.group.navform.wat-cf=f.simple_submit "/auctions/#{@auction.id}/bidders"
