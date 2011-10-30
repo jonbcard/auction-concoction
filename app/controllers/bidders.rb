@@ -57,10 +57,16 @@ AuctionNow.controllers :bidders, :parent => :auctions do
     end
   end
 
-  get :checkout, :with=> :id, :provides => :html do
+  get :checkout, :with=> :id, :provides => [:html, :pdf] do
     bidder = @auction.bidders.find(params[:id])
     @receipt =  !bidder.receipt.nil? ? bidder.receipt : bidder.create_receipt
-    render 'bidders/checkout'
+    case content_type
+      when :html    
+        render 'bidders/checkout'
+      when :pdf
+        content_type 'application/pdf'
+        prawn :'reports/bidder_receipt'
+    end
   end
 
   post :checkout, :with => :id, :provides => :html do

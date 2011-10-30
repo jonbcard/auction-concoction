@@ -1,3 +1,7 @@
+:javascript
+  $("button.print").button({icons: {
+    primary: "ui-icon-print"
+  }});
 .block
   .content
     %h2.title Checkout Bidder :: #{@receipt.last_name}, #{@receipt.first_name} (#{@receipt.number})
@@ -39,3 +43,10 @@
       -else
         %p Bidder has already been checked-out.
         =button_to "Return to Bidders", "/auctions/#{@auction.id}/bidders", :method => :get, :class => :button_to
+
+-content_for(:context_panel) do
+  #options.block
+    %h3 Actions
+    .content
+      %button.print{:onClick => "window.open('4eadc91e1d41c8727400010a.pdf','mywindow','width=600,height=800')"}
+        Print Receipt
