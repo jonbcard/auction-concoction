@@ -95,10 +95,6 @@ ul.list li .item .avatar{float:left;margin:0 5px 5px 0;width:30px;height:30px;}
 #box .block h2{padding:10px 15px;margin:0;}
 #box .block .content{padding:10px 20px;}
 
-/* Drop-down menu */
-#main-navigation #config-dropdown { float:right; &:hover ul { right: 1em;}
-  ul {
-    position: absolute; right: -999em;
-    li { float:none; display:block;}
-    li:hover { background-color: #36393D; }}
-}
+/* Config Drop-down menu */
+#main-navigation #config-menu { float:right}
+.ui-menu { width: 200px; position: absolute;z-index:99999; }

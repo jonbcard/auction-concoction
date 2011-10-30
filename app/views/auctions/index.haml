@@ -21,7 +21,7 @@
         );
         $(this).click(function(event){
             var id = $(this).attr("data-id");
-            document.location.href = "auctions/" + id + "/dashboard";
+            document.location.href = "auctions/" + id + "/bidders";
         });
     };
 
@@ -309,7 +309,7 @@
   =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
 
 %script{:type => "text/x-jquery-tmpl", :id => "auctionRow"}
-  %tr.clickable{:onClick => "document.location=\'auctions/${id}/dashboard\'", 'data-bind'=>"style: { fontWeight: is_today() ? 'bold' : '' }"}
+  %tr.clickable{:onClick => "document.location=\'auctions/${id}/bidders\'", 'data-bind'=>"style: { fontWeight: is_today() ? 'bold' : '' }"}
     %td{:width => '70px'}
       %span{'data-bind'=>"text: auction_date"}
     %td{:width => '180px'}

@@ -7,6 +7,19 @@
     =javascript_include_tag :jquery, :jqueryui, |
       :"jquery.tmpl", :"jquery.validate", :"knockout-1.2.1", :"knockout-mapping", :application |
     =yield_content :head
+    :javascript
+      $(function() {
+        $("#config-menu button").button({
+          icons: {
+            primary: "ui-icon-wrench",
+            secondary: "ui-icon-triangle-1-s"
+          }
+        }).next().menu({
+          select: function(event, ui) {
+            $(this).hide();
+          }
+        }).popup();
+      });
   %body
     #container
       #header
@@ -28,9 +41,9 @@
             %li{:class => ("active" if request.path_info =~ /sales/)}
               =link_to pat(:sales), "/auctions/#{params[:auction_id]}/sales", :accesskey => 's' if params[:auction_id]
             -if current_account.role == "admin"
-              #config-dropdown
-                =image_tag("gear.png", :height => "24px", :width => "24px")
-                %ul.list
+              #config-menu
+                %button=pat(:configure)
+                %ul
                   %li=link_to pat(:accounts), "/accounts"
                   %li=link_to pat(:parameters), "/parameters"
                   %li=link_to pat(:customizations), "/customizations"
