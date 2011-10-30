@@ -1,13 +1,18 @@
 AuctionNow.controllers :bidders, :parent => :auctions do
 
   before do
-    @auction = Auction.find(params[:auctions_id])
+    @auction = Auction.find(params[:auction_id])
   end
-
+  
   # Regular browser endpoints
-  get :index, :provides => :html do
+  get :index, :provides => [:html, :json] do
     # /auctions/#{params[:auction_id]}/bidders"
-    render 'bidders/index'
+    case content_type
+      when :html
+        render 'bidders/index'
+      when :json
+        @auction.bidders.to_json
+    end
   end
 
   get :new, :provides => :html do
@@ -29,7 +34,7 @@ AuctionNow.controllers :bidders, :parent => :auctions do
         @bidder = Bidder.new(JSON.parse(CGI::unescape(request.body.read)))
         if @auction.add_bidder(@bidder)
           return @bidder.to_json
-        else
+        elset
           return {:errors => @bidder.errors}.to_json
         end
     end
@@ -66,24 +71,9 @@ AuctionNow.controllers :bidders, :parent => :auctions do
     redirect "/auctions/#{params[:auction_id]}/bidders"
   end
 
-  # REST-ful JSON endpoints
-  get :index, :provides => :json do
-    @auction.bidders.to_json
-  end
-
   get :index, :with => :id, :provides => :json do
     return @auction.bidders.find(params[:id]).to_json
   end
-
-  #post :newb, :provides => :json do
-  #  @bidder = Bidder.new(JSON.parse(CGI::unescape(request.body.read)))
-  #  success = @auction.add_bidder(@bidder)
-  #  if(!success)
-  #    return {:errors => @bidder.errors}.to_json
-  #  else
-  #    return @bidder.to_json
-  #  end
-  #end
 
   post :index, :with => :id, :provides => :json do
     @bidder = Bidder.new(JSON.parse(CGI::unescape(request.body.read)))

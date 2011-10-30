@@ -1,6 +1,6 @@
 AuctionNow.controllers :sales, :parent => :auctions do
   before do
-    @auction = Auction.find(params[:auctions_id])
+    @auction = Auction.find(params[:auction_id])
   end
 
   get :index do
@@ -10,7 +10,7 @@ AuctionNow.controllers :sales, :parent => :auctions do
   post :new do
     sale = Sale.new(params[:sale])
     if(!@auction.add_sale(sale))
-      return {:errors => sale.errors.errors,
+      return {:errors => sale.errors,
               :errors_full => sale.errors.full_messages}.to_json
     end
     sale.to_json
@@ -28,6 +28,6 @@ AuctionNow.controllers :sales, :parent => :auctions do
     else
       flash[:error] = 'Sale could not be removed. The associated bidder may already be checked out.'
     end
-    redirect url(:sales, :index, :auctions_id => params[:auctions_id])
+    redirect url(:sales, :index, :auction_id => params[:auction_id])
   end
 end

@@ -18,8 +18,8 @@ class Money
     end 
   end
   
-  def as_json(options)
-    # Not currently reflexive
+  def as_json(*options)
+    # not reflexive
     format
   end
 end

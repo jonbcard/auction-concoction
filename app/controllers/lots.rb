@@ -1,6 +1,6 @@
 AuctionNow.controllers :lots, :parent => :auctions do
   before do
-    @auction = Auction.find(params[:auctions_id])
+    @auction = Auction.find(params[:auction_id])
   end
 
   get :index do
@@ -22,6 +22,6 @@ AuctionNow.controllers :lots, :parent => :auctions do
     else
       flash[:error] = 'Lot could not be removed'
     end
-    redirect url(:lots, :index, :auctions_id => params[:auctions_id])
+    redirect url(:lots, :index, :auction_id => params[:auction_id])
   end
 end

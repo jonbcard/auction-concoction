@@ -319,14 +319,14 @@
       %a{:href => "#delete"} Delete
   #search.block
     #accordian
-      %h3="&nbsp;&nbsp;&nbsp;Current and Upcoming (JS)"
+      %h3="&nbsp;&nbsp;&nbsp;Current and Upcoming"
       %div{:style => 'padding-left:0px;padding-right:0px;'}
         %table.table
           %tbody{:'data-bind' => "template: {name:'auctionRow', foreach: upcomingAuctions()}"}
             %tr{:'data-bind' => "visible: upcomingAuctions().length == 0"}
               %td No Upcoming Auctions
           
-      %h3="&nbsp;&nbsp;&nbsp;Recent Auctions (JS)"
+      %h3="&nbsp;&nbsp;&nbsp;Recent Auctions"
       %div{:style => 'padding-left:0px;padding-right:0px;'}
         %table.table
           %tbody{:'data-bind' => "template: {name:'auctionRow', foreach: recentAuctions()}"}
