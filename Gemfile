@@ -1,9 +1,15 @@
 source :rubygems
+source 'http://gems.github.com'
 
 # Project requirements
 gem 'rake'
 gem 'sinatra-flash', :require => 'sinatra/flash'
 gem 'thin' # or mongrel
+#gem 'ruport'
+#gem 'ruport-util'
+gem 'prawn'
+gem 'sbfaulkner-sinatra-prawn'
+
 
 # Component requirements
 gem 'tzinfo'

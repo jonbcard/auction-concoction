@@ -1,5 +1,9 @@
 :javascript
   $(function(){
+    $("button.print").button({icons: {
+      primary: "ui-icon-print"
+    }});
+
     $("#lot_number").focus();
     $('#qty').val('1');
 
@@ -86,6 +90,11 @@
         .group
           %label Auto-number?
           %input{:type => 'checkbox', :'data-bind' => 'checked: autoNumber'}
+  #options.block
+    %h3 Actions
+    .content
+      %button.print{:onClick => "window.open('lots/catalog.pdf','mywindow','width=600,height=800')"}
+        View/Print Catalog
 
 .flash
   .message.error{:'data-bind' => "text: lastErrorsFull, visible: lastErrorsFull() != ''"}

@@ -2,6 +2,7 @@ class Auction
   include MongoMapper::Document
   plugin  MongoMapper::Plugins::CustomFieldPlugin
   #plugin  MongoMapper::Plugins::MetaData
+
   
   # Keys
   key :title,            String, :required => true

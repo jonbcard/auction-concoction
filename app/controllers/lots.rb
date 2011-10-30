@@ -1,4 +1,12 @@
+require 'prawn/core'
+require 'prawn/layout'
+require 'sinatra/prawn'
+
 AuctionNow.controllers :lots, :parent => :auctions do
+  include Sinatra::Prawn
+  
+  set :prawn, { :page_layout => :landscape }
+  
   before do
     @auction = Auction.find(params[:auction_id])
   end
@@ -23,5 +31,10 @@ AuctionNow.controllers :lots, :parent => :auctions do
       flash[:error] = 'Lot could not be removed'
     end
     redirect url(:lots, :index, :auction_id => params[:auction_id])
+  end
+  
+  get :catalog, :provides => :pdf do
+    content_type 'application/pdf'
+    prawn :'reports/lot_catalog'
   end
 end
