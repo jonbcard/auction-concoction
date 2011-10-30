@@ -13,22 +13,9 @@
                   auction.edit();
               }
               if(action == "delete"){
-                  var text = "Are you sure you want to remove this Auction record? Note that " 
-                        + "it will only be possible to remove the record if it has no associated data.";
-                  $("#dialog").html(text);
-                  $("#dialog").confirmationDialog({
-                      autoStart: true,
-                      onConfirm: function(){
-                          $.ajax({
-                            url:  "auctions/destroy/" + id + "?_method=delete",
-                            type: "get",
-                            success: function(result) {
-                                viewModel.auctions.remove(function(item) { return item.id() == id });
-                            }
-
-                          });
-                      }
-                  });
+                  var auction = ko.utils.arrayFirst(viewModel.auctions(), function(auc) {
+                      return auc.id() == id; });
+                  auction.remove();
               }
           }
         );
@@ -207,6 +194,24 @@
         });
       }
     }
+
+    this.remove = function(){
+      var text = "Are you sure you want to remove this Auction record? Note that " 
+          + "it will only be possible to remove the record if it has no associated data.";
+      $("#dialog").html(text);
+      $("#dialog").confirmationDialog({
+        autoStart: true,
+        onConfirm: function(){
+          $.ajax({
+            url:  "auctions/destroy/" + id + "?_method=delete",
+            type: "get",
+            success: function(result) {
+              viewModel.auctions.remove(function(item) { return item.id() == id });
+            }
+          });
+        }
+      });
+    };
   }
 
   function auction_errors(id, title, auction_date, start, end, description){
@@ -305,18 +310,27 @@
 
 %script{:type => "text/x-jquery-tmpl", :id => "auctionRow"}
   %tr.clickable{:onClick => "document.location=\'auctions/${id}/dashboard\'", 'data-bind'=>"style: { fontWeight: is_today() ? 'bold' : '' }"}
-    %td{:width => '80px'}
+    %td{:width => '70px'}
       %span{'data-bind'=>"text: auction_date"}
-    %td
+    %td{:width => '180px'}
       %div 
         %span{'data-bind'=>"text: title"}
+    %td
+      %span{:onClick => "event.stopPropagation();return false;", :'data-bind' => "click: edit"}
+        =image_tag 'page_white_edit.png'
+      %span{:onClick => "event.stopPropagation();return false;", :'data-bind' => "click: remove"}
+        =image_tag 'page_white_delete.png'
 
 -content_for(:context_panel) do
   %ul.contextMenu{:id => "contextMenu"}
     %li.edit
-      %a{:href => "#edit"} Edit
+      %a{:href => "#edit"} 
+        =image_tag 'page_white_edit.png'
+        Edit
     %li.delete
-      %a{:href => "#delete"} Delete
+      %a{:href => "#delete"} 
+        =image_tag 'page_white_delete.png'
+        Delete
   #search.block
     #accordian
       %h3="&nbsp;&nbsp;&nbsp;Current and Upcoming"
