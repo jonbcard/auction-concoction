@@ -15,45 +15,12 @@ AuctionNow.controllers :bidders, :parent => :auctions do
     end
   end
 
-  get :new, :provides => :html do
-    @bidder = Bidder.new()
-    render 'bidders/new'
-  end
-
-  post :new, :provides => [:html, :json] do
-    case content_type
-      when :html
-        @bidder = Bidder.new(params[:bidder])
-        if @auction.add_bidder(@bidder)
-          flash[:notice] = 'Bidder was successfully created.'
-          redirect "/auctions/#{params[:auction_id]}/bidders"
-        else
-          render 'bidders/new'
-        end
-      when :json
-        @bidder = Bidder.new(JSON.parse(CGI::unescape(request.body.read)))
-        if @auction.add_bidder(@bidder)
-          return @bidder.to_json
-        elset
-          return {:errors => @bidder.errors}.to_json
-        end
-    end
-
-  end
-
-  get :edit, :with => :id, :provides => :html do
-    @bidder = @auction.bidders.find(params[:id])
-    render 'bidders/edit'
-  end
-
-  put :edit, :with => :id, :provides => :html do
-    @bidder = Bidder.new(params[:bidder])
-    @bidder.id = params[:id]
-    if(@auction.update_bidder(@bidder))
-      flash[:notice] = 'Bidder was successfully updated.'
-      redirect "/auctions/#{params[:auction_id]}/bidders"
+  post :new, :provides => [:json] do
+    @bidder = Bidder.new(parse_json(request))
+    if @auction.add_bidder(@bidder)
+      return @bidder.to_json
     else
-      render 'bidders/edit'
+      return {:errors => @bidder.errors}.to_json
     end
   end
 
@@ -82,7 +49,7 @@ AuctionNow.controllers :bidders, :parent => :auctions do
   end
 
   post :index, :with => :id, :provides => :json do
-    @bidder = Bidder.new(JSON.parse(CGI::unescape(request.body.read)))
+    @bidder = Bidder.new(parse_json(request))
     success = @auction.update_bidder(@bidder)
     if(!success)
       return {:errors => @bidder.errors}.to_json

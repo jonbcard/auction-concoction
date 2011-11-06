@@ -24,8 +24,23 @@
             document.location.href = "auctions/" + id + "/bidders";
         });
     };
+  var locationModel = function(id, name, code){
+    this.id;
+    this.name = name;
+    this.code = code;
+  };
+
+  var country = function(name, population) {
+    this.countryName = name;
+    this.countryPopulation = population;   
+  };   
 
   viewModel = {
+    availableCountries : ko.observableArray([
+            new country("UK", 65000000),
+            new country("USA", 320000000),
+            new country("Sweden", 29000000)
+        ]),
     auctions : ko.observableArray([]),
     activeAuction : ko.protectedObservable(),
     errors : ko.observable("")
@@ -74,7 +89,7 @@
   $.get("auctions.json", function(data) {
     
     var allBidders = $.map(data, function(json) {
-      return new auction(json.id, json.title, json.start, json.end, json.description);
+      return new auction(json.id, json.title, json.start, json.end, json.description, json.location);
     });
     viewModel.auctions(allBidders);
   });
@@ -86,19 +101,27 @@
   });
 
   function parse_errors(json){
-    return new auction_errors(json.id, json.title, json.start, json.end);
+    return new auction_errors(json.id, json.title, json.start, json.end, json.location);
   }
 
   function formatDate(date,format){
     return $.fullCalendar.formatDate($.fullCalendar.parseDate(date), format);
   }
 
-  function auction(id, title, start, end, description){
+
+  function auction(id, title, start, end, description, location){
     this.id = ko.observable(id);
     this.title = ko.observable(title);
     this.start = ko.observable(start);
     this.end = ko.observable(end);
     this.description = ko.observable(description);
+    this.location = ko.observable(location);
+    this.availableCountries = ko.observableArray([
+            new country("UK", 65000000),
+            new country("USA", 320000000),
+            new country("Sweden", 29000000)
+        ]);
+    this.selectedCountry = ko.observable("UK");
 
     var self = this;
     
@@ -214,19 +237,19 @@
     };
   }
 
-  function auction_errors(id, title, auction_date, start, end, description){
+  function auction_errors(id, title, auction_date, start, end, description, location){
     this.id = ko.observable(id);
     this.title = ko.observable(title);
     this.auction_date = ko.observable(auction_date);
     this.start = ko.observable(start);
     this.end = ko.observable(start);
     this.description = ko.observable(description);
+    this.location = ko.observable(location);
   }
 
   $(function(){
     ko.applyBindings(viewModel);
     
-
     $('#accordian').accordion({ autoHeight: false, clearStyle: true });
 
     $('#calendar').fullCalendar({
@@ -282,6 +305,12 @@
       %span.error{:'data-bind' => "text: viewModel.errors().title"}
       %br
       %input.text_field{:'data-bind' => "value: title"}
+    .group
+      %label{:for=>:location}Location:
+      %span.error{:'data-bind' => "text: viewModel.errors().location"}
+      %br
+      
+      
     %table
       %tr
         %td{:style => 'width:120px'}
@@ -350,4 +379,5 @@
 .block 
   .content
     .inner
+      %select{:'data-bind' => "options: availableCountries, optionsText: name, optionsValue:name,  optionsCaption: 'Choose...'"}
       #calendar

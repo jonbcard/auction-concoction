@@ -116,6 +116,26 @@ ajaxSubmit = function(form, successHandler){
 }
 
 // ---- Custom Knockout JS bindings and stuff ----
+ko.isProperty = function(instance){
+    return ((typeof instance == "function") && instance.__ko_proto__ === ko.property);
+}
+
+ko.tempToJS = function(rootObject) {   
+    var unwrappedObject = ko.utils.unwrapObservable(rootObject);
+    var outputProperties = {};
+    for (var prop in unwrappedObject) {
+        if(ko.isProperty(unwrappedObject[prop])){
+            outputProperties[prop] = unwrappedObject[prop].temp;
+        }
+    }
+    return outputProperties;
+}
+
+ko.tempToJSON = function(rootObject) {
+    var plainJavaScriptObject = ko.tempToJS(rootObject);
+    return ko.utils.stringifyJson(plainJavaScriptObject);
+};
+
 ko.bindingHandlers.confirm = {
     init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
         var valueUnwrapped = ko.utils.unwrapObservable(valueAccessor());
@@ -128,23 +148,23 @@ ko.bindingHandlers.confirm = {
 
 ko.protectedObservable = function(initialValue) {
     var result = ko.observable(initialValue);
-    var errors = ko.observable();
 
     //expose temp value for binding.  ko.toJS is an easy way to get a clean copy
     result.temp = ko.observable(ko.toJS(initialValue));
+    result.temp.model = result;
 
     //apply edits to the original (only goes one level deep)
     result.commit = function() {
         var original = result(),
-            edited = result.temp();
+        edited = result.temp();
 
         for (var prop in edited) {
             if (original.hasOwnProperty(prop)) {
                 if (ko.isWriteableObservable(original[prop])) {
-                   original[prop](edited[prop]);
-                   //ignore dependentObservables + methods
+                    original[prop](edited[prop]);
+                //ignore dependentObservables + methods
                 } else if (typeof original[prop] !== "function") {
-                   original[prop] = edited[prop];
+                    original[prop] = edited[prop];
                 }
             }
         }
@@ -167,10 +187,121 @@ ko.protectedObservable = function(initialValue) {
 
     //clear it out, so it is ready for a new one
     result.clear = function() {
-       result.temp(null);
-       result(null);
-       return result; //for chaining
+        result.temp(null);
+        result(null);
+        return result; //for chaining
     }
 
     return result;
-  };
+};
+  
+ko.model = function(initialValue) {
+    var result = ko.observable(initialValue);
+     
+    result.hasErrors = ko.observable(false);
+    
+    this.save = function(){
+      if(id == undefined){
+        // create the record
+        $.ajax({
+          url:  result().url + "/new.json",
+          type: "post",
+          data: ko.tempToJSON(result()),
+          contentType: "application/json",
+          success: function(serverResult) {
+            if(serverResult.errors){
+              result.applyErrors(serverResult.errors);
+            } else {
+              result.commit();
+              result().id(serverResult.id);
+              result().onCreate();
+            }
+          }
+        });
+      } else {
+        // save the record
+        $.ajax({
+          url:  result().url + result.id + ".json",
+          type: "post",
+          data: ko.tempToJSON(this),
+          contentType: "application/json",
+          success: function(serverResult) {
+            if(serverResult.errors){
+              result.applyErrors(serverResult.errors);
+            } else {
+              result.commit().reset();
+              result().onSave();
+            }
+          }
+        });
+      }
+    }
+    
+    // Clear all errrors from the properties
+    result.clearErrors = function(){
+        result.hasErrors(false);
+        var edited = result();
+        for(var prop in edited){
+            if(ko.isProperty(edited[prop])){
+                edited[prop].errors("");
+            }
+        }
+    }
+
+    // Apply errors (received from the server) back to the properties
+    result.applyErrors = function(errors){
+        result.clearErrors();
+        result.hasErrors(true);
+        var edited = result();
+        for(var prop in errors){
+            if(edited.hasOwnProperty(prop) && ko.isProperty(edited[prop])){
+                edited[prop].errors(errors[prop]);
+            }
+        }
+    }
+
+    // Iterate over all properties on the model and commit them
+    result.commit = function() {
+        result.clearErrors();
+        var original = result();
+        for (var prop in original) {
+            if (ko.isProperty(original[prop])) {
+                original[prop].commit();
+            }
+        }
+       
+        return result; //for chaining
+    };
+
+    // Revert back to a fresh copy -- this is done by resetting all
+    // properties back to their initial state.
+    result.reset = function(newValue){
+        var original = result();
+        result.clearErrors();
+        for (var prop in original) {
+            if (ko.isProperty(original[prop])) {
+                original[prop].reset();
+            }
+        }
+        return result;  //for chaining
+    };
+
+    return result;
+};
+  
+ko.property = function(initialValue, errors) {
+    var result = ko.observable(initialValue);
+    result.errors = ko.observable(errors);
+    result.temp = initialValue;
+    
+    result.commit = function(){
+        result(result.temp);
+    };
+    
+    result.reset = function(){
+        result.temp = result();
+    }
+    
+    result.__ko_proto__ = ko.property;
+    return result;
+};

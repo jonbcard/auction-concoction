@@ -1,0 +1,195 @@
+-content_for(:head) do
+  =javascript_include_tag:"jquery.colorPicker"
+
+:javascript
+  $(function(){
+    var viewModel =  locationsViewModel();
+    ko.applyBindings(viewModel);
+
+    $("button#new").button({icons: { primary: "ui-icon-plus" }});
+    $("button#reload").button({icons: { primary: "ui-icon-refresh" }});
+  });
+
+  function parse_location(viewModel, json){
+    return new locationModel(viewModel, json.id, json.code, json.name, json.address, json.city, json.state, json.color);
+  }
+
+  function locationModel(viewModel, id, code, name, address, city, state, color){
+    this.id = ko.property(id);
+    this.code = ko.property(code);
+    this.name = ko.property(name);
+    this.address = ko.property(address);
+    this.city = ko.property(city);
+    this.state = ko.property(state);
+    this.color = ko.property(color);
+
+    // functions
+    this.edit = function(){
+      viewModel.activeLocation(this);
+      $("#locationDialog").dialog({title:"Edit Location"});
+      $('#color').colorPicker();
+    }
+
+    this.cancel = function(){
+      viewModel.activeLocation.reset();
+      $("#locationDialog").dialog("close");
+    }
+
+    var self = this;
+    this.save = function(){
+      if(id == undefined){
+        // create the record
+        var self = this;
+        $.ajax({
+          url:  "locations/new.json",
+          type: "post",
+          data: ko.tempToJSON(this),
+          contentType: "application/json",
+          success: function(result) {
+            if(result.errors){
+              viewModel.activeLocation.applyErrors(result.errors);
+            } else {
+              viewModel.activeLocation.commit();
+              viewModel.activeLocation().id(result.id);
+              viewModel.locations.push(viewModel.activeLocation());
+              viewModel.activeLocation.reset();
+              afterLoad();
+              $("#locationDialog").dialog("close");
+            }
+          }
+        });
+      } else {
+        // save the record
+        $.ajax({
+          url:  "locations/" + id + ".json",
+          type: "post",
+          data: ko.tempToJSON(this),
+          contentType: "application/json",
+          success: function(result) {
+            if(result.errors){
+              viewModel.activeLocation.applyErrors(result.errors);
+            } else {
+              viewModel.activeLocation.commit().reset();
+              $("#locationDialog").dialog("close");
+            }
+          }
+        });
+      }
+    }
+  }
+
+  var locationsViewModel = function(){
+    this.locations = ko.observableArray([]);
+    this.activeLocation = ko.model();
+    this.numberFilter = new ko.observable("");
+    this.showInactive = new ko.observable(false);
+
+    this.displayCount = ko.dependentObservable(function() {
+      return this.locations().length;
+    }, this);
+
+    this.newLocation = function() {
+      aNewLocation = new locationModel(this);
+      aNewLocation.edit();
+    };
+
+    // Load the initial state from server
+    
+    this.load = function() {
+      var self = this;
+      $.get("locations.json", function(data) {
+        var allLocations = $.map(data, function(json) {
+            return parse_location(self, json);
+        });
+        self.locations(allLocations);
+        afterLoad();
+      });
+    }
+
+    this.afterLoad = function(){
+      $("button#edit").button({text: false, icons: { primary: "ui-icon-pencil" }});
+    }
+    
+    load();
+  }
+
+#locationDialog{ :style=>"display:none;"}
+  %div{:'data-bind' => "template: {name:'locationForm', data: activeLocation}"}
+
+%script{:type => "text/x-jquery-tmpl", :id => "locationForm"}
+  .flash
+    .message.error{:'data-bind' => "visible: activeLocation.hasErrors()"}
+      Errors occurred while saving the location.
+  %form.form{:id => 'locationForm'}
+    .group
+      %label{:for=>:code}Code:
+      %span.error{:'data-bind' => "text: code.errors"}
+      %br
+      %input.required{:'data-bind' => "value: code.temp"}
+    .group
+      %label{:for=>:name}Name:
+      %span.error{:'data-bind' => "text: name.errors"}
+      %br
+      %input.required{:'data-bind' => "value: name.temp"}
+    .group
+      %label{:for=>:address}Address:
+      %span.error{:'data-bind' => "text: address.errors"}
+      %br
+      %input.required{:'data-bind' => "value: address.temp"}
+    .group
+      %label{:for=>:city}City:
+      %span.error{:'data-bind' => "text: city.errors"}
+      %br
+      %input.required{:'data-bind' => "value: city.temp"}
+    .group
+      %label{:for=>:city}State:
+      %span.error{:'data-bind' => "text: state.errors"}
+      %br
+      %input.required{:'data-bind' => "value: state.temp"}
+    .group
+      %label{:for=>:color}Color:
+      %span.error{:'data-bind' => "text: color.errors"}
+      %input#color{:type=>"text", :'data-bind'=> 'value: color.temp'}
+  %button.form_button{:'data-bind' => "click: save"}
+    Save
+  &nbsp;&nbsp;|&nbsp;&nbsp;
+  =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
+
+%script{:type => "text/x-jquery-tmpl", :id => "locationRow"}
+  %tr
+    %td
+      %span{:'data-bind' => "text: code"}
+    %td
+      %span{:'data-bind' => "text: name"}
+    %td
+      %span{:'data-bind' => "text: address"}
+    %td
+      %span{:'data-bind' => "text: city"}
+    %td
+      %div{:class=>'color_swatch', :'data-bind' => "style: {backgroundColor: color()}"}
+    %td.last
+      %button#edit{:class => 'small-button', :'data-bind' => "click: edit"} 
+        Edit
+
+.block
+  .content
+    #title
+      %h2 Locations
+    #title-menu
+      %button#new{:href => "", :'data-bind' => "click : newLocation"}
+        New
+      %button#reload{:href => "", :'data-bind' => "click : load"}
+        Reload
+    .inner
+      %table.table
+        %tr
+          %th.first=mat(:location, :code)
+          %th=mat(:location, :name)
+          %th=mat(:location, :address)
+          %th=mat(:location, :city)
+          %th=mat(:location, :color)
+          %th.last="&nbsp;"
+        %tbody{:'data-bind' => "template: {name:'locationRow', foreach: locations()}"}
+      .actions-bar.wat-cf
+        .actions
+          %span{:'data-bind' => 'text: displayCount'}

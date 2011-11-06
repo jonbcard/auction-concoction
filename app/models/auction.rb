@@ -13,7 +13,8 @@ class Auction
   many :bidders
   many :sales
   many :lots
-
+  one  :location
+  
   validate_custom
   
   def self.parse_json(json)

@@ -1,5 +1,9 @@
 :javascript
   $(function(){
+    $("button#new").button({icons: {
+      primary: "ui-icon-plus"
+    }});
+
     $("form").validate({
         submitHandler: function () { viewModel.save() },
         errorPlacement: function(error, element) {
@@ -47,9 +51,8 @@
     #title
       %h2 Customize #{pat(@custom.model)} Fields
     #title-menu
-      %ul
-        %li
-          %input{:type => "image", :src => "/images/add.png", :'data-bind' => "click: addField"}
+      %button#new{:'data-bind' => "click : addField"}
+        New
     .inner
       %form.form
         %table.table

@@ -1,3 +1,5 @@
+@import "compass/css3";
+
 /** Controls the structure of the application. */
 *{margin:0;padding:0}
 .clear{clear:both;height:0;}
@@ -35,8 +37,6 @@ body{font-size:12px;font-family:sans-serif;}
 /* Content Header and Title Menu*/
 #main #title{float:left;}
 #main #title-menu{float:right;padding:10px;}
-#main #title-menu ul{margin:0;padding:0;list-style-type:none;}
-#main #title-menu ul li{float:left;margin-right:5px;}
 #main .block{margin-bottom:20px;padding-top:1px;}
 #main .block .content .inner{clear:left;padding:0 15px 15px;}
 #main .block .content .inner .navform{text-align:left;}
@@ -97,4 +97,38 @@ ul.list li .item .avatar{float:left;margin:0 5px 5px 0;width:30px;height:30px;}
 
 /* Config Drop-down menu */
 #main-navigation #config-menu { float:right}
-.ui-menu { width: 200px; position: absolute;z-index:99999; }
+#main-navigation #config-menu .ui-menu { width: 200px; position: absolute;z-index:99999; }
+
+.small-button {width: 18px; height: 18px;}
+
+/* Color-Picker */
+div.color_picker {
+  height: 16px;
+  width: 22px;
+  padding: 0 !important;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  line-height: 16px;
+  @include border-radius(3px);
+}
+
+div#color_selector {
+  width: 180px;
+  position: absolute;
+  z-index: 9999;
+  border: 1px solid #598FEF;
+  background-color: #FFF;
+  padding: 2px;
+  @include border-radius(3px);
+} 
+
+div.color_swatch {
+  height: 12px;
+  width: 22px;
+  border: 1px solid #000;
+  margin: 2px;
+  float: left;
+  cursor: pointer;
+  line-height: 12px;
+  @include border-radius(3px);
+}

@@ -2,6 +2,13 @@
   $(function(){
     var viewModel =  biddersViewModel();
     ko.applyBindings(viewModel);
+
+    $("button#new").button({icons: {
+      primary: "ui-icon-plus"
+    }});
+    $("button#reload").button({icons: {
+      primary: "ui-icon-refresh"
+    }});
   });
 
   function parse_bidder(viewModel, json){
@@ -110,13 +117,18 @@
     };
 
     // Load the initial state from server
-    var self = this;
-    $.get("bidders.json", function(data) {
+    
+    this.load = function() {
+      var self = this;
+      $.get("bidders.json", function(data) {
         var allBidders = $.map(data, function(json) {
             return parse_bidder(self, json);
         });
         self.bidders(allBidders);
-    });
+      });
+    }
+    
+    load();
 
 
   }
@@ -190,9 +202,10 @@
     #title
       %h2 #{@auction.title} :: Bidders
     #title-menu
-      %ul
-        %li
-          %a{:href => "", :'data-bind' => "click : newBidder"}=image_tag("add.png")
+      %button#new{:href => "", :'data-bind' => "click : newBidder"}
+        New
+      %button#reload{:href => "", :'data-bind' => "click : load"}
+        Reload
     .inner
       %table.table
         %tr

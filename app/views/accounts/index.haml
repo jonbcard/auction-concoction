@@ -1,3 +1,14 @@
+:javascript
+  $(function(){
+    $("button#new").button({icons: {
+      primary: "ui-icon-plus"
+    }});
+  });
+
+  var newAccount = function(){
+    document.location = "accounts/new";
+  };
+
 .block
   .content
     #title
@@ -5,9 +16,8 @@
         =pat(:all)
         =mt(:accounts)
     #title-menu
-      %ul
-        %li
-          %a{:href => url(:accounts, :new)}=image_tag("add.png")
+      %button#new{:'data-bind' => "click : newAccount"}
+        New
     .inner
       =simple_table(@accounts,[:username, :name, :surname, :email],
          :edit => "accounts/edit/${row.id}",

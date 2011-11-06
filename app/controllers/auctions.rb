@@ -1,6 +1,7 @@
 AuctionNow.controllers :auctions do
 
   get :index do
+    @locations = Location.all
     @auctions = Auction.all
     @auctions_upcoming = Auction.where(:start.gte => today_as_utc).sort(:start).all
     @auctions_recent   = Auction.where(:start.lte => today_as_utc, :start.gte => (today_as_utc - 60*60*24*7)).sort(:start).all
@@ -58,7 +59,7 @@ AuctionNow.controllers :auctions do
   ##
   # TODO : Obviously this shouldn't be a 'GET' since it has
   # consequences to the stored data. Also need to update this method
-  # to note remove the record if there is associated data.
+  # to not remove the record if there is associated data.
   ##
   get :destroy, :with => :id do
     auction = Auction.find(params[:id])

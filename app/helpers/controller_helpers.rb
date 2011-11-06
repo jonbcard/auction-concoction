@@ -8,4 +8,7 @@ AuctionNow.helpers do
     Time.utc(date.year, date.month, date.day, 0, 0, 0, 0)
   end
 
+  def parse_json(request)
+    JSON.parse(CGI::unescape(request.body.read))
+  end
 end

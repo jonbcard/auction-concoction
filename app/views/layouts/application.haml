@@ -5,7 +5,7 @@
     %title Auction Floor
     =stylesheet_link_tag :layout, :theme, :jqueryui
     =javascript_include_tag :jquery, :jqueryui, |
-      :"jquery.tmpl", :"jquery.validate", :"knockout-1.2.1", :"knockout-mapping", :application |
+      :"jquery.tmpl", :"jquery.colorPicker", :"jquery.validate", :"knockout-1.2.1", :"knockout-mapping", :application |
     =yield_content :head
     :javascript
       $(function() {
@@ -45,8 +45,10 @@
                 %button=pat(:configure)
                 %ul
                   %li=link_to pat(:accounts), "/accounts"
+                  %li=link_to pat(:locations), "/locations"
                   %li=link_to pat(:parameters), "/parameters"
                   %li=link_to pat(:customizations), "/customizations"
+                  
       #wrapper.wat-cf
         .flash=[:error, :warning, :notice].map { |type| flash_tag(type, :class => "message #{type}") }.join
         #sidebar
