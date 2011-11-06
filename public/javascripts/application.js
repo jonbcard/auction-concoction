@@ -48,11 +48,33 @@ var sortArrayByProperty = function(array, property){
     });
 }
 
+var todayAsDate = function(){
+    var day = new Date();
+    day.setHours(0); 
+    day.setMinutes(0); 
+    day.setSeconds(0); 
+    return day;
+}
+
 // ---- JQuery helper stuff ----
 ConfirmationDialog = $.extend({}, $.ui.dialog.prototype, {
     options: {
         onConfirm: function(){
             alert("'onConfirm' action on dialog not properly specified.")
+        },
+        create: function() {
+            $('.ui-dialog-buttonpane')
+            .find('button:contains("Cancel")').button({
+                icons: {
+                    primary: 'ui-icon-cancel'
+                }
+            });
+            $('.ui-dialog-buttonpane')
+            .find('button:contains("Confirm")').button({
+                icons: {
+                    primary: 'ui-icon-check'
+                }
+            });
         },
         title: "Confirmation Dialog",
         modal: true,
@@ -116,6 +138,14 @@ ajaxSubmit = function(form, successHandler){
 }
 
 // ---- Custom Knockout JS bindings and stuff ----
+
+ko.utils.stringStartsWith = function (string, startsWith) {        
+    string = string || "";
+    if (startsWith.length > string.length)
+        return false;
+    return string.substring(0, startsWith.length) === startsWith;
+};
+
 ko.isProperty = function(instance){
     return ((typeof instance == "function") && instance.__ko_proto__ === ko.property);
 }
@@ -201,40 +231,40 @@ ko.model = function(initialValue) {
     result.hasErrors = ko.observable(false);
     
     this.save = function(){
-      if(id == undefined){
-        // create the record
-        $.ajax({
-          url:  result().url + "/new.json",
-          type: "post",
-          data: ko.tempToJSON(result()),
-          contentType: "application/json",
-          success: function(serverResult) {
-            if(serverResult.errors){
-              result.applyErrors(serverResult.errors);
-            } else {
-              result.commit();
-              result().id(serverResult.id);
-              result().onCreate();
-            }
-          }
-        });
-      } else {
-        // save the record
-        $.ajax({
-          url:  result().url + result.id + ".json",
-          type: "post",
-          data: ko.tempToJSON(this),
-          contentType: "application/json",
-          success: function(serverResult) {
-            if(serverResult.errors){
-              result.applyErrors(serverResult.errors);
-            } else {
-              result.commit().reset();
-              result().onSave();
-            }
-          }
-        });
-      }
+        if(id == undefined){
+            // create the record
+            $.ajax({
+                url:  result().url + "/new.json",
+                type: "post",
+                data: ko.tempToJSON(result()),
+                contentType: "application/json",
+                success: function(serverResult) {
+                    if(serverResult.errors){
+                        result.applyErrors(serverResult.errors);
+                    } else {
+                        result.commit();
+                        result().id(serverResult.id);
+                        result().onCreate();
+                    }
+                }
+            });
+        } else {
+            // save the record
+            $.ajax({
+                url:  result().url + result.id + ".json",
+                type: "post",
+                data: ko.tempToJSON(this),
+                contentType: "application/json",
+                success: function(serverResult) {
+                    if(serverResult.errors){
+                        result.applyErrors(serverResult.errors);
+                    } else {
+                        result.commit().reset();
+                        result().onSave();
+                    }
+                }
+            });
+        }
     }
     
     // Clear all errrors from the properties

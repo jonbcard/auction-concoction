@@ -96,8 +96,9 @@ ul.list li .item .avatar{float:left;margin:0 5px 5px 0;width:30px;height:30px;}
 #box .block .content{padding:10px 20px;}
 
 /* Config Drop-down menu */
+.ui-menu{position: absolute;z-index:99999;}
 #main-navigation #config-menu { float:right}
-#main-navigation #config-menu .ui-menu { width: 200px; position: absolute;z-index:99999; }
+#main-navigation #config-menu .ui-menu { width: 200px; }
 
 .small-button {width: 18px; height: 18px;}
 

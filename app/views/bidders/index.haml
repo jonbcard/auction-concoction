@@ -9,6 +9,26 @@
     $("button#reload").button({icons: {
       primary: "ui-icon-refresh"
     }});
+    $("button#import").button({
+          icons: {
+            primary: "ui-icon-transfer-e-w",
+            secondary: "ui-icon-triangle-1-s"
+          }
+        }).next().menu({
+          select: function(event, ui) {
+            $(this).hide();
+          }
+        }).popup();
+    $("button#export").button({
+          icons: {
+            primary: "ui-icon-transfer-e-w",
+            secondary: "ui-icon-triangle-1-s"
+          }
+        }).next().menu({
+          select: function(event, ui) {
+            $(this).hide();
+          }
+        }).popup();
   });
 
   function parse_bidder(viewModel, json){
@@ -94,15 +114,20 @@
     this.bidders = ko.observableArray([]);
     this.activeBidder = ko.protectedObservable();
     this.numberFilter = new ko.observable("");
+    this.nameFilter = new ko.observable("");
     this.showInactive = new ko.observable(false);
 
     this.errors = new ko.observable("");
 
     // view model functions
     this.displayedBidders = ko.dependentObservable(function() {
+      
       return ko.utils.arrayFilter(this.bidders(), function(bidder) {
+        var nameToFilter = this.nameFilter().toLowerCase();
+        var nameMatches = ko.utils.stringStartsWith(bidder.first_name().toLowerCase(), nameToFilter) || 
+                          ko.utils.stringStartsWith(bidder.last_name().toLowerCase(), nameToFilter);
         return (this.showInactive() || bidder.status() == 'ACTIVE') &&
-             bidder.number().startsWith(this.numberFilter());
+             bidder.number().startsWith(this.numberFilter()) && nameMatches;
       });
     }, this);
 
@@ -194,6 +219,9 @@
           %label Filter by Number:
           %input{:type => 'text', :class => "text_field", :style => "width:50px", :'data-bind' => 'value:numberFilter,valueUpdate:"keyup"' }
         .group
+          %label Filter by Name:
+          %input{:type => 'text', :class => "text_field", :style => "width:100px", :'data-bind' => 'value:nameFilter,valueUpdate:"keyup"' }
+        .group
           %label Show Inactive?
           %input{:type => 'checkbox', :'data-bind' => 'checked: showInactive'}
 
@@ -202,10 +230,25 @@
     #title
       %h2 #{@auction.title} :: Bidders
     #title-menu
-      %button#new{:href => "", :'data-bind' => "click : newBidder"}
-        New
-      %button#reload{:href => "", :'data-bind' => "click : load"}
-        Reload
+      %button#new{:'data-bind' => "click : newBidder"}=pat(:new)
+      %button#reload{:'data-bind' => "click : load"}=pat(:reload)
+      %button#import{:'data-bind' => "click : load"}
+        Import / Export
+      %ul
+        %li
+          %a{:href=>"#"}
+            Import From CSV
+        %li
+          %a{:href=>"#"}
+            Import From Excel
+        %li
+          %br
+        %li
+          %a{:href=>"#"}
+            Export To CSV
+        %li
+          %a{:href=>"#"}
+            Export To Excel
     .inner
       %table.table
         %tr

@@ -33,15 +33,9 @@
   }
 
   viewModel.upcomingAuctions = ko.dependentObservable(function(){
-    var today = new Date();
-    today.setHours(0); 
-    today.setMinutes(0); 
-    today.setSeconds(0); 
+    var today = todayAsDate();
     
-    var end = new Date();
-    end.setHours(0); 
-    end.setMinutes(0); 
-    end.setSeconds(0); 
+    var end = todayAsDate();
     end.setDate(today.getDate() + 7);
     
     var upcoming = ko.utils.arrayFilter(this.auctions(), function(auc){
@@ -53,15 +47,9 @@
   }, viewModel);
 
   viewModel.recentAuctions = ko.dependentObservable(function(){
-    var today = new Date();
-    today.setHours(0); 
-    today.setMinutes(0); 
-    today.setSeconds(0); 
+    var today = todayAsDate();
     
-    var start = new Date();
-    start.setHours(0); 
-    start.setMinutes(0); 
-    start.setSeconds(0); 
+    var start = todayAsDate();
     start.setDate(today.getDate() - 7);
     
     var recent = ko.utils.arrayFilter(this.auctions(), function(auc){
