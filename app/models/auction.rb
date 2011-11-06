@@ -9,6 +9,7 @@ class Auction
   key :start,            Time
   key :end,              Time
   key :description,      String
+  key :location_id,      BSON::ObjectId
   
   many :bidders
   many :sales
@@ -24,6 +25,7 @@ class Auction
     auction.description = auction_map['description']
     auction.start = Time.parse(auction_map['start'])
     auction.end   = Time.parse(auction_map['end'])
+    auction.location_id = auction_map['location_id']
     return auction
   end
   
@@ -33,6 +35,7 @@ class Auction
     self.description = auction_map['description']
     self.start = Time.parse(auction_map['start'])
     self.end   = Time.parse(auction_map['end'])
+    self.location_id = auction_map['location_id']
   end
 
   ##

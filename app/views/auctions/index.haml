@@ -24,23 +24,9 @@
             document.location.href = "auctions/" + id + "/bidders";
         });
     };
-  var locationModel = function(id, name, code){
-    this.id;
-    this.name = name;
-    this.code = code;
-  };
-
-  var country = function(name, population) {
-    this.countryName = name;
-    this.countryPopulation = population;   
-  };   
 
   viewModel = {
-    availableCountries : ko.observableArray([
-            new country("UK", 65000000),
-            new country("USA", 320000000),
-            new country("Sweden", 29000000)
-        ]),
+    locations : #{@locations.to_json},
     auctions : ko.observableArray([]),
     activeAuction : ko.protectedObservable(),
     errors : ko.observable("")
@@ -89,7 +75,7 @@
   $.get("auctions.json", function(data) {
     
     var allBidders = $.map(data, function(json) {
-      return new auction(json.id, json.title, json.start, json.end, json.description, json.location);
+      return new auction(json.id, json.title, json.start, json.end, json.description, json.location_id);
     });
     viewModel.auctions(allBidders);
   });
@@ -109,21 +95,22 @@
   }
 
 
-  function auction(id, title, start, end, description, location){
+  function auction(id, title, start, end, description, location_id){
     this.id = ko.observable(id);
     this.title = ko.observable(title);
     this.start = ko.observable(start);
     this.end = ko.observable(end);
     this.description = ko.observable(description);
-    this.location = ko.observable(location);
-    this.availableCountries = ko.observableArray([
-            new country("UK", 65000000),
-            new country("USA", 320000000),
-            new country("Sweden", 29000000)
-        ]);
-    this.selectedCountry = ko.observable("UK");
+    this.location_id = ko.observable(location_id);
 
     var self = this;
+
+    this.color = ko.dependentObservable(function(){
+        var locationMatch = ko.utils.arrayFirst(viewModel.locations, function(loc) {
+                        return loc.id == self.location_id();
+        });
+        return locationMatch == null ? '#36C' : locationMatch.color;
+    });
     
     this.auction_date = ko.dependentObservable({
         read: function () {
@@ -237,14 +224,14 @@
     };
   }
 
-  function auction_errors(id, title, auction_date, start, end, description, location){
+  function auction_errors(id, title, auction_date, start, end, description, location_id){
     this.id = ko.observable(id);
     this.title = ko.observable(title);
     this.auction_date = ko.observable(auction_date);
     this.start = ko.observable(start);
     this.end = ko.observable(start);
     this.description = ko.observable(description);
-    this.location = ko.observable(location);
+    this.location_id = ko.observable(location_id);
   }
 
   $(function(){
@@ -306,10 +293,10 @@
       %br
       %input.text_field{:'data-bind' => "value: title"}
     .group
-      %label{:for=>:location}Location:
-      %span.error{:'data-bind' => "text: viewModel.errors().location"}
+      %label{:for=>:location_id}Location:
+      %span.error{:'data-bind' => "text: viewModel.errors().location_id"}
       %br
-      
+      %select{:'data-bind' => "options: viewModel.locations, optionsText: 'name', optionsValue:'id', value:location_id, optionsCaption: 'Choose Location...'"}
       
     %table
       %tr
@@ -379,5 +366,4 @@
 .block 
   .content
     .inner
-      %select{:'data-bind' => "options: availableCountries, optionsText: name, optionsValue:name,  optionsCaption: 'Choose...'"}
       #calendar
