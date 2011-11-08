@@ -4,7 +4,7 @@ AuctionNow.controllers :consignees do
       when :html
         render 'consignees_index'
       when :json
-        Location.all.to_json
+        Consignee.all.to_json
     end
   end
   

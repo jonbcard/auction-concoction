@@ -18,8 +18,7 @@ class Auction
   
   validate_custom
   
-  def self.parse_json(json)
-    auction_map = JSON.parse(json)
+  def self.from_map(auction_map)
     auction = Auction.new()
     auction.title = auction_map['title']
     auction.description = auction_map['description']
@@ -29,8 +28,7 @@ class Auction
     return auction
   end
   
-  def update_from_json(json)
-    auction_map = JSON.parse(json)
+  def update_from_map(auction_map)
     self.title = auction_map['title']
     self.description = auction_map['description']
     self.start = Time.parse(auction_map['start'])

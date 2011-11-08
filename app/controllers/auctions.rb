@@ -2,9 +2,7 @@ AuctionNow.controllers :auctions do
 
   get :index do
     @locations = Location.all
-    @auctions = Auction.all
-    @auctions_upcoming = Auction.where(:start.gte => today_as_utc).sort(:start).all
-    @auctions_recent   = Auction.where(:start.lte => today_as_utc, :start.gte => (today_as_utc - 60*60*24*7)).sort(:start).all
+    @auctions = Auction.all       #TODO: Allow result subsets to be returned
     render 'auctions/index'
   end
 
@@ -28,7 +26,7 @@ AuctionNow.controllers :auctions do
           render 'auctions/new'
         end
       when :json
-        @auction = Auction.parse_json(CGI::unescape(request.body.read))
+        @auction = Auction.from_map(parse_json(request))
         success = @auction.save
         if(!success)
           return {:errors => @auction.errors}.to_json
@@ -84,7 +82,7 @@ AuctionNow.controllers :auctions do
 
   post :index, :with => :id, :provides => :json do
     @auction = Auction.find(params[:id])
-    @auction.update_from_json(CGI::unescape(request.body.read))
+    @auction.update_from_map(parse_json(request))
     success = @auction.save
     if(!success)
       return {:errors => @auction.errors}.to_json

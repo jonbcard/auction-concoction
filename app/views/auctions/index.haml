@@ -8,14 +8,10 @@
           function(action, el, pos) {
               var id = $(el).attr("data-id");
               if(action == "edit"){
-                  var auction = ko.utils.arrayFirst(viewModel.auctions(), function(auc) {
-                      return auc.id() == id; });
-                  auction.edit();
+                  viewModel.getAuctionById(id).edit();
               }
               if(action == "delete"){
-                  var auction = ko.utils.arrayFirst(viewModel.auctions(), function(auc) {
-                      return auc.id() == id; });
-                  auction.remove();
+                  viewModel.getAuctionById(id).remove();
               }
           }
         );
@@ -30,6 +26,12 @@
     auctions : ko.observableArray([]),
     activeAuction : ko.protectedObservable(),
     errors : ko.observable("")
+  }
+
+  viewModel.getAuctionById = function(id){
+      return ko.utils.arrayFirst(viewModel.auctions(), 
+             function(auc) { return auc.id() == id; }
+      );
   }
 
   viewModel.upcomingAuctions = ko.dependentObservable(function(){

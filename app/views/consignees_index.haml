@@ -1,0 +1,184 @@
+:javascript
+  $(function(){
+    ko.applyBindings(viewModel());
+
+    $("button#new").button({icons: { primary: "ui-icon-plus" }});
+    $("button#reload").button({icons: { primary: "ui-icon-refresh" }});
+  });
+
+  function parse_consignee(viewModel, json){
+    return new consignee(viewModel, json.id, json.code, json.name, json.address, json.city, json.state, json.color);
+  }
+
+  function consignee(viewModel, id, code, name, address, city, state, color){
+    this.id = ko.property(id);
+    this.code = ko.property(code);
+    this.name = ko.property(name);
+    this.address = ko.property(address);
+    this.city = ko.property(city);
+    this.state = ko.property(state);
+    this.color = ko.property(color);
+
+    // functions
+    this.edit = function(){
+      viewModel.activeConsignee(this);
+      $("#consigneeDialog").dialog({title:"Edit Consignee"});
+      $('#color').colorPicker();
+    }
+
+    this.cancel = function(){
+      viewModel.activeConsignee.reset();
+      $("#consigneeDialog").dialog("close");
+    }
+
+    var self = this;
+    this.save = function(){
+      if(id == undefined){
+        // create the record
+        var self = this;
+        $.ajax({
+          url:  "consignees/new.json",
+          type: "post",
+          data: ko.tempToJSON(this),
+          contentType: "application/json",
+          success: function(result) {
+            if(result.errors){
+              viewModel.activeConsignee.applyErrors(result.errors);
+            } else {
+              viewModel.activeConsignee.commit();
+              viewModel.activeConsignee().id(result.id);
+              viewModel.consignees.push(viewModel.activeConsignee());
+              viewModel.activeConsignee.reset();
+              afterLoad();
+              $("#consigneeDialog").dialog("close");
+            }
+          }
+        });
+      } else {
+        // save the record
+        $.ajax({
+          url:  "consignees/" + id + ".json",
+          type: "post",
+          data: ko.tempToJSON(this),
+          contentType: "application/json",
+          success: function(result) {
+            if(result.errors){
+              viewModel.activeConsignee.applyErrors(result.errors);
+            } else {
+              viewModel.activeConsignee.commit().reset();
+              $("#consigneeDialog").dialog("close");
+            }
+          }
+        });
+      }
+    }
+  }
+
+  var viewModel = function(){
+    this.consignees = ko.observableArray([]);
+    this.activeConsignee= ko.model();
+    this.numberFilter = new ko.observable("");
+    this.showInactive = new ko.observable(false);
+
+    this.displayCount = ko.dependentObservable(function() {
+      return "Displaying " + this.consignees().length + " of " + this.consignees().length;
+    }, this);
+
+    this.newConsignee = function() {
+      new consignee(this).edit();
+    };
+
+    // Load the initial state from server
+    
+    this.load = function() {
+      var self = this;
+      $.get("/consignees.json", function(data) {
+        var allConsignees = $.map(data, function(json) {
+            return parse_consignee(self, json);
+        });
+        self.consignees(allConsignees);
+        afterLoad();
+      });
+    }
+
+    this.afterLoad = function(){
+      $("button#edit").button({text: false, icons: { primary: "ui-icon-pencil" }});
+    }
+    
+    load();
+  }
+
+#consigneeDialog{ :style=>"display:none;"}
+  %div{:'data-bind' => "template: {name:'consigneeForm', data: activeConsignee}"}
+
+%script{:type => "text/x-jquery-tmpl", :id => "consigneeForm"}
+  .flash
+    .message.error{:'data-bind' => "visible: activeConsignee.hasErrors()"}
+      Errors occurred while saving the consignee.
+  %form.form{:id => 'consigneeForm'}
+    .group
+      %label{:for=>:code}Code:
+      %span.error{:'data-bind' => "text: code.errors"}
+      %br
+      %input.required{:'data-bind' => "value: code.temp"}
+    .group
+      %label{:for=>:name}Name:
+      %span.error{:'data-bind' => "text: name.errors"}
+      %br
+      %input.required{:'data-bind' => "value: name.temp"}
+    .group
+      %label{:for=>:address}Address:
+      %span.error{:'data-bind' => "text: address.errors"}
+      %br
+      %input.required{:'data-bind' => "value: address.temp"}
+    .group
+      %label{:for=>:city}City:
+      %span.error{:'data-bind' => "text: city.errors"}
+      %br
+      %input.required{:'data-bind' => "value: city.temp"}
+    .group
+      %label{:for=>:city}State:
+      %span.error{:'data-bind' => "text: state.errors"}
+      %br
+      %input.required{:'data-bind' => "value: state.temp"}
+      
+  %button.form_button{:'data-bind' => "click: save"}
+    Save
+  &nbsp;&nbsp;|&nbsp;&nbsp;
+  =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
+
+%script{:type => "text/x-jquery-tmpl", :id => "consigneeRow"}
+  %tr
+    %td
+      %span{:'data-bind' => "text: code"}
+    %td
+      %span{:'data-bind' => "text: name"}
+    %td
+      %span{:'data-bind' => "text: address"}
+    %td
+      %span{:'data-bind' => "text: city"}
+    %td.last
+      %button#edit{:class => 'small-button', :'data-bind' => "click: edit"} 
+        Edit
+
+.block
+  .content
+    #title
+      %h2 Consignees
+    #title-menu
+      %button#new{:href => "", :'data-bind' => "click : newConsignee"}
+        New
+      %button#reload{:href => "", :'data-bind' => "click : load"}
+        Reload
+    .inner
+      %table.table
+        %tr
+          %th.first=mat(:consignee, :code)
+          %th=mat(:consignee, :name)
+          %th=mat(:consignee, :address)
+          %th=mat(:consignee, :city)
+          %th.last="&nbsp;"
+        %tbody{:'data-bind' => "template: {name:'consigneeRow', foreach: consignees()}"}
+      .actions-bar.wat-cf
+        .actions
+          %span{:'data-bind' => 'text: displayCount'}
