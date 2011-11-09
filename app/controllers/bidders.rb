@@ -9,7 +9,7 @@ AuctionNow.controllers :bidders, :parent => :auctions do
     # /auctions/#{params[:auction_id]}/bidders"
     case content_type
       when :html
-        render 'bidders/index'
+        render 'bidders_index'
       when :json
         @auction.bidders.to_json
     end
@@ -29,7 +29,7 @@ AuctionNow.controllers :bidders, :parent => :auctions do
     @receipt =  !bidder.receipt.nil? ? bidder.receipt : bidder.create_receipt
     case content_type
       when :html    
-        render 'bidders/checkout'
+        render 'bidders_checkout'
       when :pdf
         content_type 'application/pdf'
         prawn :'reports/bidder_receipt'

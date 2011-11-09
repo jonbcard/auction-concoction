@@ -3,55 +3,18 @@ AuctionNow.controllers :auctions do
   get :index do
     @locations = Location.all
     @auctions = Auction.all       #TODO: Allow result subsets to be returned
-    render 'auctions/index'
+    render 'auctions_index'
   end
 
-  get :new, :provides => [:html] do
-    @auction = Auction.new()
-    @auction.start = Time.parse(params[:start])
-    @auction.end = Time.parse(params[:end])
-    render 'auctions/new'
+  post :new, :provides => [:json] do
+    @auction = Auction.from_map(parse_json(request))
+    @auction.save ? @auction.to_json : {:errors => @auction.errors}.to_json
   end
-
-  post :new, :provides => [:json, :html] do
-    case content_type
-      when :html
-        @auction = Auction.new(params[:auction])
-        @auction.start = Time.parse(params[:auction_date] + " " + params[:start])
-        @auction.end = Time.parse(params[:auction_date] + " " + params[:end])
-        if @auction.save
-          flash[:notice] = 'Auction was successfully created.'
-          redirect url(:auctions, :index)
-        else
-          render 'auctions/new'
-        end
-      when :json
-        @auction = Auction.from_map(parse_json(request))
-        success = @auction.save
-        if(!success)
-          return {:errors => @auction.errors}.to_json
-        else
-          return @auction.to_json
-    end
-    end
-    
-  end
-
-  get :edit, :with => :id do
+  
+  post :index, :with => :id, :provides => :json do
     @auction = Auction.find(params[:id])
-    render 'auctions/edit'
-  end
-
-  put :edit, :with => :id do
-    @auction = Auction.find(params[:id])
-    @auction.start = Time.parse(params[:auction_date] + " " + params[:start])
-    @auction.end = Time.parse(params[:auction_date] + " " + params[:end])
-    if @auction.update_attributes(params[:auction])
-      flash[:notice] = 'Auction was successfully updated.'
-      redirect url(:auctions, :index)
-    else
-      render 'auctions/edit'
-    end
+    @auction.update_from_map(parse_json(request))
+    @auction.save ? @auction.to_json : {:errors => @auction.errors}.to_json
   end
 
   ##
@@ -80,14 +43,4 @@ AuctionNow.controllers :auctions do
     return Auction.find(params[:id]).to_json
   end
 
-  post :index, :with => :id, :provides => :json do
-    @auction = Auction.find(params[:id])
-    @auction.update_from_map(parse_json(request))
-    success = @auction.save
-    if(!success)
-      return {:errors => @auction.errors}.to_json
-    else
-      return @auction.to_json
-    end
-  end
 end

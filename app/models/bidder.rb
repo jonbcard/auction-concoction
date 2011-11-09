@@ -4,7 +4,7 @@ class Bidder
   # reloading. Disabled for now.
   #plugin  MongoMapper::Plugins::CustomFieldPlugin
 
-  BIDDER_STATES = ["ACTIVE", "INACTIVE"]
+  BIDDER_STATES = ["NEW", "ACTIVE", "INACTIVE"]
 
   # Keys
   key  :number,     String, :required => true

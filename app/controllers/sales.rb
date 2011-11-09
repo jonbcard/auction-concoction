@@ -4,7 +4,7 @@ AuctionNow.controllers :sales, :parent => :auctions do
   end
 
   get :index do
-    render 'sales/index'
+    render 'sales_index'
   end
   
   post :new do

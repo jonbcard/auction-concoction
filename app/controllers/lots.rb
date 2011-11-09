@@ -5,14 +5,12 @@ require 'sinatra/prawn'
 AuctionNow.controllers :lots, :parent => :auctions do
   include Sinatra::Prawn
   
-  set :prawn, { :page_layout => :landscape }
-  
   before do
     @auction = Auction.find(params[:auction_id])
   end
 
   get :index do
-    render 'lots/index'
+    render 'lots_index'
   end
   
   post :new do

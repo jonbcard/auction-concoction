@@ -139,7 +139,7 @@ class Auction
 
     def active_bidders
       nums = []
-      bidders.each { |bidder| nums << bidder.number if bidder.status=="ACTIVE"}
+      bidders.each { |bidder| nums << bidder.number if bidder.status=="ACTIVE" || bidder.status=="NEW"}
       nums
     end
 end

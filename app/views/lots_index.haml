@@ -1,0 +1,140 @@
+:javascript
+  $(function(){
+    $("button.print").button({icons: {
+      primary: "ui-icon-print"
+    }});
+
+    $("#lot_number").focus();
+    $('#qty').val('1');
+
+    $("#lot").validate({
+       // the remote valation isn't playing well with onkeyup
+       onkeyup: false,
+       submitHandler: function() {
+         viewModel.addLot();
+       },
+       errorPlacement: function(error, element) {
+         var errorDiv = element.next();
+         error.appendTo(errorDiv);
+       },
+       highlight: function(element, errorClass, validClass) {
+         $(element).addClass(errorClass).removeClass(validClass);
+         var errorDiv = $(element).next();
+         $(errorDiv).show();
+       },
+       unhighlight: function(element, errorClass, validClass) {
+         if(element != null){
+           $(element).removeClass(errorClass).addClass(validClass);
+           var errorDiv = $(element).next();
+           $(errorDiv).hide();
+         }
+       }
+    });
+    jQuery.validator.addMethod("uniqueLot", function(value, element) {
+        return !viewModel.lotNumberExists(value);
+    }, "Duplicate lot");
+    $("#lot_number").rules("add", {uniqueLot : true} );
+    ko.applyBindings(viewModel);
+  });
+
+  var viewModel = {
+      autoNumber: new ko.observable(false),
+      lastErrorsFull: new ko.observable(""),
+      lots: new ko.observableArray(#{@auction.lots.nil? ? '[]' : @auction.lots.to_json}.reverse()),
+      addLot: function() {
+        ajaxSubmit($("#lot"), function(results){
+          if(results.errors){
+            viewModel.lastErrorsFull(results.errors_full);
+          } else {
+            viewModel.lastErrorsFull("");
+            viewModel.lots.unshift(results);
+            $('#lot')[0].reset();
+            if(viewModel.autoNumber()){
+              $('#lot_number').val(viewModel.nextLotNumber());
+              $('#lot_description').focus();
+            } else {
+              $('#lot_number').focus();
+            }
+            $('#qty').val('1');
+
+          }
+        });
+      },
+      lotNumberExists: function(number) {
+        for(x in this.lots()){
+          if(this.lots()[x].number == number) return true;
+        }
+        return false;
+      }
+  };
+
+  viewModel.nextLotNumber = ko.dependentObservable(function(){
+    if(!viewModel.autoNumber()){
+      return "";
+    }
+    var max = 0;
+    for(x in viewModel.lots()){
+      var val = parseInt(viewModel.lots()[x].number);
+      if(!isNaN(val) && val > max){
+        max = val;
+      }
+    }
+    return max+1;
+  });
+
+-content_for(:context_panel) do
+  #options.block
+    %h3 Options
+    .content
+      %form.form
+        .group
+          %label Auto-number?
+          %input{:type => 'checkbox', :'data-bind' => 'checked: autoNumber'}
+
+.flash
+  .message.error{:'data-bind' => "text: lastErrorsFull, visible: lastErrorsFull() != ''"}
+.block
+  .content
+    #title
+      %h2.title #{@auction.title} :: Lots
+    #title-menu
+      %button.print{:onClick => "window.open('lots/catalog.pdf','mywindow','width=600,height=800')"}
+        View/Print Catalog
+    .inner
+      %form.form{:id => 'lot',:method => 'post', :action=> "/auctions/#{@auction.id}/lots/new"}
+        %table.table
+          %thead
+            %tr
+              %th.first Lot #
+              %th Consginee
+              %th Description
+              %th Qty.
+              %th.last
+            %tr
+              %td{:valign => 'top'}
+                %input.text_field.required{:id => 'lot_number', :type => 'text', 
+                       :name => 'lot[number]', :class => "text_field", :style => "width:50px",
+                       :'data-bind' => "value: nextLotNumber"  }
+                .floating-error
+              %td{:valign => 'top'}
+                %textarea.text_area.required{:id => 'lot_description', :name => 'lot[description]',
+                       :style => "width:200px" }
+                .floating-error
+              %td{:valign => 'top'}
+                %input.text_field.required{:id => 'qty', :type => 'text',
+                       :name => 'lot[qty_available]', :style => "width:30px" }
+                .floating-error
+              %td{:valign => 'top'}
+                %input.form_button{:id => 'submit', :type => 'submit', :name => 'Submit',:tabindex => "4"}
+          %tbody{:'data-bind'=>'template: { name: "lotsListTemplate", foreach: lots }'}
+
+%script{:type => "text/html", :id => "lotsListTemplate"}
+  %tr
+    %td
+      %span{:'data-bind' => "text: number"}
+    %td
+      %span{:'data-bind' => "text: description"}
+    %td
+      %span{:'data-bind' => "text: qty_available"}
+    %td
+      =button_to( pat(:delete), "lots/destroy/${id}", :method => :delete, :class => :button_to)
