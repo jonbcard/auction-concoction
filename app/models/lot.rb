@@ -2,8 +2,8 @@ class Lot
   include MongoMapper::EmbeddedDocument
 
   # Keys
-  key  :consignee,    String
   key  :number,       String, :required => true
+  key  :consignee_id, BSON::ObjectId
   key  :description,  String, :required => true
   key  :qty_available,Integer, :required => true
   

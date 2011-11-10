@@ -9,14 +9,21 @@ AuctionNow.controllers :lots, :parent => :auctions do
     @auction = Auction.find(params[:auction_id])
   end
 
-  get :index do
-    render 'lots_index'
+  get :index, :provides => [:html, :json] do
+    # /auctions/#{params[:auction_id]}/bidders"
+    case content_type
+      when :html
+        @consignees = Consignee.all # TODO: This could be quite a large set
+        render 'lots_index'
+      when :json
+        @auction.lots.reverse.to_json
+    end
   end
   
   post :new do
     lot = Lot.new(params[:lot])
     if(!@auction.add_lot(lot))
-      return {:errors => lot.errors.errors,
+      return {:errors => lot.errors,
               :errors_full => lot.errors.full_messages}.to_json
     end
     lot.to_json

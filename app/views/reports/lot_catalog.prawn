@@ -1,3 +1,4 @@
+pdf.font "Courier"
 pdf.move_down 100
 pdf.text "Auction Catalog", :size => 32, :style => :bold, :align => :center
 pdf.text "#{@auction.description}", :size => 18, :align => :center

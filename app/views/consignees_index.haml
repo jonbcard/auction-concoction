@@ -10,7 +10,7 @@
     return new consignee(viewModel, json.id, json.code, json.name, json.address, json.city, json.state, json.color);
   }
 
-  function consignee(viewModel, id, code, name, address, city, state, color){
+  var consignee = function(viewModel, id, code, name, address, city, state, color){
     this.id = ko.property(id);
     this.code = ko.property(code);
     this.name = ko.property(name);

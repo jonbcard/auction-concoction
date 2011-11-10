@@ -3,9 +3,16 @@
     $("button.print").button({icons: {
       primary: "ui-icon-print"
     }});
+    $("button#mode").button({icons: {
+      secondary: "ui-icon-triangle-1-s"
+    }}).next().menu({
+        select: function(event, ui) {
+            $(this).hide();
+        }
+    }).popup();
 
     $("#lot_number").focus();
-    $('#qty').val('1');
+
 
     $("#lot").validate({
        // the remote valation isn't playing well with onkeyup
@@ -35,38 +42,101 @@
     }, "Duplicate lot");
     $("#lot_number").rules("add", {uniqueLot : true} );
     ko.applyBindings(viewModel);
+ 
   });
+
+  var consignees = #{@consignees.to_json};
+
+    var getConsigneeById = function(id){
+      return ko.utils.arrayFirst(consignees, 
+             function(con) { return con.id == id; }
+      );
+    };
+
+    var getConsigneeByCode = function(code){
+      return ko.utils.arrayFirst(consignees, 
+             function(con) { return con.code == code; }
+      );
+    };
+
+  function parse_lot(json){
+    return new lot(json.id, json.number, json.consignee_id, json.description, json.qty_available);
+  }
+
+  var lot = function(id, number, consignee_id, description, qty_available){
+    this.id = ko.property(id)
+    this.number = ko.property(number);
+    this.consignee_id = ko.property(consignee_id);
+    this.description = ko.property(description);
+    
+    this.qty_available = ko.property(qty_available == undefined ? 1 : qty_available);
+
+    var self = this;
+    this.consignee_code = ko.dependentObservable({
+        read: function () {
+            var con = getConsigneeById(self.consignee_id());
+            return (con == undefined ? null : con.code);
+        },
+        write: function (value) {
+            var con = getConsigneeByCode(value);
+            self.consignee_id(con == undefined ? null : con.id);
+        },
+        owner : viewModel
+    });
+    
+    this.consignee_text = ko.dependentObservable({
+        read: function () {
+            var con = getConsigneeById(self.consignee_id());
+            return (con == undefined ? "" : "(" + con.code + ")" + " " + con.name);
+        },
+        owner : viewModel
+    });
+
+    this.reset = function(){
+      this.id("");
+      this.consignee_id("");
+      this.description("");
+      this.qty_available(1);
+    }
+  }
 
   var viewModel = {
       autoNumber: new ko.observable(false),
+      currentLot: new ko.observable(new lot()),
       lastErrorsFull: new ko.observable(""),
-      lots: new ko.observableArray(#{@auction.lots.nil? ? '[]' : @auction.lots.to_json}.reverse()),
+      lots: new ko.observableArray([]),
       addLot: function() {
         ajaxSubmit($("#lot"), function(results){
           if(results.errors){
             viewModel.lastErrorsFull(results.errors_full);
           } else {
             viewModel.lastErrorsFull("");
-            viewModel.lots.unshift(results);
+            viewModel.lots.unshift(parse_lot(results));
             $('#lot')[0].reset();
+            viewModel.currentLot(new lot());
             if(viewModel.autoNumber()){
               $('#lot_number').val(viewModel.nextLotNumber());
-              $('#lot_description').focus();
+              $('#lot_consignee').focus();
             } else {
               $('#lot_number').focus();
             }
-            $('#qty').val('1');
-
           }
         });
       },
       lotNumberExists: function(number) {
         for(x in this.lots()){
-          if(this.lots()[x].number == number) return true;
+          if(this.lots()[x].number() == number) return true;
         }
         return false;
       }
   };
+
+  $.get("lots.json", function(data) {
+    var allLots = $.map(data, function(json) {
+      return new lot(json.id, json.number, json.consignee_id, json.description, json.qty_available);
+    });
+    viewModel.lots(allLots);
+  });
 
   viewModel.nextLotNumber = ko.dependentObservable(function(){
     if(!viewModel.autoNumber()){
@@ -74,7 +144,7 @@
     }
     var max = 0;
     for(x in viewModel.lots()){
-      var val = parseInt(viewModel.lots()[x].number);
+      var val = parseInt(viewModel.lots()[x].number());
       if(!isNaN(val) && val > max){
         max = val;
       }
@@ -100,6 +170,15 @@
     #title-menu
       %button.print{:onClick => "window.open('lots/catalog.pdf','mywindow','width=600,height=800')"}
         View/Print Catalog
+      %button#mode
+        Entry Mode
+      %ul{:style => 'width: 130px'}
+        %li
+          %a{:href => '#direct'}
+            Direct Rapid
+        %li
+          %a{:href => '#catalog'}
+            Catalog Rapid
     .inner
       %form.form{:id => 'lot',:method => 'post', :action=> "/auctions/#{@auction.id}/lots/new"}
         %table.table
@@ -117,12 +196,21 @@
                        :'data-bind' => "value: nextLotNumber"  }
                 .floating-error
               %td{:valign => 'top'}
+                %input.text_field{:type => 'hidden', :name => 'lot[consignee_id]',
+                        :'data-bind'=>'value:currentLot().consignee_id'}
+                %input.text_field.required{:id => 'lot_consignee', :name => 'lot[consignee]',
+                       :style => "width:50px", :'data-bind'=>'value:currentLot().consignee_code'}
+                
+                .floating-error
+                %br
+                %span{:'data-bind' => 'text:currentLot().consignee_text()'}
+              %td{:valign => 'top'}
                 %textarea.text_area.required{:id => 'lot_description', :name => 'lot[description]',
-                       :style => "width:200px" }
+                       :style => "width:200px", :'data-bind'=>'value:currentLot().description' }
                 .floating-error
               %td{:valign => 'top'}
                 %input.text_field.required{:id => 'qty', :type => 'text',
-                       :name => 'lot[qty_available]', :style => "width:30px" }
+                       :name => 'lot[qty_available]', :style => "width:30px", :'data-bind'=>'value:currentLot().qty_available' }
                 .floating-error
               %td{:valign => 'top'}
                 %input.form_button{:id => 'submit', :type => 'submit', :name => 'Submit',:tabindex => "4"}
@@ -132,6 +220,8 @@
   %tr
     %td
       %span{:'data-bind' => "text: number"}
+    %td
+      %span{:'data-bind' => "text: consignee_text"}
     %td
       %span{:'data-bind' => "text: description"}
     %td

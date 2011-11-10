@@ -64,10 +64,10 @@
   // Load the initial state from server
   $.get("auctions.json", function(data) {
     
-    var allBidders = $.map(data, function(json) {
+    var allAuctions = $.map(data, function(json) {
       return new auction(json.id, json.title, json.start, json.end, json.description, json.location_id);
     });
-    viewModel.auctions(allBidders);
+    viewModel.auctions(allAuctions);
   });
   
   // Manually subscribe the Calendar to changes in the set of auctions.
