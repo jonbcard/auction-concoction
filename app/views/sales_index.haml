@@ -79,7 +79,7 @@
   }, viewModel);
 
 .flash
-  .message.error{:'data-bind' => "text: lastErrorsFull, visible: !nullOrEmpty(lastErrorsFull())"}
+  .message.error{:'data-bind' => "text: lastErrorsFull, visible: lastErrorsFull()"}
 .block
   .content
     %h2.title #{@auction.title} :: Sales

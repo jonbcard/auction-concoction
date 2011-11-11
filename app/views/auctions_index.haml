@@ -35,30 +35,30 @@
   }
 
   viewModel.upcomingAuctions = ko.dependentObservable(function(){
-    var today = todayAsDate();
+    var today = util.todayAsDate();
     
-    var end = todayAsDate();
+    var end = util.todayAsDate();
     end.setDate(today.getDate() + 7);
     
     var upcoming = ko.utils.arrayFilter(this.auctions(), function(auc){
       var result = $.fullCalendar.parseDate(auc.start())
       return result != null && result.getTime() >= today.getTime() && result.getTime() <= end.getTime();
     });
-    return sortArrayByProperty(upcoming, "auction_date()");
+    return util.sortArrayByProperty(upcoming, "auction_date()");
 
   }, viewModel);
 
   viewModel.recentAuctions = ko.dependentObservable(function(){
-    var today = todayAsDate();
+    var today = util.todayAsDate();
     
-    var start = todayAsDate();
+    var start = util.todayAsDate();
     start.setDate(today.getDate() - 7);
     
     var recent = ko.utils.arrayFilter(this.auctions(), function(auc){
       var result = $.fullCalendar.parseDate(auc.start())
       return result != null && result.getTime() <= today.getTime() && result.getTime() >= start.getTime();
     });
-    return sortArrayByProperty(recent, "auction_date()").reverse();
+    return util.sortArrayByProperty(recent, "auction_date()").reverse();
   }, viewModel);
 
   // Load the initial state from server
@@ -274,7 +274,7 @@
 
 %script{:type => "text/x-jquery-tmpl", :id => "auctionForm"}
   .flash
-    .message.error{:'data-bind' => "visible: !nullOrEmpty(viewModel.errors())"}
+    .message.error{:'data-bind' => "visible: viewModel.errors()"}
       Errors occurred while saving the auction record.
   %form.form{:id => 'auctionForm'}
     .group

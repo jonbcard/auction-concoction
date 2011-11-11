@@ -113,7 +113,7 @@
                           ko.utils.stringStartsWith(bidder.last_name().toLowerCase(), nameToFilter);
         };
         return (this.showInactive() || bidder.status() == 'ACTIVE' || bidder.status() == 'NEW') &&
-             bidder.number().startsWith(this.numberFilter()) && nameMatches();
+             ko.utils.stringStartsWith(bidder.number(), this.numberFilter()) && nameMatches();
       });
     }, this);
 

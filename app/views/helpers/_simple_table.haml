@@ -16,7 +16,7 @@
     dataToSort = this.filter();
 
     // ... sort ...
-    var sorted = sortArrayByProperty(dataToSort, tableModel.sortColumn());
+    var sorted = util.sortArrayByProperty(dataToSort, tableModel.sortColumn());
     if(!tableModel.sortAscending()) sorted.reverse();
 
 

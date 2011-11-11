@@ -52,7 +52,7 @@ var models = new function() {
     /////////////// Lots ////////////////////
     
 
-    this.parseLots = function (json){
+    this.parseLot = function (json){
         return new models.Lot(json.id, json.number, json.consignee_id, json.description, json.qty_available);
     }
 

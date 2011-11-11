@@ -24,39 +24,8 @@ $(function(){
 });
 
 // ---- General helper functions ----
-
-String.prototype.startsWith = function(str){
-    // TODO: kind of slow implementation. It would be nice
-    // to have this check as lightening fast as possible.
-    return (this.indexOf(str) === 0);
-}
-
-var nullOrEmpty = function(value){
-    return value == null || value.length == 0
-}
-
-/**
- * Note : eventually we'll need to add support for doing sort comparisons
- * other than just by Strings. This should be good enough (for now), though.
- */
-var sortArrayByProperty = function(array, property){
-    return array.sort(function(a,b) {
-        var x = eval("a." + property);
-        var y = eval("b." + property);
-        if(x == null) return (y==null) ? 0 : 1;
-        return ((x < y) ? -1 : ((x > y) ? 1 : 0));  
-    });
-}
-
-var todayAsDate = function(){
-    var day = new Date();
-    day.setHours(0); 
-    day.setMinutes(0); 
-    day.setSeconds(0); 
-    return day;
-}
-
 var util = new function() {
+    
     /* Get JSON syncronously from the server */
     this.getJSON = function(url){
         var result = null;
@@ -69,6 +38,27 @@ var util = new function() {
             }
         });
         return result;
+    }
+    
+    this.todayAsDate = function(){
+        var day = new Date();
+        day.setHours(0); 
+        day.setMinutes(0); 
+        day.setSeconds(0); 
+        return day;
+    }
+    
+    /**
+     * Note : eventually we'll need to add support for doing sort comparisons
+     * other than just by Strings. This should be good enough (for now), though.
+     */
+    this.sortArrayByProperty = function(array, property){
+        return array.sort(function(a,b) {
+            var x = eval("a." + property);
+            var y = eval("b." + property);
+            if(x == null) return (y==null) ? 0 : 1;
+            return ((x < y) ? -1 : ((x > y) ? 1 : 0));  
+        });
     }
 };
 
