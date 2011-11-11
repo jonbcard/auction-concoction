@@ -45,51 +45,9 @@
  
   });
 
-  function parse_lot(json){
-    return new lot(json.id, json.number, json.consignee_id, json.description, json.qty_available);
-  }
-
-  var lot = function(id, number, consignee_id, description, qty_available){
-    this.id = ko.property(id)
-    this.number = ko.property(number);
-    this.consignee_id = ko.property(consignee_id);
-    this.description = ko.property(description);
-    
-    this.qty_available = ko.property(qty_available == undefined ? 1 : qty_available);
-
-    var self = this;
-    this.consignee_code = ko.dependentObservable({
-        read: function () {
-            var con = models.getConsigneeById(self.consignee_id());
-            return (con == undefined ? null : con.code);
-        },
-        write: function (value) {
-            var con = models.getConsigneeByCode(value);
-            self.consignee_id(con == undefined ? null : con.id);
-        },
-        owner : viewModel
-    });
-    
-    this.consignee_text = ko.dependentObservable({
-        read: function () {
-            var con = models.getConsigneeById(self.consignee_id());
-            return (con == undefined ? "" : "(" + con.code + ")" + " " + con.name);
-        },
-        owner : viewModel
-    });
-
-    this.reset = function(){
-      this.id("");
-      this.number("");
-      this.consignee_id("");
-      this.description("");
-      this.qty_available(1);
-    }
-  }
-
   var viewModel = {
       autoNumber: new ko.observable(false),
-      currentLot: new ko.observable(new lot()),
+      currentLot: new ko.observable(new models.Lot()),
       lastErrorsFull: new ko.observable(""),
       lots: new ko.observableArray([]),
       addLot: function() {
@@ -98,11 +56,11 @@
             viewModel.lastErrorsFull(results.errors_full);
           } else {
             viewModel.lastErrorsFull("");
-            viewModel.lots.unshift(parse_lot(results));
-            $('#lot')[0].reset();
-            viewModel.currentLot(new lot());
+            viewModel.lots.unshift(models.parseLot(results));
+           
+            viewModel.currentLot().reset();
             if(viewModel.autoNumber()){
-              $('#lot_number').val(viewModel.nextLotNumber());
+              viewModel.currentLot().number(nextLotNumber());
               $('#lot_consignee').focus();
             } else {
               $('#lot_number').focus();
@@ -120,15 +78,21 @@
 
   $.get("lots.json", function(data) {
     var allLots = $.map(data, function(json) {
-      return new lot(json.id, json.number, json.consignee_id, json.description, json.qty_available);
+      return new models.Lot(json.id, json.number, json.consignee_id, json.description, json.qty_available);
     });
     viewModel.lots(allLots);
   });
 
-  viewModel.nextLotNumber = ko.dependentObservable(function(){
+  var applyLotNumber = function(){
     if(!viewModel.autoNumber()){
-      return "";
+      viewModel.currentLot().number("");
+    } else {
+      viewModel.currentLot().number(nextLotNumber());
     }
+  }
+
+  var nextLotNumber = function(){
+    
     var max = 0;
     for(x in viewModel.lots()){
       var val = parseInt(viewModel.lots()[x].number());
@@ -137,7 +101,7 @@
       }
     }
     return max+1;
-  });
+  };
 
 -content_for(:context_panel) do
   #options.block
@@ -146,7 +110,7 @@
       %form.form
         .group
           %label Auto-number?
-          %input{:type => 'checkbox', :'data-bind' => 'checked: autoNumber'}
+          %input{:type => 'checkbox', :'data-bind' => 'checked: autoNumber, click: applyLotNumber()'}
 
 .flash
   .message.error{:'data-bind' => "text: lastErrorsFull, visible: lastErrorsFull() != ''"}
@@ -180,7 +144,7 @@
               %td{:valign => 'top'}
                 %input.text_field.required{:id => 'lot_number', :type => 'text', 
                        :name => 'lot[number]', :class => "text_field", :style => "width:50px",
-                       :'data-bind' => "value: nextLotNumber"  }
+                       :'data-bind' => "value: currentLot().number"  }
                 .floating-error
               %td{:valign => 'top'}
                 %input.text_field{:type => 'hidden', :name => 'lot[consignee_id]',
