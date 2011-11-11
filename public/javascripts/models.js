@@ -50,8 +50,6 @@ var models = new function() {
 
    
     /////////////// Lots ////////////////////
-    
-
     this.parseLot = function (json){
         return new models.Lot(json.id, json.number, json.consignee_id, json.description, json.qty_available);
     }
@@ -93,5 +91,42 @@ var models = new function() {
         };
         
         
+    }
+    
+    /////////////// Sales ////////////////////
+    this.parseSale = function(json){
+        return new models.Sale(json.id, json.lot, json.consignee_id, json.description, json.bidder, json.price, json.quantity, json.sale_time);
+    }
+    
+    this.Sale = function(id, lot, consignee_id, description, bidder, price, quantity, sale_time){
+        this.id = ko.property(id);
+        this.lot = ko.property(lot);
+        this.consignee_id = ko.property(consignee_id);
+        this.description = ko.property(description);
+        this.bidder = ko.property(bidder);
+        this.price = ko.property(price);
+        this.quantity = ko.property(quantity == undefined ? 1 : quantity);
+        this.sale_time = ko.property(sale_time);
+        
+        var self = this;
+        
+        this.consignee_code = ko.dependentObservable({
+            read: function () {
+                var con = models.getConsigneeById(this.consignee_id());
+                return (con == undefined ? null : con.code);
+            },
+            write: function (value) {
+                var con = models.getConsigneeByCode(value);
+                this.consignee_id(con == undefined ? null : con.id);
+            },
+            owner: self
+        });
+    
+        this.consignee_text = ko.dependentObservable(
+            function () {
+                var con = models.getConsigneeById(this.consignee_id());
+                return (con == undefined ? "" : "(" + con.code + ")" + " " + con.name);
+            }, self
+        );
     }
 };

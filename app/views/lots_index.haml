@@ -91,7 +91,7 @@
 
   $.get("lots.json", function(data) {
     var allLots = $.map(data, function(json) {
-      return new models.Lot(json.id, json.number, json.consignee_id, json.description, json.qty_available);
+      return models.parseLot(json);
     });
     viewModel.lots(allLots);
   });
@@ -139,10 +139,10 @@
       %ul{:style => 'width: 130px'}
         %li
           %a{:href => '#direct'}
-            Direct Rapid
+            Direct
         %li
           %a{:href => '#catalog'}
-            Catalog Rapid
+            By Catalog Number
     .inner
       %form.form{:id => 'lot',:method => 'post', :action=> "/auctions/#{@auction.id}/lots/new"}
         %table.table

@@ -1,5 +1,13 @@
 :javascript
-  $(function(){     
+  $(function(){  
+    $("button#mode").button({icons: {
+      secondary: "ui-icon-triangle-1-s"
+    }}).next().menu({
+        select: function(event, ui) {
+            $(this).hide();
+        }
+    }).popup();
+   
     $("#sale").validate({
        // the remote valation isn't playing well with onkeyup
        onkeyup: false,
@@ -36,53 +44,97 @@
     $('#sale')[0].reset();
     $('#qty').val('1');
     $('#lot').focus();
-    viewModel.currentLot("");
+    viewModel.currentLotNumber("");
+    viewModel.currentSale().consignee_id("");
   }
 
-  function parse_sale(json){
-    return new lot(json.id, json.lot, json.consignee_id, json.description, json.bidder, json.price, json.quantity, json.sale_time);
-  }
-
-  var sale = function(id, lot, consignee_id, description, bidder, price, quantity, sale_time){
-    this.id = ko.property(id);
-    this.lot = ko.property(consignee_id);
-    this.consignee_id = ko.property(consignee_id);
-    this.description = ko.property(description);
-    this.bidder = ko.property(bidder);
-    this.price = ko.property(price);
-    this.quantity = ko.property(quantity == undefined ? 1 : quantity);
-    this.sale_time = ko.property(sale_time);
-  }
+  
   
   var viewModel = {
-      currentLot: new ko.observable(""),
+      currentLotNumber: new ko.observable(""),
+      currentSale: new ko.observable(new models.Sale()),
       lastErrorsFull: new ko.observable(""),
-      sales: new ko.observableArray(#{@auction.sales.nil? ? '[]' : @auction.sales.to_json}.reverse()),
-      lots : #{@auction.lots.nil? ? '[]' : @auction.lots.to_json},
+      sales: new ko.observableArray([]),
+      lots : new ko.observableArray([]),
       addSale: function() {
         ajaxSubmit($("#sale"), function(results){
               if(results.errors){
                 viewModel.lastErrorsFull(results.errors_full);
               } else {
-                viewModel.sales.unshift(results);
+                viewModel.sales.unshift(models.parseSale(results));
                 reset();
               }
         });
       }
   };
 
-  viewModel.currentLotDescription = ko.dependentObservable(function() {
-    for (var i = 0, j = this.lots.length; i < j; i++)
-      if (this.lots[i].number == viewModel.currentLot())
-        return this.lots[i].description;
-    return "";
+  $.get("sales.json", function(data) {
+    var allSales = $.map(data, function(json) {
+      return models.parseSale(json);
+    });
+    viewModel.sales(allSales);
+  });
+
+  $.get("lots.json", function(data) {
+    var allLots = $.map(data, function(json) {
+      return models.parseLot(json);
+    });
+    viewModel.lots(allLots);
+  });   
+
+  viewModel.currentLot = ko.dependentObservable(function() {
+      var result = ko.utils.arrayFirst(viewModel.lots(), 
+             function(lot) { return lot.number() == viewModel.currentLotNumber(); }
+      );
+      return result || {};
   }, viewModel);
+
+ 
+  viewModel.currentConsignee = ko.dependentObservable(function() {
+    
+    var consignee_id = ko.utils.unwrapObservable(viewModel.currentLot().consignee_id);
+    return consignee_id ? models.getConsigneeById(consignee_id) : {};
+
+  }, viewModel);
+
+   
+
+
+  viewModel.currentConsigneeCode = ko.dependentObservable({
+    read: function() {
+        var cons = viewModel.currentConsignee();
+        return cons ? cons.code : "";
+    },
+    write: function(value){
+        var consignee = models.getConsigneeByCode(value);
+        var id = consignee ? consignee.id : "";
+        viewModel.currentSale().consignee_id(id);
+    }
+  }, viewModel);
+
+  viewModel.currentConsigneeCode.subscribe(function(value) {
+      var consignee = models.getConsigneeByCode(value);
+      var id = consignee ? consignee.id : "";
+      viewModel.currentSale().consignee_id(id);
+  });
 
 .flash
   .message.error{:'data-bind' => "text: lastErrorsFull, visible: lastErrorsFull()"}
 .block
   .content
-    %h2.title #{@auction.title} :: Sales
+    #title
+      %h2.title #{@auction.title} :: Sales
+    #title-menu
+      %button#mode
+        Entry Mode
+      %ul{:style => 'width: 130px'}
+        %li
+          %a{:href => '#direct'}
+            Direct / Lotted
+        %li
+          %a{:href => '#catalog'}
+            By Catalog Number
+    
     .inner
       %form.form{:id => 'sale',:method => 'post', :autocomplete => "false",
                  :action=>"/auctions/#{@auction.id}/sales/new"}
@@ -90,6 +142,7 @@
           %thead
             %tr
               %th.first Lot #
+              %th Consignee
               %th Description
               %th Bidder
               %th Price
@@ -99,11 +152,19 @@
               %td{:valign => 'top'}
                 %input.text_field.required{:id => 'lot', :type => 'text',
                        :name => 'sale[lot]', :style => "width:50px",
-                       :'data-bind' => "value:currentLot"}
+                       :'data-bind' => "value:currentLotNumber"}
                 .floating-error
               %td{:valign => 'top'}
+                %input.text_field{:type => 'hidden', :name=> 'sale[consignee_id]', 
+                        :'data-bind' => "value: currentSale().consignee_id"}
+                %input.text_field.required{:type => 'text', :name=> 'sale[consignee_code]', 
+                        :style => "width:50px", :'data-bind' => "value: currentConsigneeCode"}
+                .floating-error
+                %br
+                %span{:'data-bind' => 'text:currentSale().consignee_text'}
+              %td{:valign => 'top'}
                 %textarea.text_area.required.text_area{:name => 'sale[description]', 
-                       :style => "width:200px", :'data-bind' => "text: currentLotDescription()"}
+                       :style => "width:200px", :'data-bind' => "text: currentLot().description"}
                 .floating-error
               %td{:valign => 'top'}
                 %input.text_field.required{:type => 'text', :name=> 'sale[bidder]', 
@@ -123,6 +184,8 @@
   %tr
     %td
       %span{:'data-bind' => "text: lot"}
+    %td
+      %span{:'data-bind' => "text: consignee_text() "}
     %td
       %span{:'data-bind' => "text: description"}
     %td

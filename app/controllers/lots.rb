@@ -13,7 +13,6 @@ AuctionNow.controllers :lots, :parent => :auctions do
     # /auctions/#{params[:auction_id]}/bidders"
     case content_type
       when :html
-        @consignees = Consignee.all # TODO: This could be quite a large set
         render 'lots_index'
       when :json
         @auction.lots.reverse.to_json

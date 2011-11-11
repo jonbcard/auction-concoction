@@ -3,8 +3,14 @@ AuctionNow.controllers :sales, :parent => :auctions do
     @auction = Auction.find(params[:auction_id])
   end
 
-  get :index do
-    render 'sales_index'
+  get :index, :provides => [:html, :json] do
+    # /auctions/#{params[:auction_id]}/bidders"
+    case content_type
+      when :html
+        render 'sales_index'
+      when :json
+        @auction.sales.reverse.to_json
+    end
   end
   
   post :new do
