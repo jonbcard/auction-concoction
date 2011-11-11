@@ -45,25 +45,38 @@
  
   });
 
+  models.Lot.prototype.remove = function(){
+      var self = this;
+      $.post("lots/destroy/" + this.id(), function() {
+          viewModel.lots.remove(function(item) { return item.id() == self.id() });
+      });
+  }
+
   var viewModel = {
       autoNumber: new ko.observable(false),
       currentLot: new ko.observable(new models.Lot()),
       lastErrorsFull: new ko.observable(""),
       lots: new ko.observableArray([]),
       addLot: function() {
-        ajaxSubmit($("#lot"), function(results){
-          if(results.errors){
-            viewModel.lastErrorsFull(results.errors_full);
-          } else {
-            viewModel.lastErrorsFull("");
-            viewModel.lots.unshift(models.parseLot(results));
-           
-            viewModel.currentLot().reset();
-            if(viewModel.autoNumber()){
-              viewModel.currentLot().number(nextLotNumber());
-              $('#lot_consignee').focus();
+        $.ajax({
+          url:  "lots/new.json",
+          type: "post",
+          data: ko.toJSON(viewModel.currentLot()),
+          contentType: "application/json",
+          success: function(result) {
+            if(result.errors){
+              viewModel.lastErrorsFull(result.errors_full);
             } else {
-              $('#lot_number').focus();
+                viewModel.lastErrorsFull("");
+                viewModel.lots.unshift(models.parseLot(result));
+           
+                viewModel.currentLot().reset();
+                if(viewModel.autoNumber()){
+                    viewModel.currentLot().number(nextLotNumber());
+                    $('#lot_consignee').focus();
+                } else {
+                    $('#lot_number').focus();
+                }
             }
           }
         });
@@ -178,4 +191,5 @@
     %td
       %span{:'data-bind' => "text: qty_available"}
     %td
-      =button_to( pat(:delete), "lots/destroy/${id}", :method => :delete, :class => :button_to)
+      %span{:onClick => "event.stopPropagation();return false;", :'data-bind' => "click: remove"}
+        =image_tag 'page_white_delete.png'

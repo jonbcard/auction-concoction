@@ -20,8 +20,8 @@ AuctionNow.controllers :lots, :parent => :auctions do
     end
   end
   
-  post :new do
-    lot = Lot.new(params[:lot])
+  post :new, :provides => [:json] do
+    lot = Lot.new(parse_json(request))
     if(!@auction.add_lot(lot))
       return {:errors => lot.errors,
               :errors_full => lot.errors.full_messages}.to_json
@@ -29,7 +29,7 @@ AuctionNow.controllers :lots, :parent => :auctions do
     lot.to_json
   end
 
-  delete :destroy, :with => :id do
+  post :destroy, :with => :id do
     if @auction.remove_lot(params[:id])
       flash[:notice] = 'Lot was successfully removed.'
     else

@@ -91,5 +91,7 @@ var models = new function() {
             this.description("");
             this.qty_available(1);
         };
+        
+        
     }
 };
