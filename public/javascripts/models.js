@@ -59,7 +59,7 @@ var models = new function() {
         this.number = ko.property(number);
         this.consignee_id = ko.property(consignee_id);
         this.description = ko.property(description);
-        this.qty_available = ko.property(1);
+        this.qty_available = ko.property(qty_available || 1);
         
         var self = this;
         
@@ -105,7 +105,7 @@ var models = new function() {
         this.description = ko.property(description);
         this.bidder = ko.property(bidder);
         this.price = ko.property(price);
-        this.quantity = ko.property(quantity == undefined ? 1 : quantity);
+        this.quantity = ko.property(quantity || 1);
         this.sale_time = ko.property(sale_time);
         
         var self = this;

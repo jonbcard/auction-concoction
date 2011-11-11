@@ -76,9 +76,7 @@
 
   var viewModel = function(){
     this.consignees = ko.observableArray([]);
-    this.activeConsignee= ko.model();
-    this.numberFilter = new ko.observable("");
-    this.showInactive = new ko.observable(false);
+    this.activeConsignee = ko.model();
 
     this.displayCount = ko.dependentObservable(function() {
       return "Displaying " + this.consignees().length + " of " + this.consignees().length;

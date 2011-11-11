@@ -1,0 +1,164 @@
+:javascript
+  $(function(){
+    ko.applyBindings(viewModel());
+
+    $("button#new").button({icons: { primary: "ui-icon-plus" }});
+  });
+
+  function parse_customer(viewModel, json){
+    return new Customer(viewModel, json.id, json.bidder_number, json.first_name, json.last_name, json.email);
+  }
+
+  var Customer = function(viewModel, id, bidder_number, first_name, last_name, email){
+    this.id = ko.property(id);
+    this.bidder_number = ko.property(bidder_number);
+    this.first_name = ko.property(first_name);
+    this.last_name = ko.property(last_name);
+    this.email = ko.property(email);
+
+    // functions
+    this.edit = function(){
+      viewModel.activeCustomer(this);
+      $("#editDialog").dialog({title:"Edit Customer"});
+    };
+
+    this.cancel = function(){
+      viewModel.activeCustomer.reset();
+      $("#editDialog").dialog("close");
+    };
+
+    var self = this;
+    this.save = function(){
+      if(id == undefined){
+        // create the record
+        var self = this;
+        $.ajax({
+          url:  "customers/new.json",
+          type: "post",
+          data: ko.tempToJSON(this),
+          contentType: "application/json",
+          success: function(result) {
+            if(result.errors){
+              viewModel.activeCustomer.applyErrors(result.errors);
+            } else {
+              viewModel.activeCustomer.commit();
+              viewModel.activeCustomer().id(result.id);
+              viewModel.customers.push(viewModel.activeCustomer());
+              viewModel.activeCustomer.reset();
+              $("#editDialog").dialog("close");
+            }
+          }
+        });
+      } else {
+        // save the record
+        $.ajax({
+          url:  "customers/" + id + ".json",
+          type: "post",
+          data: ko.tempToJSON(this),
+          contentType: "application/json",
+          success: function(result) {
+            if(result.errors){
+              viewModel.activeCustomer.applyErrors(result.errors);
+            } else {
+              viewModel.activeCustomer.commit().reset();
+              $("#editDialog").dialog("close");
+            }
+          }
+        });
+      }
+    }
+  }
+
+  var viewModel = function(){
+    this.customers = ko.observableArray([]);
+    this.activeCustomer = ko.model();
+
+    this.displayCount = ko.dependentObservable(function() {
+      return "Displaying " + this.customers().length + " of " + this.customers().length;
+    }, this);
+
+    this.newCustomer = function() {
+      new Customer(this).edit();
+    };
+
+    // Load the initial state from server
+    var self = this;
+    this.load = function() {
+      //var self = this;
+      $.get("/customers.json", function(data) {
+        var allCustomers = $.map(data, function(json) {
+            return parse_customer(self, json);
+        });
+        self.customers(allCustomers);
+      });
+    }
+    
+    load();
+  }
+
+#editDialog{ :style=>"display:none;"}
+  %div{:'data-bind' => "template: {name:'editForm', data: activeCustomer}"}
+
+%script{:type => "text/x-jquery-tmpl", :id => "editForm"}
+  .flash
+    .message.error{:'data-bind' => "visible: activeCustomer.hasErrors()"}
+      Errors occurred while saving the customer record.
+  %form.form{:id => 'editForm'}
+    .group
+      %label Permanent Bidder Number:
+      %span.error{:'data-bind' => "text: bidder_number.errors"}
+      %br
+      %input.required{:'data-bind' => "value: bidder_number.temp"}
+    .group
+      %label First Name:
+      %span.error{:'data-bind' => "text: first_name.errors"}
+      %br
+      %input.required{:'data-bind' => "value: first_name.temp"}
+    .group
+      %label Last Name:
+      %span.error{:'data-bind' => "text: last_name.errors"}
+      %br
+      %input.required{:'data-bind' => "value: last_name.temp"}
+    .group
+      %label Email:
+      %span.error{:'data-bind' => "text: email.errors"}
+      %br
+      %input.required{:'data-bind' => "value: email.temp"} 
+  %button.form_button{:'data-bind' => "click: save"}
+    Save
+  &nbsp;&nbsp;|&nbsp;&nbsp;
+  =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
+
+%script{:type => "text/x-jquery-tmpl", :id => "row"}
+  %tr
+    %td
+      %span{:'data-bind' => "text: bidder_number"}
+    %td
+      %span{:'data-bind' => "text: first_name"}
+    %td
+      %span{:'data-bind' => "text: last_name"}
+    %td
+      %span{:'data-bind' => "text: email"}
+    %td.last
+      %span.clickable{:'data-bind' => "click: edit"}
+        =image_tag 'page_white_edit.png'
+
+.block
+  .content
+    #title
+      %h2 Customers
+    #title-menu
+      %button#new{:href => "#new", :'data-bind' => "click : newCustomer"}
+        New
+    .inner
+      %table.table
+        %tr
+          %th.first=mat(:customer, :number)
+          %th=mat(:customer, :first_name)
+          %th=mat(:customer, :last_name)
+          %th=mat(:customer, :email)
+          %th.last="&nbsp;"
+        %tbody{:'data-bind' => "template: {name:'row', foreach: customers()}"}
+      .actions-bar.wat-cf
+        .actions
+          %span{:'data-bind' => 'text: displayCount'}

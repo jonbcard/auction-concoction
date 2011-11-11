@@ -32,6 +32,8 @@
           %ul.wat-cf
             %li{:class => ("active" if request.path_info =~ /^\/auctions$/)}
               =link_to pat(:auctions), "/auctions", :accesskey => 'a'
+            %li{:class => ("active" if request.path_info =~ /^\/customers$/)}
+              =link_to pat(:customers), "/customers"
             %li{:class => ("active" if request.path_info =~ /^\/consignees$/)}
               =link_to pat(:consignees), "/consignees"
             %li{:class => ("active" if request.path_info =~ /dashboard/)}
