@@ -56,6 +56,22 @@ var todayAsDate = function(){
     return day;
 }
 
+var util = new function() {
+    /* Get JSON syncronously from the server */
+    this.getJSON = function(url){
+        var result = null;
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            async: false,
+            success: function(data){
+                result = data;
+            }
+        });
+        return result;
+    }
+};
+
 // ---- JQuery helper stuff ----
 ConfirmationDialog = $.extend({}, $.ui.dialog.prototype, {
     options: {

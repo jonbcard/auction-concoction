@@ -11,6 +11,11 @@ AuctionNow.controllers :consignees do
   get :index, :with => :id, :provides => :json do
     return Consignee.find(params[:id]).to_json
   end
+  
+  get :code, :with => :code, :provides => :json do
+    result = Consignee.by_code(params[:code]).first
+    return result ? result.to_json : nil
+  end
 
   post :new, :provides => [:json] do
     @consignee = Consignee.new(parse_json(request))

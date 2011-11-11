@@ -38,6 +38,21 @@
     $('#lot').focus();
     viewModel.currentLot("");
   }
+
+  function parse_sale(json){
+    return new lot(json.id, json.lot, json.consignee_id, json.description, json.bidder, json.price, json.quantity, json.sale_time);
+  }
+
+  var sale = function(id, lot, consignee_id, description, bidder, price, quantity, sale_time){
+    this.id = ko.property(id);
+    this.lot = ko.property(consignee_id);
+    this.consignee_id = ko.property(consignee_id);
+    this.description = ko.property(description);
+    this.bidder = ko.property(bidder);
+    this.price = ko.property(price);
+    this.quantity = ko.property(quantity == undefined ? 1 : quantity);
+    this.sale_time = ko.property(sale_time);
+  }
   
   var viewModel = {
       currentLot: new ko.observable(""),

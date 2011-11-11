@@ -45,20 +45,6 @@
  
   });
 
-  var consignees = #{@consignees.to_json};
-
-    var getConsigneeById = function(id){
-      return ko.utils.arrayFirst(consignees, 
-             function(con) { return con.id == id; }
-      );
-    };
-
-    var getConsigneeByCode = function(code){
-      return ko.utils.arrayFirst(consignees, 
-             function(con) { return con.code == code; }
-      );
-    };
-
   function parse_lot(json){
     return new lot(json.id, json.number, json.consignee_id, json.description, json.qty_available);
   }
@@ -74,11 +60,11 @@
     var self = this;
     this.consignee_code = ko.dependentObservable({
         read: function () {
-            var con = getConsigneeById(self.consignee_id());
+            var con = models.getConsigneeById(self.consignee_id());
             return (con == undefined ? null : con.code);
         },
         write: function (value) {
-            var con = getConsigneeByCode(value);
+            var con = models.getConsigneeByCode(value);
             self.consignee_id(con == undefined ? null : con.id);
         },
         owner : viewModel
@@ -86,7 +72,7 @@
     
     this.consignee_text = ko.dependentObservable({
         read: function () {
-            var con = getConsigneeById(self.consignee_id());
+            var con = models.getConsigneeById(self.consignee_id());
             return (con == undefined ? "" : "(" + con.code + ")" + " " + con.name);
         },
         owner : viewModel
@@ -94,6 +80,7 @@
 
     this.reset = function(){
       this.id("");
+      this.number("");
       this.consignee_id("");
       this.description("");
       this.qty_available(1);

@@ -1,6 +1,9 @@
 class Consignee
   include MongoMapper::Document
 
+  # Scopes
+  scope :by_code,  lambda { |code| where(:code => code) }
+  
   # Keys
   key :code,             String     # Alpha-numeric code for the location
   key :name,             String     # Display name for the consignee

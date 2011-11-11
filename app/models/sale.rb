@@ -3,6 +3,7 @@ class Sale
 
   # Keys
   key  :lot,          String,  :required => true
+  key  :consignee_id, BSON::ObjectId
   key  :description,  String,  :required => true
   key  :bidder,       String,  :required => true
   key  :price,        Money,   :required => true
