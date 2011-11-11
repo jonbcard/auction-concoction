@@ -48,6 +48,9 @@ var models = new function() {
         return result;
     };
 
+
+    /////////// Customers ////////////////
+
    
     /////////////// Lots ////////////////////
     this.parseLot = function (json){

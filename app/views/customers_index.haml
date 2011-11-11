@@ -1,11 +1,10 @@
 :javascript
   $(function(){
     ko.applyBindings(viewModel());
-
     $("button#new").button({icons: { primary: "ui-icon-plus" }});
   });
 
-  function parse_customer(viewModel, json){
+  function parseCustomer(viewModel, json){
     return new Customer(viewModel, json.id, json.bidder_number, json.first_name, json.last_name, json.email);
   }
 
@@ -87,7 +86,7 @@
       //var self = this;
       $.get("/customers.json", function(data) {
         var allCustomers = $.map(data, function(json) {
-            return parse_customer(self, json);
+            return parseCustomer(self, json);
         });
         self.customers(allCustomers);
       });

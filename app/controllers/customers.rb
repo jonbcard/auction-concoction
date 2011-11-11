@@ -23,7 +23,7 @@ AuctionNow.controllers :customers do
   end
 
   post :index, :with => :id, :provides => :json do
-    @customer = Consignee.new(parse_json(request))
+    @customer = Customer.new(parse_json(request))
     if !@customer.save
       return {:errors => @customer.errors}.to_json
     else
