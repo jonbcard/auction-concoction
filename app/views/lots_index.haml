@@ -69,7 +69,7 @@
             } else {
                 viewModel.lastErrorsFull("");
                 viewModel.lots.unshift(models.parseLot(result));
-           
+                $.growlUI("Lot Recorded",null,1000); 
                 viewModel.currentLot().reset();
                 if(viewModel.autoNumber()){
                     viewModel.currentLot().number(nextLotNumber());

@@ -170,7 +170,7 @@
               viewModel.auctions.push(viewModel.activeAuction());
               viewModel.activeAuction.clear();
               $("#editDialog").dialog("close");
-             
+              $.growlUI('Auction Created'); 
             }
           }
         });
@@ -189,6 +189,7 @@
               viewModel.activeAuction.commit().clear();
               $("#editDialog").dialog("close");
               $('#calendar').fullCalendar("refetchEvents");
+              $.growlUI('Auction Saved'); 
             }
           }
         });

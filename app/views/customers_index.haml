@@ -2,7 +2,7 @@
   #filter.block
     %h3 Search Customers
     .content
-      %form.form
+      %form.form{:'data-bind' => 'submit: search().search'}
         .group
           %label Bidder Num:
           %br
@@ -23,10 +23,10 @@
           %label Email:
           %br
           %input.text_field{:type => 'text', :style => "width:150px", :'data-bind'=>"value: search().email" }
-      %button.form_button{:'data-bind'=>"click: search().search"}
-        Search
-      &nbsp;&nbsp;|&nbsp;&nbsp;
-      =link_to("Clear", "#clear", :class => :button_to, :'data-bind'=>"click: search().clear")
+        %button.form_button{:type => "submit"}
+          Search
+        &nbsp;&nbsp;|&nbsp;&nbsp;
+        =link_to("Clear", "#clear", :class => :button_to, :'data-bind'=>"click: search().clear")
 
 :javascript
   $(function(){
@@ -112,6 +112,7 @@
               viewModel.customers.push(viewModel.activeCustomer());
               viewModel.activeCustomer.reset();
               $("#editDialog").dialog("close");
+              $.growlUI("Customer Created"); 
             }
           }
         });
@@ -128,6 +129,7 @@
             } else {
               viewModel.activeCustomer.commit().reset();
               $("#editDialog").dialog("close");
+              $.growlUI("Customer Saved"); 
             }
           }
         });
@@ -177,7 +179,7 @@
       %span.error{:'data-bind' => "text: bidder_number.errors"}
       %br
       %input.required{:'data-bind' => "value: bidder_number.temp"}
-    %button.form_button{:type => 'submit'}
+    %button.form_button{:type => "submit"}
       Save
     &nbsp;&nbsp;|&nbsp;&nbsp;
     =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")

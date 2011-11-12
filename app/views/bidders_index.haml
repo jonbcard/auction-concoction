@@ -73,6 +73,7 @@
               viewModel.bidders.push(viewModel.activeBidder());
               viewModel.activeBidder.reset();
               $("#bidderDialog").dialog("close");
+              $.growlUI("Bidder Created"); 
             }
           }
         });
@@ -89,6 +90,7 @@
             } else {
               viewModel.activeBidder.commit().reset();
               $("#bidderDialog").dialog("close");
+              $.growlUI("Bidder Saved"); 
             }
           }
         });

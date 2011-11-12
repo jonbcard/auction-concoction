@@ -62,6 +62,7 @@
                 viewModel.lastErrorsFull(results.errors_full);
               } else {
                 viewModel.sales.unshift(models.parseSale(results));
+                $.growlUI("Sale Recorded",null,1000); 
                 reset();
               }
         });

@@ -7,23 +7,24 @@
   });
 
   function parse_consignee(viewModel, json){
-    return new consignee(viewModel, json.id, json.code, json.name, json.address, json.city, json.state, json.color);
+    return new consignee(viewModel, json.id, json.code, json.name, json.address, json.city, json.state, json.first_name, json.last_name, json.phone);
   }
 
-  var consignee = function(viewModel, id, code, name, address, city, state, color){
+  var consignee = function(viewModel, id, code, name, address, city, state, first_name, last_name, phone){
     this.id = ko.property(id);
     this.code = ko.property(code);
     this.name = ko.property(name);
     this.address = ko.property(address);
     this.city = ko.property(city);
     this.state = ko.property(state);
-    this.color = ko.property(color);
+    this.first_name = ko.property(first_name);
+    this.last_name = ko.property(last_name);
+    this.phone = ko.property(phone);
 
     // functions
     this.edit = function(){
       viewModel.activeConsignee(this);
-      $("#consigneeDialog").dialog({title:"Edit Consignee"});
-      $('#color').colorPicker();
+      $("#consigneeDialog").dialog({title:"Edit Consignee",width:"410px"});
     }
 
     this.cancel = function(){
@@ -51,6 +52,7 @@
               viewModel.activeConsignee.reset();
               afterLoad();
               $("#consigneeDialog").dialog("close");
+              $.growlUI("Consignee Created"); 
             }
           }
         });
@@ -67,6 +69,7 @@
             } else {
               viewModel.activeConsignee.commit().reset();
               $("#consigneeDialog").dialog("close");
+              $.growlUI("Consignee Saved"); 
             }
           }
         });
@@ -113,37 +116,61 @@
   .flash
     .message.error{:'data-bind' => "visible: activeConsignee.hasErrors()"}
       Errors occurred while saving the consignee.
-  %form.form{:id => 'consigneeForm'}
-    .group
-      %label{:for=>:code}Code:
-      %span.error{:'data-bind' => "text: code.errors"}
-      %br
-      %input.required{:'data-bind' => "value: code.temp"}
-    .group
-      %label{:for=>:name}Name:
-      %span.error{:'data-bind' => "text: name.errors"}
-      %br
-      %input.required{:'data-bind' => "value: name.temp"}
-    .group
-      %label{:for=>:address}Address:
-      %span.error{:'data-bind' => "text: address.errors"}
-      %br
-      %input.required{:'data-bind' => "value: address.temp"}
-    .group
-      %label{:for=>:city}City:
-      %span.error{:'data-bind' => "text: city.errors"}
-      %br
-      %input.required{:'data-bind' => "value: city.temp"}
-    .group
-      %label{:for=>:city}State:
-      %span.error{:'data-bind' => "text: state.errors"}
-      %br
-      %input.required{:'data-bind' => "value: state.temp"}
-      
-  %button.form_button{:'data-bind' => "click: save"}
-    Save
-  &nbsp;&nbsp;|&nbsp;&nbsp;
-  =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
+  %form.form{:id => 'consigneeForm', :'data-bind' => "submit: save"}
+    %table
+      %tr
+        %td
+          %fieldset{:style => "padding:6px"}
+            %legend
+              =pat(:general)
+            .group
+              %label{:for=>:code}Code:
+              %span.error{:'data-bind' => "text: code.errors"}
+              %br
+              %input.required{:'data-bind' => "value: code.temp"}
+            .group
+              %label{:for=>:name}Name:
+              %span.error{:'data-bind' => "text: name.errors"}
+              %br
+              %input.required{:'data-bind' => "value: name.temp"}
+            .group
+              %label{:for=>:address}Address:
+              %span.error{:'data-bind' => "text: address.errors"}
+              %br
+              %input.required{:'data-bind' => "value: address.temp"}
+            .group
+              %label{:for=>:city}City:
+              %span.error{:'data-bind' => "text: city.errors"}
+              %br
+              %input.required{:'data-bind' => "value: city.temp"}
+            .group
+              %label{:for=>:city}State:
+              %span.error{:'data-bind' => "text: state.errors"}
+              %br
+              %input.required{:'data-bind' => "value: state.temp"}
+        %td{:valign => 'top'}
+          %fieldset{:style => "padding:6px"}
+            %legend
+              =pat(:contact)
+            .group
+              %label First Name:
+              %span.error{:'data-bind' => "text: first_name.errors"}
+              %br
+              %input.required{:'data-bind' => "value: first_name.temp"}
+            .group
+              %label Last Name:
+              %span.error{:'data-bind' => "text: last_name.errors"}
+              %br
+              %input.required{:'data-bind' => "value: last_name.temp"}
+            .group
+              %label Phone:
+              %span.error{:'data-bind' => "text: phone.errors"}
+              %br
+              %input.required{:'data-bind' => "value: phone.temp"}
+    %button.form_button{:type => "submit"}
+      =pat(:save)
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
 
 %script{:type => "text/x-jquery-tmpl", :id => "consigneeRow"}
   %tr
