@@ -19,9 +19,6 @@
 :javascript
   $(function(){
     ko.applyBindings(viewModel());
-
-    $("button#new").button({icons: { primary: "ui-icon-plus" }});
-    $("button#reload").button({icons: { primary: "ui-icon-refresh" }});
   });
 
   function parseConsignees(viewModel, data){
@@ -151,7 +148,7 @@
     }
 
     this.afterLoad = function(){
-      $("button#edit").button({text: false, icons: { primary: "ui-icon-pencil" }});
+      //$("button#edit").button({text: false, icons: { primary: "ui-icon-pencil" }});
     }
     
     load();
@@ -236,7 +233,7 @@
     %td
       %span{:'data-bind' => "text: city"}
     %td.last
-      %button#edit{:class => 'small-button', :'data-bind' => "click: edit"} 
+      %button#edit{:class => 'small-button', :'data-bind' => "click: edit, icon:'ui-icon-pencil',iconOnly:true"} 
         Edit
 
 .block
@@ -244,9 +241,9 @@
     #title
       %h2 Consignees
     #title-menu
-      %button#new{:href => "", :'data-bind' => "click : newConsignee"}
+      %button#new{:href => "", :'data-bind' => "click : newConsignee, icon: 'ui-icon-plus'"}
         New
-      %button#reload{:href => "", :'data-bind' => "click : load"}
+      %button#reload{:href => "", :'data-bind' => "click : load, icon: 'ui-icon-refresh'"}
         Reload
     .inner
       %table.table

@@ -3,23 +3,8 @@
     var viewModel =  biddersViewModel();
     ko.applyBindings(viewModel);
 
-    $("button#new").button({icons: {
-      primary: "ui-icon-plus"
-    }});
-    $("button#reload").button({icons: {
-      primary: "ui-icon-refresh"
-    }});
+
     $("button#import").button({
-          icons: {
-            primary: "ui-icon-transfer-e-w",
-            secondary: "ui-icon-triangle-1-s"
-          }
-        }).next().menu({
-          select: function(event, ui) {
-            $(this).hide();
-          }
-        }).popup();
-    $("button#export").button({
           icons: {
             primary: "ui-icon-transfer-e-w",
             secondary: "ui-icon-triangle-1-s"
@@ -218,9 +203,9 @@
     #title
       %h2 #{@auction.title} :: Bidders
     #title-menu
-      %button#new{:'data-bind' => "click : newBidder"}=pat(:new)
-      %button#reload{:'data-bind' => "click : load"}=pat(:reload)
-      %button#import{:'data-bind' => "click : load"}
+      %button#new{:'data-bind' => "click : newBidder, icon: 'ui-icon-plus'"}=pat(:new)
+      %button#reload{:'data-bind' => "click : load, icon: 'ui-icon-refresh'"}=pat(:reload)
+      %button#import{:'data-bind' => "click : load, image: 'ui-icon-transfer-e-w', imageSecondary: 'ui-icon-triangle-1-s'"}
         Import / Export
       %ul
         %li

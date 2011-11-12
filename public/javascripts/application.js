@@ -192,6 +192,33 @@ ko.bindingHandlers.mask = {
     }
 };
 
+ko.bindingHandlers.icon = {
+    init: function (element, valueAccessor, allBindings) {
+        var icon = valueAccessor();
+        var iconSecondary = allBindings.iconOnly || null;
+        var iconOnly = allBindings.iconOnly || false;
+        
+        $(element).button({
+            text: !iconOnly,
+            icons: {
+                primary: ko.utils.unwrapObservable(icon),
+                secondary: ko.utils.unwrapObservable(iconSecondary)}
+        });
+    }
+};
+
+ko.bindingHandlers.iconSecondary = {
+    init: function (element, valueAccessor) {
+        var value = valueAccessor();
+        $(element).button({icons: {
+            secondary: ko.utils.unwrapObservable(value)
+        }});
+    },
+    update: function (element, valueAccessor) {
+        // Nothing to do
+    }
+};
+
 ko.protectedObservable = function(initialValue) {
     var result = ko.observable(initialValue);
 

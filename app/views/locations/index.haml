@@ -5,9 +5,6 @@
   $(function(){
     var viewModel =  locationsViewModel();
     ko.applyBindings(viewModel);
-
-    $("button#new").button({icons: { primary: "ui-icon-plus" }});
-    $("button#reload").button({icons: { primary: "ui-icon-refresh" }});
   });
 
   function parse_location(viewModel, json){
@@ -179,9 +176,9 @@
     #title
       %h2 Locations
     #title-menu
-      %button#new{:href => "", :'data-bind' => "click : newLocation"}
+      %button#new{:href => "", :'data-bind' => "click : newLocation, icon: 'ui-icon-plus'"}
         New
-      %button#reload{:href => "", :'data-bind' => "click : load"}
+      %button#reload{:href => "", :'data-bind' => "click : load, icon: 'ui-icon-refresh'"}
         Reload
     .inner
       %table.table

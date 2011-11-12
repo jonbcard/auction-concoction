@@ -31,7 +31,6 @@
 :javascript
   $(function(){
     ko.applyBindings(viewModel());
-    $("button#new").button({icons: { primary: "ui-icon-plus" }});
   });
 
   function parseCustomers(viewModel, data){
@@ -203,7 +202,7 @@
     #title
       %h2 Customers
     #title-menu
-      %button#new{:href => "#new", :'data-bind' => "click : newCustomer"}
+      %button#new{:href => "#new", :'data-bind' => "click : newCustomer, icon: 'ui-icon-plus'"}
         New
     .inner
       %table.table
