@@ -1,11 +1,78 @@
+-content_for(:context_panel) do
+  #filter.block
+    %h3 Search Customers
+    .content
+      %form.form
+        .group
+          %label Bidder Num:
+          %br
+          %input.text_field{:type => 'text', :style => "width:75px", :'data-bind'=>"value: search().bidder_number"}
+        .group
+          %label ID Number:
+          %br
+          %input.text_field{:type => 'text', :style => "width:75px", :'data-bind'=>"value: search().id_number" }
+        .group
+          %label First Name:
+          %br
+          %input.text_field{:type => 'text', :style => "width:150px", :'data-bind'=>"value: search().first_name"  }
+        .group
+          %label Last Name:
+          %br
+          %input.text_field{:type => 'text', :style => "width:150px", :'data-bind'=>"value: search().last_name" }
+        .group
+          %label Email:
+          %br
+          %input.text_field{:type => 'text', :style => "width:150px", :'data-bind'=>"value: search().email" }
+      %button.form_button{:'data-bind'=>"click: search().search"}
+        Search
+      &nbsp;&nbsp;|&nbsp;&nbsp;
+      =link_to("Clear", "#clear", :class => :button_to, :'data-bind'=>"click: search().clear")
+
 :javascript
   $(function(){
     ko.applyBindings(viewModel());
     $("button#new").button({icons: { primary: "ui-icon-plus" }});
   });
 
-  function parseCustomer(viewModel, json){
-    return new Customer(viewModel, json.id, json.bidder_number, json.first_name, json.last_name, json.email);
+  function parseCustomers(viewModel, data){
+    var results = $.map(data, function(json) {
+        return new Customer(viewModel, json.id, json.bidder_number, json.first_name, json.last_name, json.email);
+    });
+    return results;
+  }
+
+  var SearchCustomer = function(viewModel){
+    var self = this;
+    this.bidder_number = ko.observable();
+    this.id_number = ko.observable();
+    this.first_name = ko.observable();
+    this.last_name = ko.observable();
+    this.email = ko.observable();
+    
+    this.clear = function(){
+        self.bidder_number(null);
+        self.id_number(null);
+        self.first_name(null);
+        self.last_name(null);
+        self.email(null);
+    }
+
+    this.search = function(){
+
+       $.ajax({
+          url:  "customers/search.json",
+          type: "post",
+          data: ko.toJSON(self),
+          contentType: "application/json",
+          success: function(result) {
+            if(result.errors){
+                alert("Error attempting to query server: " + ko.toJSON(result.errors));
+            } else {
+                viewModel.customers(parseCustomers(viewModel, result));
+            }
+          }
+        });
+    }
   }
 
   var Customer = function(viewModel, id, bidder_number, first_name, last_name, email){
@@ -71,28 +138,15 @@
   var viewModel = function(){
     this.customers = ko.observableArray([]);
     this.activeCustomer = ko.model();
+    this.search = ko.observable(new SearchCustomer(this));
 
     this.displayCount = ko.dependentObservable(function() {
-      return "Displaying " + this.customers().length + " of " + this.customers().length;
+      return "Displaying " + this.customers().length + " search results.";
     }, this);
 
     this.newCustomer = function() {
       new Customer(this).edit();
     };
-
-    // Load the initial state from server
-    var self = this;
-    this.load = function() {
-      //var self = this;
-      $.get("/customers.json", function(data) {
-        var allCustomers = $.map(data, function(json) {
-            return parseCustomer(self, json);
-        });
-        self.customers(allCustomers);
-      });
-    }
-    
-    load();
   }
 
 #editDialog{ :style=>"display:none;"}
@@ -102,12 +156,7 @@
   .flash
     .message.error{:'data-bind' => "visible: activeCustomer.hasErrors()"}
       Errors occurred while saving the customer record.
-  %form.form{:id => 'editForm'}
-    .group
-      %label Permanent Bidder Number:
-      %span.error{:'data-bind' => "text: bidder_number.errors"}
-      %br
-      %input.required{:'data-bind' => "value: bidder_number.temp"}
+  %form.form{:id => 'editForm', :'data-bind' => 'submit : save'}
     .group
       %label First Name:
       %span.error{:'data-bind' => "text: first_name.errors"}
@@ -123,21 +172,26 @@
       %span.error{:'data-bind' => "text: email.errors"}
       %br
       %input.required{:'data-bind' => "value: email.temp"} 
-  %button.form_button{:'data-bind' => "click: save"}
-    Save
-  &nbsp;&nbsp;|&nbsp;&nbsp;
-  =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
+    .group
+      %label Permanent Bidder Number:
+      %span.error{:'data-bind' => "text: bidder_number.errors"}
+      %br
+      %input.required{:'data-bind' => "value: bidder_number.temp"}
+    %button.form_button{:type => 'submit'}
+      Save
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
 
 %script{:type => "text/x-jquery-tmpl", :id => "row"}
   %tr
-    %td
-      %span{:'data-bind' => "text: bidder_number"}
     %td
       %span{:'data-bind' => "text: first_name"}
     %td
       %span{:'data-bind' => "text: last_name"}
     %td
       %span{:'data-bind' => "text: email"}
+    %td
+      %span{:'data-bind' => "text: bidder_number"}
     %td.last
       %span.clickable{:'data-bind' => "click: edit"}
         =image_tag 'page_white_edit.png'
@@ -152,10 +206,10 @@
     .inner
       %table.table
         %tr
-          %th.first=mat(:customer, :number)
-          %th=mat(:customer, :first_name)
+          %th.first=mat(:customer, :first_name)
           %th=mat(:customer, :last_name)
           %th=mat(:customer, :email)
+          %th Bidder #
           %th.last="&nbsp;"
         %tbody{:'data-bind' => "template: {name:'row', foreach: customers()}"}
       .actions-bar.wat-cf

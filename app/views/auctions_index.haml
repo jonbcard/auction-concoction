@@ -322,9 +322,9 @@
       %div 
         %span{'data-bind'=>"text: title"}
     %td
-      %span{:onClick => "event.stopPropagation();return false;", :'data-bind' => "click: edit"}
+      %span{:'data-bind' => "click: edit, clickBubble: false"}
         =image_tag 'page_white_edit.png'
-      %span{:onClick => "event.stopPropagation();return false;", :'data-bind' => "click: remove"}
+      %span{:'data-bind' => "click: remove, clickBubble: false"}
         =image_tag 'page_white_delete.png'
 
 -content_for(:context_panel) do
