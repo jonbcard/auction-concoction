@@ -1,3 +1,21 @@
+-content_for(:context_panel) do
+  #filter.block
+    %h3 Search Consignees
+    .content
+      %form.form{:'data-bind' => 'submit: search().search'}
+        .group
+          %label Code:
+          %br
+          %input.text_field{:type => 'text', :style => "width:75px", :'data-bind'=>"value: search().code"}
+        .group
+          %label Name:
+          %br
+          %input.text_field{:type => 'text', :style => "width:150px", :'data-bind'=>"value: search().name" }
+        %button.form_button{:type => "submit"}
+          Search
+        &nbsp;&nbsp;|&nbsp;&nbsp;
+        =link_to("Clear", "#clear", :class => :button_to, :'data-bind'=>"click: search().clear")
+
 :javascript
   $(function(){
     ko.applyBindings(viewModel());
@@ -6,8 +24,39 @@
     $("button#reload").button({icons: { primary: "ui-icon-refresh" }});
   });
 
-  function parse_consignee(viewModel, json){
-    return new consignee(viewModel, json.id, json.code, json.name, json.address, json.city, json.state, json.first_name, json.last_name, json.phone, json.phone_ext);
+  function parseConsignees(viewModel, data){
+    var allConsignees = $.map(data, function(json) {
+      return new consignee(viewModel, json.id, json.code, json.name, json.address, json.city, json.state, json.first_name, json.last_name, json.phone, json.phone_ext);
+    });
+    return allConsignees;
+  }
+
+  var SearchConsignee = function(viewModel){
+    var self = this;
+    this.code = ko.observable();
+    this.name = ko.observable();
+    
+    this.clear = function(){
+        self.code(null);
+        self.name(null);
+    }
+
+    this.search = function(){
+
+       $.ajax({
+          url:  "consignees/search.json",
+          type: "post",
+          data: ko.toJSON(self),
+          contentType: "application/json",
+          success: function(result) {
+            if(result.errors){
+                alert("Error attempting to query server: " + ko.toJSON(result.errors));
+            } else {
+                viewModel.consignees(parseConsignees(viewModel, result));
+            }
+          }
+        });
+    }
   }
 
   var consignee = function(viewModel, id, code, name, address, city, state, first_name, last_name, phone, phone_ext){
@@ -81,9 +130,10 @@
   var viewModel = function(){
     this.consignees = ko.observableArray([]);
     this.activeConsignee = ko.model();
+    this.search = ko.observable(new SearchConsignee(this));
 
     this.displayCount = ko.dependentObservable(function() {
-      return "Displaying " + this.consignees().length + " of " + this.consignees().length;
+      return "Displaying " + this.consignees().length + " search results."
     }, this);
 
     this.newConsignee = function() {
@@ -95,10 +145,7 @@
     this.load = function() {
       var self = this;
       $.get("/consignees.json", function(data) {
-        var allConsignees = $.map(data, function(json) {
-            return parse_consignee(self, json);
-        });
-        self.consignees(allConsignees);
+        self.consignees(parseConsignees(self, data));
         afterLoad();
       });
     }

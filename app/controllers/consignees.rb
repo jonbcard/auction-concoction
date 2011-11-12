@@ -16,6 +16,14 @@ AuctionNow.controllers :consignees do
     result = Consignee.by_code(params[:code]).first
     return result ? result.to_json : nil
   end
+  
+  post :search, :provides => [:json] do
+    criteria = parse_json(request)
+    query_params = {}
+    query_params[:code] = criteria["code"] unless criteria["code"].blank?
+    query_params[:name] = /#{criteria["name"]}/i unless criteria["name"].blank?
+    Consignee.where(query_params).to_json
+  end
 
   post :new, :provides => [:json] do
     @consignee = Consignee.new(parse_json(request))
