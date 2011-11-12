@@ -7,10 +7,10 @@
   });
 
   function parse_consignee(viewModel, json){
-    return new consignee(viewModel, json.id, json.code, json.name, json.address, json.city, json.state, json.first_name, json.last_name, json.phone);
+    return new consignee(viewModel, json.id, json.code, json.name, json.address, json.city, json.state, json.first_name, json.last_name, json.phone, json.phone_ext);
   }
 
-  var consignee = function(viewModel, id, code, name, address, city, state, first_name, last_name, phone){
+  var consignee = function(viewModel, id, code, name, address, city, state, first_name, last_name, phone, phone_ext){
     this.id = ko.property(id);
     this.code = ko.property(code);
     this.name = ko.property(name);
@@ -20,6 +20,7 @@
     this.first_name = ko.property(first_name);
     this.last_name = ko.property(last_name);
     this.phone = ko.property(phone);
+    this.phone_ext = ko.property(phone_ext);
 
     // functions
     this.edit = function(){
@@ -166,7 +167,12 @@
               %label Phone:
               %span.error{:'data-bind' => "text: phone.errors"}
               %br
-              %input.required{:'data-bind' => "value: phone.temp"}
+              %input.required{:'data-bind' => "value: phone.temp, mask: '(999) 999-9999'"}
+            .group
+              %label Phone Extension:
+              %span.error{:'data-bind' => "text: phone_ext.errors"}
+              %br
+              %input.required{:'data-bind' => "value: phone_ext.temp, mask: '9?9999'"}
     %button.form_button{:type => "submit"}
       =pat(:save)
     &nbsp;&nbsp;|&nbsp;&nbsp;

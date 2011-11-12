@@ -55,6 +55,7 @@
               viewModel.activeLocation.reset();
               afterLoad();
               $("#locationDialog").dialog("close");
+              $.growlUI("Location Created"); 
             }
           }
         });
@@ -71,6 +72,7 @@
             } else {
               viewModel.activeLocation.commit().reset();
               $("#locationDialog").dialog("close");
+              $.growlUI("Location Saved"); 
             }
           }
         });

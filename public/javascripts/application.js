@@ -178,9 +178,19 @@ ko.bindingHandlers.confirm = {
         setupConfirmationDialog($("#dialog"), $(element), valueUnwrapped);
     },
     update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-    // NO-OP - for now, no support for dynamic dialog text.
+        // NO-OP - for now, no support for dynamic dialog text.
     }
 }
+
+ko.bindingHandlers.mask = {
+    init: function (element, valueAccessor) {
+        var value = valueAccessor();
+        $(element).mask(ko.utils.unwrapObservable(value));
+    },
+    update: function (element, valueAccessor) {
+        // Nothing to do
+    }
+};
 
 ko.protectedObservable = function(initialValue) {
     var result = ko.observable(initialValue);
