@@ -48,6 +48,14 @@
     viewModel.currentSale().consignee_id("");
   }
 
+  models.Sale.prototype.remove = function(){
+      var self = this;
+      $.post("sales/destroy/" + this.id(), function() {
+          viewModel.sales.remove(function(sale) { return sale.id() == self.id() });
+          $.growlUI("Sale Removed",null,1000); 
+      });
+      
+  }
   
   
   var viewModel = {
@@ -139,7 +147,8 @@
     .inner
       %form.form{:id => 'sale',:method => 'post', :autocomplete => "false",
                  :action=>"/auctions/#{@auction.id}/sales/new"}
-        %table.table
+        %table.table{:'data-bind' =>  "dataTable: { dataSource: sales, rowTemplate: 'saleRow', columns: ['lot', 'consignee_text', 'description', 'bidder', 'price', 'quantity'], 
+                       options:{'sPaginationType':'full_numbers','bSort': false}}"}
           %thead
             %tr
               %th.first Lot #
@@ -179,21 +188,20 @@
                 .floating-error
               %td.required{:valign => 'top'}
                 %input.form_button{:id => 'submit', :type => 'submit', :name => 'Submit',:tabindex => "6"}
-          %tbody{:'data-bind'=>'template: { name: "salesListTemplate", foreach: sales }'}
 
-%script{:type => "text/html", :id => "salesListTemplate"}
-  %tr
-    %td
-      %span{:'data-bind' => "text: lot"}
-    %td
-      %span{:'data-bind' => "text: consignee_text() "}
-    %td
-      %span{:'data-bind' => "text: description"}
-    %td
-      %span{:'data-bind' => "text: bidder"} 
-    %td
-      %span{:'data-bind' => "text: price"} 
-    %td
-      %span{:'data-bind' => "text: quantity"}
-    %td
-      =button_to( pat(:delete), "sales/destroy/${id}", :method => :delete, :class => :button_to)
+%script{:type => "text/html", :id => "saleRow"}
+  %td
+    %span{:'data-bind' => "text: lot"}
+  %td
+    %span{:'data-bind' => "text: consignee_text() "}
+  %td
+    %span{:'data-bind' => "text: description"}
+  %td
+    %span{:'data-bind' => "text: bidder"} 
+  %td
+    %span{:'data-bind' => "text: price"} 
+  %td
+    %span{:'data-bind' => "text: quantity"}
+  %td
+    %span{:'data-bind' => "click: remove, clickBubble: false"}
+      =image_tag 'page_white_delete.png'

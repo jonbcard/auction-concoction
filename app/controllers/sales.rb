@@ -28,7 +28,7 @@ AuctionNow.controllers :sales, :parent => :auctions do
     return "#{val}"
   end
 
-  delete :destroy, :with => :id do
+  post :destroy, :with => :id do
     if @auction.remove_sale(params[:id])
       flash[:notice] = 'Sale was successfully removed.'
     else
