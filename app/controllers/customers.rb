@@ -18,6 +18,7 @@ AuctionNow.controllers :customers do
     query_params = {}
     query_params[:id_number] = criteria["id_number"] unless criteria["id_number"].blank?
     query_params[:bidder_number] = criteria["bidder_number"] unless criteria["bidder_number"].blank?
+    query_params[:company_name] = /#{criteria["company_name"]}/i unless criteria["company_name"].blank?
     query_params[:first_name] = /^#{criteria["first_name"]}/i unless criteria["first_name"].blank?
     query_params[:last_name] = /^#{criteria["last_name"]}/i unless criteria["last_name"].blank?
     query_params[:phone] = criteria["phone"] unless criteria["phone"].blank?

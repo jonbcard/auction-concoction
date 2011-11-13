@@ -3,6 +3,7 @@ class Customer
 
   # Keys
   key :bidder_number,    String     # Permanent bidder number assigned to the customer
+  key :company_name,          String     # Company banner for the bidder
   key :first_name,       String     
   key :last_name,        String
   key :id_number,        String     # Typically a driver's license #

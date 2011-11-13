@@ -12,6 +12,10 @@
           %br
           %input.text_field{:type => 'text', :style => "width:75px", :'data-bind'=>"value: search().id_number" }
         .group
+          %label Company:
+          %br
+          %input.text_field{:type => 'text', :style => "width:150px", :'data-bind'=>"value: search().company_name"  }
+        .group
           %label First Name:
           %br
           %input.text_field{:type => 'text', :style => "width:150px", :'data-bind'=>"value: search().first_name"  }
@@ -39,7 +43,7 @@
 
   function parseCustomers(viewModel, data){
     var results = $.map(data, function(json) {
-        return new Customer(viewModel, json.id, json.bidder_number, json.first_name, json.last_name, json.phone, json.email);
+        return new Customer(viewModel, json.id, json.bidder_number, json.company_name, json.first_name, json.last_name, json.phone, json.email, json.address, json.city, json.state);
     });
     return results;
   }
@@ -48,14 +52,15 @@
     var self = this;
     this.bidder_number = ko.observable();
     this.id_number = ko.observable();
+    this.company_name = ko.observable();
     this.first_name = ko.observable();
     this.last_name = ko.observable();
-    this.phone = ko.observable();
     this.phone = ko.observable();
     
     this.clear = function(){
         self.bidder_number(null);
         self.id_number(null);
+        self.company(null);
         self.first_name(null);
         self.last_name(null);
         self.phone(null);
@@ -80,18 +85,22 @@
     }
   }
 
-  var Customer = function(viewModel, id, bidder_number, first_name, last_name, phone, email){
+  var Customer = function(viewModel, id, bidder_number, company_name, first_name, last_name, phone, email, address, city, state){
     this.id = ko.property(id);
     this.bidder_number = ko.property(bidder_number);
+    this.company_name = ko.property(company_name);
     this.first_name = ko.property(first_name);
     this.last_name = ko.property(last_name);
     this.phone = ko.property(phone);
     this.email = ko.property(email);
+    this.address = ko.property(address);
+    this.city = ko.property(city);
+    this.state = ko.property(state);
 
     // functions
     this.edit = function(){
       viewModel.activeCustomer(this);
-      $("#editDialog").dialog({title:"Edit Customer"});
+      $("#editDialog").dialog({title:"Edit Customer",width:"410px"});
     };
 
     this.cancel = function(){
@@ -165,38 +174,69 @@
     .message.error{:'data-bind' => "visible: activeCustomer.hasErrors()"}
       Errors occurred while saving the customer record.
   %form.form{:id => 'editForm', :'data-bind' => 'submit : save'}
-    .group
-      %label First Name:
-      %span.error{:'data-bind' => "text: first_name.errors"}
-      %br
-      %input.required{:'data-bind' => "value: first_name.temp"}
-    .group
-      %label Last Name:
-      %span.error{:'data-bind' => "text: last_name.errors"}
-      %br
-      %input.required{:'data-bind' => "value: last_name.temp"}
-    .group
-      %label Phone:
-      %span.error{:'data-bind' => "text: phone.errors"}
-      %br
-      %input.required{:'data-bind' => "value: phone.temp, mask: '(999) 999-9999'"} 
-    .group
-      %label Email:
-      %span.error{:'data-bind' => "text: email.errors"}
-      %br
-      %input.required{:'data-bind' => "value: email.temp"} 
-    .group
-      %label Permanent Bidder Number:
-      %span.error{:'data-bind' => "text: bidder_number.errors"}
-      %br
-      %input.required{:'data-bind' => "value: bidder_number.temp"}
-    %button.form_button{:type => "submit"}
-      Save
+    %table
+      %tr
+        %td{:valign => 'top'}
+          %fieldset{:style => "padding:6px"}
+            %legend
+              =pat(:general)
+            .group
+              %label=mat(:customer, :company_name)
+              %span.error{:'data-bind' => "text: company_name.errors"}
+              %br
+              %input.required{:'data-bind' => "value: company_name.temp"}
+            .group
+              %label=mat(:customer, :first_name)
+              %span.error{:'data-bind' => "text: first_name.errors"}
+              %br
+              %input.required{:'data-bind' => "value: first_name.temp"}
+            .group
+              %label=mat(:customer, :last_name)
+              %span.error{:'data-bind' => "text: last_name.errors"}
+              %br
+              %input.required{:'data-bind' => "value: last_name.temp"}
+            .group
+              %label Phone:
+              %span.error{:'data-bind' => "text: phone.errors"}
+              %br
+              %input.required{:'data-bind' => "value: phone.temp, mask: '(999) 999-9999'"} 
+            .group
+              %label Email:
+              %span.error{:'data-bind' => "text: email.errors"}
+              %br
+              %input.required{:'data-bind' => "value: email.temp"} 
+            .group
+              %label Permanent Bidder Number:
+              %span.error{:'data-bind' => "text: bidder_number.errors"}
+              %br
+              %input.required{:'data-bind' => "value: bidder_number.temp"}
+        %td{:valign => 'top'}
+          %fieldset{:style => "padding:6px"}
+            %legend
+              =pat(:address)
+            .group
+              %label=mat(:customer, :address)
+              %span.error{:'data-bind' => "text: address.errors"}
+              %br
+              %input.required{:'data-bind' => "value: address.temp"}
+            .group
+              %label=mat(:customer, :city)
+              %span.error{:'data-bind' => "text: city.errors"}
+              %br
+              %input.required{:'data-bind' => "value: city.temp"}
+            .group
+              %label=mat(:customer, :state)
+              %span.error{:'data-bind' => "text: state.errors"}
+              %br
+              %input.required{:'data-bind' => "value: state.temp"}
+    %button.form_button{:type => "submit"}=pat(:save)
     &nbsp;&nbsp;|&nbsp;&nbsp;
     =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
 
 %script{:type => "text/x-jquery-tmpl", :id => "row"}
   %tr
+    %td
+      %span{:'data-bind' => "text: company_name"}
     %td
       %span{:'data-bind' => "text: first_name"}
     %td
@@ -219,7 +259,8 @@
     .inner
       %table.table
         %tr
-          %th.first=mat(:customer, :first_name)
+          %th.first=mat(:customer, :company_name)
+          %th=mat(:customer, :first_name)
           %th=mat(:customer, :last_name)
           %th=mat(:customer, :email)
           %th Bidder #
