@@ -56,7 +56,6 @@
               viewModel.activeBidder.commit();
               viewModel.activeBidder().id(result.id);
               viewModel.bidders.push(viewModel.activeBidder());
-              alert("Pushed: " + ko.toJSON(viewModel.activeBidder()));
               viewModel.activeBidder.reset();
               $("#bidderDialog").dialog("close");
               $.growlUI("Bidder Created"); 
@@ -87,26 +86,13 @@
   function biddersViewModel(){
     this.bidders = ko.observableArray([]);
     this.activeBidder = ko.model();
-    this.numberFilter = new ko.observable("");
-    this.nameFilter = new ko.observable("");
     this.showInactive = new ko.observable(false);
 
     // view model functions
     this.displayedBidders = ko.dependentObservable(function() {
-      
       return ko.utils.arrayFilter(this.bidders(), function(bidder) {
-        var nameToFilter = this.nameFilter().toLowerCase();
-        var nameMatches = function(){
-            return ko.utils.stringStartsWith(bidder.first_name().toLowerCase(), nameToFilter) || 
-                          ko.utils.stringStartsWith(bidder.last_name().toLowerCase(), nameToFilter);
-        };
-        return (this.showInactive() || bidder.status() == 'ACTIVE' || bidder.status() == 'NEW') &&
-             ko.utils.stringStartsWith(bidder.number(), this.numberFilter()) && nameMatches();
+        return this.showInactive() || bidder.status() == 'ACTIVE';
       });
-    }, this);
-
-    this.displayCount = ko.dependentObservable(function() {
-      return "Showing " + this.displayedBidders().length + " of " + this.bidders().length;
     }, this);
 
     this.newBidder = function() {
@@ -170,31 +156,24 @@
     =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
 
 %script{:type => "text/x-jquery-tmpl", :id => "bidderRow"}
-  %tr.clickable{:onClick => "document.location=\'bidders/checkout/${id}\'"}
-    %td
-      %span{:'data-bind' => "text: number"}
-    %td
-      %span{:'data-bind' => "text: first_name"}
-    %td
-      %span{:'data-bind' => "text: last_name"}
-    %td
-      %span{:'data-bind' => "text: status, style: { color: status() == 'ACTIVE' ? 'green' : 'red' }"}
-    %td.last
-      %span{:'data-bind' => "click: edit, clickBubble: false"}
-        =image_tag 'page_white_edit.png'
+  %td.clickable{:onClick => "document.location=\'bidders/checkout/${id}\'"}
+    %span{:'data-bind' => "text: number"}
+  %td.clickable{:onClick => "document.location=\'bidders/checkout/${id}\'"}
+    %span{:'data-bind' => "text: first_name"}
+  %td.clickable{:onClick => "document.location=\'bidders/checkout/${id}\'"}
+    %span{:'data-bind' => "text: last_name"}
+  %td.clickable{:onClick => "document.location=\'bidders/checkout/${id}\'"}
+    %span{:'data-bind' => "text: status, style: { color: status() == 'ACTIVE' ? 'green' : 'red' }"}
+  %td.last
+    %span{:'data-bind' => "click: edit, clickBubble: false"}
+      =image_tag 'page_white_edit.png'
 
 
 -content_for(:context_panel) do
   #filter.block
-    %h3 Filter Bidders
+    %h3 Options
     .content
       %form.form
-        .group
-          %label Filter by Number:
-          %input{:type => 'text', :class => "text_field", :style => "width:50px", :'data-bind' => 'value:numberFilter,valueUpdate:"keyup"' }
-        .group
-          %label Filter by Name:
-          %input{:type => 'text', :class => "text_field", :style => "width:100px", :'data-bind' => 'value:nameFilter,valueUpdate:"keyup"' }
         .group
           %label Show Inactive?
           %input{:type => 'checkbox', :'data-bind' => 'checked: showInactive'}
@@ -224,14 +203,10 @@
           %a{:href=>"#"}
             Export To Excel
     .inner
-      %table.table
-        %tr
+      %table.table{:'data-bind' =>  "dataTable: { dataSource: displayedBidders, rowTemplate: 'bidderRow', columns: ['number', 'first_name', 'last_name', 'status'], options:{'sPaginationType':'full_numbers'} }"}
+        %thead
           %th.first=mat(:bidder, :number)
           %th=mat(:bidder, :first_name)
           %th=mat(:bidder, :last_name)
           %th=mat(:bidder, :status)
           %th.last="&nbsp;"
-        %tbody{:'data-bind' => "template: {name:'bidderRow', foreach: displayedBidders()}"}
-      .actions-bar.wat-cf
-        .actions
-          %span{:'data-bind' => 'text: displayCount'}
