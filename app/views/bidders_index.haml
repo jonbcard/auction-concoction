@@ -26,7 +26,7 @@
     this.first_name = ko.property(first_name);
     this.last_name = ko.property(last_name);
     this.id_number = ko.property(id_number);
-    this.status = ko.property(status);
+    this.status = ko.property(status ? status : "ACTIVE");
 
     // functions
     this.edit = function(){
@@ -56,6 +56,7 @@
               viewModel.activeBidder.commit();
               viewModel.activeBidder().id(result.id);
               viewModel.bidders.push(viewModel.activeBidder());
+              alert("Pushed: " + ko.toJSON(viewModel.activeBidder()));
               viewModel.activeBidder.reset();
               $("#bidderDialog").dialog("close");
               $.growlUI("Bidder Created"); 
@@ -139,7 +140,7 @@
   .flash
     .message.error{:'data-bind' => "visible: activeBidder.hasErrors()"}
       Errors occurred while saving the bidder.
-  %form.form{:id => 'bidderForm'}
+  %form.form{:id => 'bidderForm', :'data-bind' => "submit: save"}
     .group
       %label{:for=>:number}Number:
       %span.error{:'data-bind' => "text: number.errors"}
@@ -163,10 +164,10 @@
     .group
       %label{:for=>:id_number}Status:
       %span{:'data-bind' => "text: status, style: { color: status.temp == 'ACTIVE' ? 'green' : 'red' }"}
-  %button.form_button{:'data-bind' => "click: save"}
-    Save
-  &nbsp;&nbsp;|&nbsp;&nbsp;
-  =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
+    %button.form_button{:type => 'submit'}
+      Save
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
 
 %script{:type => "text/x-jquery-tmpl", :id => "bidderRow"}
   %tr.clickable{:onClick => "document.location=\'bidders/checkout/${id}\'"}
@@ -179,7 +180,7 @@
     %td
       %span{:'data-bind' => "text: status, style: { color: status() == 'ACTIVE' ? 'green' : 'red' }"}
     %td.last
-      %span{:onClick => "event.stopPropagation();return false;", :'data-bind' => "click: edit"}
+      %span{:'data-bind' => "click: edit, clickBubble: false"}
         =image_tag 'page_white_edit.png'
 
 

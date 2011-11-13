@@ -49,7 +49,9 @@
       var self = this;
       $.post("lots/destroy/" + this.id(), function() {
           viewModel.lots.remove(function(item) { return item.id() == self.id() });
+          $.growlUI("Lot Removed",null,1000); 
       });
+      
   }
 
   var viewModel = {
@@ -191,5 +193,5 @@
     %td
       %span{:'data-bind' => "text: qty_available"}
     %td
-      %span{:onClick => "event.stopPropagation();return false;", :'data-bind' => "click: remove"}
+      %span{:'data-bind' => "click: remove, clickBubble: false"}
         =image_tag 'page_white_delete.png'

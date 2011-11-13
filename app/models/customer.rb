@@ -7,10 +7,10 @@ class Customer
   key :last_name,        String
   key :id_number,        String     # Typically a driver's license #
   key :email,            String     # Case-insensitive
+  key :phone,            String     # Contact number
   key :address,          String     
   key :city,             String
   key :state,            String
-  key :phone,            String     # Contact number
   key :username,         String     # Username for web portal login
   key :crypted_password, String     # Password for web portal login
   key :salt,             String     # Salt applied to the crypted password

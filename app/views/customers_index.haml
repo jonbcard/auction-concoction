@@ -20,6 +20,10 @@
           %br
           %input.text_field{:type => 'text', :style => "width:150px", :'data-bind'=>"value: search().last_name" }
         .group
+          %label Phone:
+          %br
+          %input.text_field{:type => 'text', :style => "width:150px", :'data-bind'=>"value: search().phone, mask:'(999) 999-9999'" }
+        .group
           %label Email:
           %br
           %input.text_field{:type => 'text', :style => "width:150px", :'data-bind'=>"value: search().email" }
@@ -35,7 +39,7 @@
 
   function parseCustomers(viewModel, data){
     var results = $.map(data, function(json) {
-        return new Customer(viewModel, json.id, json.bidder_number, json.first_name, json.last_name, json.email);
+        return new Customer(viewModel, json.id, json.bidder_number, json.first_name, json.last_name, json.phone, json.email);
     });
     return results;
   }
@@ -46,13 +50,15 @@
     this.id_number = ko.observable();
     this.first_name = ko.observable();
     this.last_name = ko.observable();
-    this.email = ko.observable();
+    this.phone = ko.observable();
+    this.phone = ko.observable();
     
     this.clear = function(){
         self.bidder_number(null);
         self.id_number(null);
         self.first_name(null);
         self.last_name(null);
+        self.phone(null);
         self.email(null);
     }
 
@@ -74,11 +80,12 @@
     }
   }
 
-  var Customer = function(viewModel, id, bidder_number, first_name, last_name, email){
+  var Customer = function(viewModel, id, bidder_number, first_name, last_name, phone, email){
     this.id = ko.property(id);
     this.bidder_number = ko.property(bidder_number);
     this.first_name = ko.property(first_name);
     this.last_name = ko.property(last_name);
+    this.phone = ko.property(phone);
     this.email = ko.property(email);
 
     // functions
@@ -168,6 +175,11 @@
       %span.error{:'data-bind' => "text: last_name.errors"}
       %br
       %input.required{:'data-bind' => "value: last_name.temp"}
+    .group
+      %label Phone:
+      %span.error{:'data-bind' => "text: phone.errors"}
+      %br
+      %input.required{:'data-bind' => "value: phone.temp, mask: '(999) 999-9999'"} 
     .group
       %label Email:
       %span.error{:'data-bind' => "text: email.errors"}

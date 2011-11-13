@@ -269,11 +269,13 @@ ko.protectedObservable = function(initialValue) {
 };
   
 ko.model = function(initialValue) {
+    // TODO -- add dirty detection
     var result = ko.observable(initialValue);
      
     result.hasErrors = ko.observable(false);
     
     this.save = function(){
+        alert("Calling save on the model");
         if(id == undefined){
             // create the record
             $.ajax({

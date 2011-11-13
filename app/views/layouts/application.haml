@@ -21,6 +21,10 @@
           }
         }).popup();
       });
+
+      //.flash=[:error, :warning, :notice].map { |type| flash_tag(type, :class => "message #{type}") }.join
+    =[:error, :warning, :notice].map { |type| flash_growl(type) }.join
+      
   %body
     #container
       #header
@@ -55,7 +59,6 @@
                   %li=link_to pat(:customizations), "/customizations"
                   
       #wrapper.wat-cf
-        .flash=[:error, :warning, :notice].map { |type| flash_tag(type, :class => "message #{type}") }.join
         #sidebar
           =yield_content :context_panel
         #main

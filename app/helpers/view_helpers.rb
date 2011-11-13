@@ -1,7 +1,15 @@
 AuctionNow.helpers do
+  
+  def flash_growl(kind)
+    # Yuck!
+    flash_text = flash[kind]
+    return '' if flash_text.blank?
+    return "<script type='text/javascript'>$(function() { $.growlUI('#{flash_text}'); });</script>"
+  end
 
   ##
   # Used to generate odd/even CSS classes for rendering a table.
+  # TODO: deprecate for client-side soln.
   # 
   def cycle(one, two)
     @_iter = 0 if @_iter.nil?
