@@ -5,6 +5,8 @@ class Lot
   key  :number,       String, :required => true
   key  :consignee_id, BSON::ObjectId
   key  :description,  String, :required => true
+  key  :low,          Money
+  key  :high,         Money
   key  :qty_available,Integer, :required => true
   
   embedded_in :auction

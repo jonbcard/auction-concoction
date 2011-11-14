@@ -54,14 +54,16 @@ var models = new function() {
    
     /////////////// Lots ////////////////////
     this.parseLot = function (json){
-        return new models.Lot(json.id, json.number, json.consignee_id, json.description, json.qty_available);
+        return new models.Lot(json.id, json.number, json.consignee_id, json.description, json.low, json.high, json.qty_available);
     }
 
-    this.Lot = function(id, number, consignee_id, description, qty_available){
+    this.Lot = function(id, number, consignee_id, description, low, high, qty_available){
         this.id = ko.property(id)
         this.number = ko.property(number);
         this.consignee_id = ko.property(consignee_id);
         this.description = ko.property(description);
+        this.low = ko.property(low);
+        this.high = ko.property(high);
         this.qty_available = ko.property(qty_available || 1);
         
         var self = this;
@@ -90,6 +92,8 @@ var models = new function() {
             this.number("");
             this.consignee_id("");
             this.description("");
+            this.low("");
+            this.high("");
             this.qty_available(1);
         };
         

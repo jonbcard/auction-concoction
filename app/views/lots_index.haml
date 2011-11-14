@@ -56,6 +56,7 @@
 
   var viewModel = {
       autoNumber: new ko.observable(false),
+      showLowHigh: new ko.observable(false),
       currentLot: new ko.observable(new models.Lot()),
       lastErrorsFull: new ko.observable(""),
       lots: new ko.observableArray([]),
@@ -120,12 +121,15 @@
 
 -content_for(:context_panel) do
   #options.block
-    %h3 Options
+    %h3=pat(:options)
     .content
       %form.form
         .group
           %label Auto-number?
           %input{:type => 'checkbox', :'data-bind' => 'checked: autoNumber, click: applyLotNumber()'}
+        .group
+          %label Show Low/High
+          %input{:type => 'checkbox', :'data-bind' => 'checked: showLowHigh'}
 
 .flash
   .message.error{:'data-bind' => "text: lastErrorsFull, visible: lastErrorsFull() != ''"}
@@ -154,6 +158,8 @@
               %th.first Lot #
               %th Consginee
               %th Description
+              %th{:'data-bind' => "visible : showLowHigh"}=pat(:low)
+              %th{:'data-bind' => "visible : showLowHigh"}=pat(:high)
               %th Qty.
               %th.last
             %tr
@@ -175,6 +181,12 @@
                 %textarea.text_area.required{:id => 'lot_description', :name => 'lot[description]',
                        :style => "width:200px", :'data-bind'=>'value:currentLot().description' }
                 .floating-error
+              %td{:valign => 'top', :'data-bind' => "visible : showLowHigh"}
+                %input.text_field{:type => 'text', :style => "width:50px", :'data-bind'=>'value:currentLot().low'}
+                .floating-error
+              %td{:valign => 'top', :'data-bind' => "visible : showLowHigh"}
+                %input.text_field{:type => 'text', :style => "width:50px", :'data-bind'=>'value:currentLot().high'}
+                .floating-error
               %td{:valign => 'top'}
                 %input.text_field.required{:id => 'qty', :type => 'text',
                        :name => 'lot[qty_available]', :style => "width:30px", :'data-bind'=>'value:currentLot().qty_available' }
@@ -189,6 +201,10 @@
     %span{:'data-bind' => "text: consignee_text"}
   %td
     %span{:'data-bind' => "text: description"}
+  %td{:'data-bind' => "visible : viewModel.showLowHigh"}
+    %span{:'data-bind' => "text: low"}
+  %td{:'data-bind' => "visible : viewModel.showLowHigh"}
+    %span{:'data-bind' => "text: high"}
   %td
     %span{:'data-bind' => "text: qty_available"}
   %td
