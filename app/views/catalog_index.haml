@@ -1,0 +1,201 @@
+-content_for(:context_panel) do
+  #filter.block
+    %h3 Search Catalog
+    .content
+      %form.form{:'data-bind' => 'submit: search().search'}
+        .group
+          %label Catalog Number:
+          %br
+          %input.text_field{:type => 'text', :style => "width:75px", :'data-bind'=>"value: search().number"}
+        .group
+          %label Description:
+          %br
+          %input.text_field{:type => 'text', :style => "width:150px", :'data-bind'=>"value: search().description" }
+        %button.form_button{:type => "submit"}
+          Search
+        &nbsp;&nbsp;|&nbsp;&nbsp;
+        =link_to("Clear", "#clear", :class => :button_to, :'data-bind'=>"click: search().clear")
+
+:javascript
+  $(function(){
+    ko.applyBindings(viewModel());
+  });
+
+  var SearchItems = function(viewModel){
+    var self = this;
+    this.number = ko.observable();
+    this.description = ko.observable();
+    
+    this.clear = function(){
+        self.number(null);
+        self.description(null);
+    }
+
+    this.search = function(){
+
+       $.ajax({
+          url:  "catalog/search.json",
+          type: "post",
+          data: ko.toJSON(self),
+          contentType: "application/json",
+          success: function(result) {
+            if(result.errors){
+                alert("Error attempting to query server: " + ko.toJSON(result.errors));
+            } else {
+                viewModel.catalog(parseItems(viewModel, result));
+            }
+          }
+        });
+    }
+  }
+
+  function parseItems(viewModel, data){
+    var allItems = $.map(data, function(json) {
+      return new Item(viewModel, json.id, json.number, json.description, json.quantity);
+    });
+    return allItems;
+  }
+
+  var Item = function(viewModel, id, number, description, quantity){
+    this.id = ko.property(id);
+    this.number = ko.property(number);
+    this.description = ko.property(description);
+    this.quantity = ko.property(quantity ? quantity : 1);
+
+    // functions
+    this.edit = function(){
+      viewModel.activeItem(this);
+      $("#editDialog").dialog({title:"Edit Catalog Item"});
+    }
+
+    this.cancel = function(){
+      viewModel.activeItem.reset();
+      $("#editDialog").dialog("close");
+    }
+
+    var self = this;
+    this.save = function(){
+      if(id == undefined){
+        // create the record
+        var self = this;
+        $.ajax({
+          url:  "catalog/new.json",
+          type: "post",
+          data: ko.tempToJSON(this),
+          contentType: "application/json",
+          success: function(result) {
+            if(result.errors){
+              viewModel.activeItem.applyErrors(result.errors);
+            } else {
+              viewModel.activeItem.commit();
+              viewModel.activeItem().id(result.id);
+              viewModel.catalog.push(viewModel.activeItem());
+              viewModel.activeItem.reset();
+              $("#editDialog").dialog("close");
+              $.growlUI("Catalog Item Created"); 
+            }
+          }
+        });
+      } else {
+        // save the record
+        $.ajax({
+          url:  "catalog/" + id + ".json",
+          type: "post",
+          data: ko.tempToJSON(this),
+          contentType: "application/json",
+          success: function(result) {
+            if(result.errors){
+              viewModel.activeItem.applyErrors(result.errors);
+            } else {
+              viewModel.activeItem.commit().reset();
+              $("#editDialog").dialog("close");
+              $.growlUI("Catalog Item Saved"); 
+            }
+          }
+        });
+      }
+    }
+  }
+
+  var viewModel = function(){
+    this.catalog = ko.observableArray([]);
+    this.activeItem = ko.model();
+    this.search = ko.observable(new SearchItems(this));
+
+    this.displayCount = ko.dependentObservable(function() {
+      return "Displaying " + this.catalog().length + " search results."
+    }, this);
+
+    this.newItem = function() {
+      new Item(this).edit();
+    };
+
+    // Load the initial state from server
+    
+    this.load = function() {
+      var self = this;
+      $.get("/catalog.json", function(data) {
+        self.catalog(parseItems(self, data));
+      });
+    }
+    
+    load();
+  }
+
+#editDialog{ :style=>"display:none;"}
+  %div{:'data-bind' => "template: {name:'editForm', data: activeItem}"}
+
+%script{:type => "text/x-jquery-tmpl", :id => "editForm"}
+  .flash
+    .message.error{:'data-bind' => "visible: activeItem.hasErrors()"}
+      Errors occurred while saving the catalog item.
+  %form.form{:id => 'editForm', :'data-bind' => "submit: save"}
+    .group
+      %label Catalog Number:
+      %span.error{:'data-bind' => "text: number.errors"}
+      %br
+      %input.required{:'data-bind' => "value: number.temp"}
+    .group
+      %label Description:
+      %span.error{:'data-bind' => "text: description.errors"}
+      %br
+      %input.required{:'data-bind' => "value: description.temp"}
+    .group
+      %label Quantity:
+      %span.error{:'data-bind' => "text: quantity.errors"}
+      %br
+      %input.required{:'data-bind' => "value: quantity.temp"}
+    %button.form_button{:type => "submit"}
+      =pat(:save)
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
+
+%script{:type => "text/x-jquery-tmpl", :id => "itemRow"}
+  %tr
+    %td
+      %span{:'data-bind' => "text: number"}
+    %td
+      %span{:'data-bind' => "text: description"}
+    %td.last
+      %button#edit{:class => 'small-button', :'data-bind' => "click: edit, icon:'ui-icon-pencil',iconOnly:true"} 
+        Edit
+
+.block
+  .content
+    #title
+      %h2 Catalog
+    #title-menu
+      %button#new{:href => "", :'data-bind' => "click : newItem, icon: 'ui-icon-plus'"}
+        New
+      %button#reload{:href => "", :'data-bind' => "click : load, icon: 'ui-icon-refresh'"}
+        Reload
+    .inner
+      %table.table
+        %tr
+          %th.first=mat(:catalog, :number)
+          %th=mat(:catalog, :description)
+          %th.last="&nbsp;"
+        %tbody{:'data-bind' => "template: {name:'itemRow', foreach: catalog()}"}
+      .actions-bar.wat-cf
+        .actions
+          %span{:'data-bind' => 'text: displayCount'}
