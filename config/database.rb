@@ -1,14 +1,26 @@
-#MongoMapper.connection = Mongo::Connection.from_uri('mongodb://admin:adminadmin@flame.mongohq.com:27019/auction', 
-#  :logger => logger,
-#  :timeout => 5)
+#configure :production do
+#  MongoMapper.connection = Mongo::Connection.from_uri('mongodb://auction:auction@staff.mongohq.com:10073/app1798972 ', 
+#    :logger => logger,
+#    :timeout => 5)
+#end
 
-MongoMapper.connection = Mongo::Connection.from_uri('mongodb://localhost:27017', 
-  :logger => logger,
-  :timeout => 5)
+#configure :development do 
+#  MongoMapper.connection = Mongo::Connection.from_uri('mongodb://localhost:27017', 
+#    :logger => logger,
+#    :timeout => 5)
+#end
 
 case Padrino.env
-  # Don't want to waste valuable mongohq databases for now
-  when :development then MongoMapper.database = 'auction'
-  when :production  then MongoMapper.database = 'auction'
+  when :production then 
+    MongoMapper.connection = Mongo::Connection.from_uri('mongodb://auction:auction@staff.mongohq.com:10073/app1798972 ', 
+      :logger => logger,
+      :timeout => 5)
+    MongoMapper.database = 'app1798972'
+
+  when :development  then 
+    MongoMapper.connection = Mongo::Connection.from_uri('mongodb://localhost:27017',
+      :logger => logger,
+      :timeout => 5)
+    MongoMapper.database = 'auction'
   when :test        then MongoMapper.database = 'auction'
 end

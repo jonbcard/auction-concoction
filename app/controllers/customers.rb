@@ -8,6 +8,27 @@ AuctionNow.controllers :customers do
         Customer.all.to_json
     end
   end
+ 
+  get :data_table, :provides => :json do
+    colName = [:company_name , :first_name, :last_name, :email, :bidder_number]
+    order = colName[params[:iSortCol_0].to_i || 0]
+    
+    query_params = {}
+    #query_params[:id_number] = params[:sSearch]
+    #query_params[:bidder_number] = params[:sSearch]
+    #query_params[:company_name] = /#{params[:sSearch]}/i
+    query_params[:first_name] = /#{params[:sSearch]}/i
+    #query_params[:last_name] = /#{params[:sSearch]}/i
+    
+    customers = Customer.where(query_params).sort(order)
+    query_count = Customer.where(query_params).count
+    
+    {"sEcho" => params[:sEcho].to_i,
+     "iTotalRecords" => Customer.count,
+     "iTotalDisplayRecords" => query_count,
+     "aaData" => @customers
+    }.to_json
+  end
   
   get :index, :with => :id, :provides => :json do
     return Customer.find(params[:id]).to_json
