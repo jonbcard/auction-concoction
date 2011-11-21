@@ -222,20 +222,6 @@
     &nbsp;&nbsp;|&nbsp;&nbsp;
     =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
 
-%script{:type => "text/x-jquery-tmpl", :id => "consigneeRow"}
-  %tr
-    %td
-      %span{:'data-bind' => "text: code"}
-    %td
-      %span{:'data-bind' => "text: name"}
-    %td
-      %span{:'data-bind' => "text: address"}
-    %td
-      %span{:'data-bind' => "text: city"}
-    %td.last
-      %button#edit{:class => 'small-button', :'data-bind' => "click: edit, icon:'ui-icon-pencil',iconOnly:true"} 
-        Edit
-
 .block
   .content
     #title
@@ -247,13 +233,27 @@
         Reload
     .inner
       %table.table
-        %tr
+      %table.table{:'data-bind' =>  "dataTable: { dataSource: consignees, rowTemplate: 'consigneeRow', columns: ['code', 'name', 'address', 'city', null], 
+                                                  options:{sPaginationType:'full_numbers', bFilter : false, bLengthChange : false, 
+                                                           iDisplayLength:20,
+                                                           oLanguage : {sInfo: 'Showing _START_ to _END_ of _TOTAL_ search results.',
+                                                                        sInfoEmpty: 'Showing 0 of 0 search results.' } } }"}
+        %thead
           %th.first=mat(:consignee, :code)
           %th=mat(:consignee, :name)
           %th=mat(:consignee, :address)
           %th=mat(:consignee, :city)
           %th.last="&nbsp;"
-        %tbody{:'data-bind' => "template: {name:'consigneeRow', foreach: consignees()}"}
-      .actions-bar.wat-cf
-        .actions
-          %span{:'data-bind' => 'text: displayCount'}
+
+%script{:type => "text/x-jquery-tmpl", :id => "consigneeRow"}
+  %td
+    %span{:'data-bind' => "text: code"}
+  %td
+    %span{:'data-bind' => "text: name"}
+  %td
+    %span{:'data-bind' => "text: address"}
+  %td
+    %span{:'data-bind' => "text: city"}
+  %td.last
+    %span.clickable{:'data-bind' => "click: edit"}
+      =image_tag 'page_white_edit.png'

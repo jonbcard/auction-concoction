@@ -149,7 +149,7 @@
             By Catalog Number
     .inner
       %form.form{:id => 'lot',:method => 'post', :action=> "/auctions/#{@auction.id}/lots/new"}
-        %table.table{:'data-bind' =>  "dataTable: { dataSource: lots, rowTemplate: 'lotsListTemplate', columns: ['number', 'consignee_text', 'description', 'qty_available'], 
+        %table.table{:'data-bind' =>  "dataTable: { dataSource: lots, rowTemplate: 'lotsListTemplate', columns: ['number', 'consignee_text', 'description', 'low','high','qty_available',null], 
                        options:{'sPaginationType':'full_numbers','bSort': false}}"}
           %thead
             %tr

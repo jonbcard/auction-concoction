@@ -182,6 +182,27 @@
     &nbsp;&nbsp;|&nbsp;&nbsp;
     =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
 
+.block
+  .content
+    #title
+      %h2 Customers
+    #title-menu
+      %button#new{:href => "#new", :'data-bind' => "click : newCustomer, icon: 'ui-icon-plus'"}
+        New
+    .inner
+      %table.table{:'data-bind' =>  "dataTable: { dataSource: customers, rowTemplate: 'row', columns: ['company_name', 'first_name', 'last_name', 'email', 'bidder_number',null], 
+                                                  options:{sPaginationType:'full_numbers', bFilter : false, bLengthChange : false, 
+                                                           iDisplayLength:20,
+                                                           oLanguage : {sInfo: 'Showing _START_ to _END_ of _TOTAL_ search results.',
+                                                                        sInfoEmpty: 'Showing 0 of 0 search results.' } } }"}
+        %thead
+          %th.first=mat(:customer, :company_name)
+          %th=mat(:customer, :first_name)
+          %th=mat(:customer, :last_name)
+          %th=mat(:customer, :email)
+          %th Bidder #
+          %th.last="&nbsp;"
+
 %script{:type => "text/x-jquery-tmpl", :id => "row"}
   %td
     %span{:'data-bind' => "text: company_name"}
@@ -196,25 +217,3 @@
   %td.last
     %span.clickable{:'data-bind' => "click: edit"}
       =image_tag 'page_white_edit.png'
-
-.block
-  .content
-    #title
-      %h2 Customers
-    #title-menu
-      %button#new{:href => "#new", :'data-bind' => "click : newCustomer, icon: 'ui-icon-plus'"}
-        New
-    .inner
-      %table.table
-      %table.table{:'data-bind' =>  "dataTable: { dataSource: customers, rowTemplate: 'row', columns: ['company_name', 'first_name', 'last_name', 'email', 'bidder_number',null], 
-                                                  options:{sPaginationType:'full_numbers', bFilter : false, bLengthChange : false, 
-                                                           iDisplayLength:20,
-                                                           oLanguage : {sInfo: 'Showing _START_ to _END_ of _TOTAL_ search results.',
-                                                                        sInfoEmpty: 'Showing 0 of 0 search results.' } } }"}
-        %thead
-          %th.first=mat(:customer, :company_name)
-          %th=mat(:customer, :first_name)
-          %th=mat(:customer, :last_name)
-          %th=mat(:customer, :email)
-          %th Bidder #
-          %th.last="&nbsp;"
