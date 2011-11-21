@@ -1,4 +1,13 @@
 var models = new function() {
+    this.BaseModel = {
+        display : function(){
+            alert(ko.tempToJSON(this));
+        }
+    }
+    
+    
+    /////////// BaseCustomer ////////////////
+    
     /////////// Consignees ////////////////
     
     /** Lazy-loaded consignee list */
@@ -50,7 +59,26 @@ var models = new function() {
 
 
     /////////// Customers ////////////////
-
+    this.parseCustomers = function(data){
+        var results = $.map(data, function(json) {
+            return new models.Customer(json.id, json.bidder_number, json.company_name, json.first_name, json.last_name, json.phone, json.email, json.address, json.city, json.state);
+        });
+        return results;
+    }
+    
+    this.Customer = {
+        
+        id : ko.property(),
+        bidder_number : ko.property(),
+        company_name : ko.property(),
+        first_name : ko.property(),
+        last_name : ko.property(),
+        phone : ko.property(),
+        email : ko.property(),
+        address : ko.property(),
+        city : ko.property(),
+        state : ko.property()
+    }
    
     /////////////// Lots ////////////////////
     this.parseLot = function (json){
@@ -85,7 +113,7 @@ var models = new function() {
                 var con = models.getConsigneeById(this.consignee_id());
                 return (con == undefined ? "" : "(" + con.code + ")" + " " + con.name);
             }, self
-        );
+            );
             
         this.reset = function(){
             this.id("");
@@ -134,6 +162,6 @@ var models = new function() {
                 var con = models.getConsigneeById(this.consignee_id());
                 return (con == undefined ? "" : "(" + con.code + ")" + " " + con.name);
             }, self
-        );
+            );
     }
 };

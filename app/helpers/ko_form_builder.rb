@@ -1,7 +1,7 @@
 module Padrino
   module Helpers
     module FormBuilder
-      class SimpleFormBuilder < StandardFormBuilder
+      class KOFormBuilder < StandardFormBuilder
         include Padrino::Helpers::AssetTagHelpers
         include Padrino::Helpers::TagHelpers
         include Padrino::Helpers::OutputHelpers
@@ -12,20 +12,17 @@ module Padrino
         # Valid options:
         # :type => [password, date, select, checkbox]. If not specified, the type will default to a text field.
         #
-        def field(field, options={})
+        def simple_field(field, options={})
           required = @object && @object.class.respond_to?(:required_field?) ? @object.class.send(:required_field?, field) : false
           add_css_class(options, :required) if required
 
           field_output = case(options[:type])
             when :password then password_field(field, :class => :password_field)
-            when :date then  
-              options.merge! :"data-bind" => "value: #{field}"
-              date_field(field, options)
+            when :date then  date_field(field, options)
             when :select then select(field, options)
             when :checkbox then check_box(field, options)
             else
               add_css_class(options, :text_field)
-              options.merge! :"data-bind" => "value: #{field}"
               text_field(field, options)
           end
 

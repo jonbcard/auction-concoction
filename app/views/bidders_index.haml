@@ -184,6 +184,7 @@
       %h2 #{@auction.title} :: Bidders
     #title-menu
       %button#new{:'data-bind' => "click : newBidder, icon: 'ui-icon-plus'"}=pat(:new)
+      %button#checkin{:'data-bind' => "click : newBidder, icon: 'ui-icon-person'"} Check-in
       %button#reload{:'data-bind' => "click : load, icon: 'ui-icon-refresh'"}=pat(:reload)
       %button#import{:'data-bind' => "click : load, image: 'ui-icon-transfer-e-w', imageSecondary: 'ui-icon-triangle-1-s'"}
         Import / Export

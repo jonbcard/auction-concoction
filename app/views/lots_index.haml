@@ -93,9 +93,7 @@
   };
 
   $.get("lots.json", function(data) {
-    var allLots = $.map(data, function(json) {
-      return models.parseLot(json);
-    });
+    var allLots = ko.mapToModelList(models.Lot, data);
     viewModel.lots(allLots);
   });
 

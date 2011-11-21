@@ -178,7 +178,7 @@ ko.bindingHandlers.confirm = {
         setupConfirmationDialog($("#dialog"), $(element), valueUnwrapped);
     },
     update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        // NO-OP - for now, no support for dynamic dialog text.
+    // NO-OP - for now, no support for dynamic dialog text.
     }
 }
 
@@ -188,7 +188,7 @@ ko.bindingHandlers.mask = {
         $(element).mask(ko.utils.unwrapObservable(value));
     },
     update: function (element, valueAccessor) {
-        // Nothing to do
+    // Nothing to do
     }
 };
 
@@ -202,7 +202,8 @@ ko.bindingHandlers.icon = {
             text: !iconOnly,
             icons: {
                 primary: ko.utils.unwrapObservable(icon),
-                secondary: ko.utils.unwrapObservable(iconSecondary)}
+                secondary: ko.utils.unwrapObservable(iconSecondary)
+            }
         });
     }
 };
@@ -210,12 +211,14 @@ ko.bindingHandlers.icon = {
 ko.bindingHandlers.iconSecondary = {
     init: function (element, valueAccessor) {
         var value = valueAccessor();
-        $(element).button({icons: {
-            secondary: ko.utils.unwrapObservable(value)
-        }});
+        $(element).button({
+            icons: {
+                secondary: ko.utils.unwrapObservable(value)
+            }
+        });
     },
     update: function (element, valueAccessor) {
-        // Nothing to do
+    // Nothing to do
     }
 };
 
@@ -269,48 +272,16 @@ ko.protectedObservable = function(initialValue) {
 };
   
 ko.model = function(initialValue) {
+    if(initialValue){
+        initialValue.display = function(){
+            alert(ko.toJSON(this));
+        }
+    }
+    
     // TODO -- add dirty detection
     var result = ko.observable(initialValue);
      
     result.hasErrors = ko.observable(false);
-    
-    this.save = function(){
-        alert("Calling save on the model");
-        if(id == undefined){
-            // create the record
-            $.ajax({
-                url:  result().url + "/new.json",
-                type: "post",
-                data: ko.tempToJSON(result()),
-                contentType: "application/json",
-                success: function(serverResult) {
-                    if(serverResult.errors){
-                        result.applyErrors(serverResult.errors);
-                    } else {
-                        result.commit();
-                        result().id(serverResult.id);
-                        result().onCreate();
-                    }
-                }
-            });
-        } else {
-            // save the record
-            $.ajax({
-                url:  result().url + result.id + ".json",
-                type: "post",
-                data: ko.tempToJSON(this),
-                contentType: "application/json",
-                success: function(serverResult) {
-                    if(serverResult.errors){
-                        result.applyErrors(serverResult.errors);
-                    } else {
-                        result.commit().reset();
-                        result().onSave();
-                    }
-                }
-            });
-        }
-    }
     
     // Clear all errrors from the properties
     result.clearErrors = function(){
@@ -369,6 +340,12 @@ ko.property = function(initialValue, errors) {
     result.errors = ko.observable(errors);
     result.temp = initialValue;
     
+    result.subscribe(function(newValue) {
+        // Ensure the temp value is kept up-to-date with change to the observable..
+        // TODO: maybe just make temp a dependent-observable?
+        result.temp = newValue;
+    });
+    
     result.commit = function(){
         result(result.temp);
     };
@@ -380,3 +357,32 @@ ko.property = function(initialValue, errors) {
     result.__ko_proto__ = ko.property;
     return result;
 };
+
+ko.saveModel = function(model, url, successHandler){
+    $.ajax({
+        url:  url,
+        type: "post",
+        data: ko.tempToJSON(model),
+        contentType: "application/json",
+        success: function(result) {
+            successHandler(result);
+        }
+    });
+}
+
+ko.mapToModel = function(model, json){
+    for(var prop in json){
+        if(model.hasOwnProperty(prop) && (ko.isWriteableObservable(model[prop]) || ko.isProperty(model[prop])) ){
+            model[prop](json[prop]);
+        }
+    }
+    return model; // for chaining
+}
+
+ko.mapToModelList = function(modelType, data, viewModel){
+    var results = $.map(data, function(json) {
+        var model = new modelType(viewModel);
+        return ko.mapToModel(model, json);
+    });
+    return results;
+}

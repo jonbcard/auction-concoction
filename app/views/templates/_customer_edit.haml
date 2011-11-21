@@ -1,0 +1,55 @@
+%table
+  %tr
+    %td{:valign => 'top'}
+      %fieldset{:style => "padding:6px"}
+        %legend
+          =pat(:general)
+        .group
+          %label=mat(:customer, :company_name)
+          %span.error{:'data-bind' => "text: company_name.errors"}
+          %br
+          %input.required{:'data-bind' => "value: company_name.temp"}
+        .group
+          %label=mat(:customer, :first_name)
+          %span.error{:'data-bind' => "text: first_name.errors"}
+          %br
+          %input.required{:'data-bind' => "value: first_name.temp"}
+        .group
+          %label=mat(:customer, :last_name)
+          %span.error{:'data-bind' => "text: last_name.errors"}
+          %br
+          %input.required{:'data-bind' => "value: last_name.temp"}
+        .group
+          %label Phone:
+          %span.error{:'data-bind' => "text: phone.errors"}
+          %br
+          %input.required{:'data-bind' => "value: phone.temp, mask: '(999) 999-9999'"} 
+        .group
+          %label Email:
+          %span.error{:'data-bind' => "text: email.errors"}
+          %br
+          %input.required{:'data-bind' => "value: email.temp"} 
+        .group
+          %label Permanent Bidder Number:
+          %span.error{:'data-bind' => "text: bidder_number.errors"}
+          %br
+          %input.required{:'data-bind' => "value: bidder_number.temp"}
+    %td{:valign => 'top'}
+      %fieldset{:style => "padding:6px"}
+        %legend
+          =pat(:address)
+        .group
+          %label=mat(:customer, :address)
+          %span.error{:'data-bind' => "text: address.errors"}
+          %br
+          %input.required{:'data-bind' => "value: address.temp"}
+        .group
+          %label=mat(:customer, :city)
+          %span.error{:'data-bind' => "text: city.errors"}
+          %br
+          %input.required{:'data-bind' => "value: city.temp"}
+        .group
+          %label=mat(:customer, :state)
+          %span.error{:'data-bind' => "text: state.errors"}
+          %br
+          %input.required{:'data-bind' => "value: state.temp"}

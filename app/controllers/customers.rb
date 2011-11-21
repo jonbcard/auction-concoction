@@ -1,4 +1,9 @@
 AuctionNow.controllers :customers do
+  get :edit_template do
+    render 'templates/customer_form', :layout=>false
+  end
+  
+  
   get :index, :provides => [:html, :json] do
     case content_type
       when :html
@@ -34,6 +39,7 @@ AuctionNow.controllers :customers do
     return Customer.find(params[:id]).to_json
   end
   
+ 
   post :search, :provides => [:json] do
     criteria = parse_json(request)
     query_params = {}
