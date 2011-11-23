@@ -6,7 +6,6 @@ AuctionNow.controllers :bidders, :parent => :auctions do
   
   # Regular browser endpoints
   get :index, :provides => [:html, :json] do
-    # /auctions/#{params[:auction_id]}/bidders"
     case content_type
       when :html
         render 'bidders_index'
@@ -14,10 +13,58 @@ AuctionNow.controllers :bidders, :parent => :auctions do
         @auction.bidders.to_json
     end
   end
+  
+  get :next_number, :provides => [:json] do
+    # TODO: better support for multi-user registration w/ reservation system
+    val = @auction.next_bidder_num
+    return {:next => val}.to_json
+  end
 
   post :new, :provides => [:json] do
-    @bidder = Bidder.new(parse_json(request))
+    # TODO : omit certain fields for each
+    bidder_map = parse_json(request)
+    @bidder = Bidder.new(bidder_map)
+    
+    bidder_map['id'] = bidder_map['customer_id'] if bidder_map.has_key?('customer_id')
+    @customer = Customer.new(bidder_map)
+    
+    # Run as much pre-validation as we can to try to guarantee save
+    # success. Early-out if there are validation errors.
+    if( not(@customer.valid? & @bidder.valid?) )
+      merged_errors = @bidder.errors.to_hash.merge(@customer.errors.to_hash) 
+      return {:errors => merged_errors}.to_json
+    end
+    
+    @customer.save!
+    @bidder.customer_id = @customer.id
+    
     if @auction.add_bidder(@bidder)
+      return @bidder.to_json
+    else
+      # Weird repitition. Right now this is because the add_bidder call does
+      # an additional check against bidder uniqueness.
+      return {:errors => @bidder.errors}.to_json
+    end
+  end
+  
+  post :index, :with => :id, :provides => :json do
+    # TODO : omit certain fields for each
+    bidder_map = parse_json(request)
+    @bidder = Bidder.new(bidder_map)
+    
+    bidder_map['id'] = bidder_map['customer_id'] if bidder_map.has_key?('customer_id')
+    @customer = Customer.new(bidder_map)
+    
+    # Run as much pre-validation as we can to try to guarantee save
+    # success. Early-out if there are validation errors.
+    if( not(@customer.valid? & @bidder.valid?) )
+      merged_errors = @bidder.errors.to_hash.merge(@customer.errors.to_hash) 
+      return {:errors => merged_errors}.to_json
+    end
+    
+    @customer.save!
+    
+    if @auction.update_bidder(@bidder)
       return @bidder.to_json
     else
       return {:errors => @bidder.errors}.to_json
@@ -48,13 +95,5 @@ AuctionNow.controllers :bidders, :parent => :auctions do
     return @auction.bidders.find(params[:id]).to_json
   end
 
-  post :index, :with => :id, :provides => :json do
-    @bidder = Bidder.new(parse_json(request))
-    success = @auction.update_bidder(@bidder)
-    if(!success)
-      return {:errors => @bidder.errors}.to_json
-    else
-      return @bidder.to_json
-    end
-  end
+  
 end

@@ -3,7 +3,7 @@ class Customer
 
   # Keys
   key :bidder_number,    String     # Permanent bidder number assigned to the customer
-  key :company_name,          String     # Company banner for the bidder
+  key :company_name,      String     # Company banner for the bidder
   key :first_name,       String     
   key :last_name,        String
   key :id_number,        String     # Typically a driver's license #
@@ -20,9 +20,7 @@ class Customer
   # Validations
   #validates_length_of       :username, :within => 3..16
   #validates_format_of       :username, :with => /[A-Za-z0-9]/m
-  validates_uniqueness_of   :email,    :case_sensitive => false
-  #validates_uniqueness_of   :id_number
-  validates_uniqueness_of   :bidder_number
+  #validates_uniqueness_of   :email,    :case_sensitive => false
   
   def self.authenticate(username, password)
     account = first(:username => username) if username.present?

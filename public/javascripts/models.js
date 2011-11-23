@@ -6,7 +6,40 @@ var models = new function() {
     }
     
     
-    /////////// BaseCustomer ////////////////
+    /////////// Customers ////////////////
+    this.SearchCustomer = function(viewModel){
+        this.bidder_number = ko.observable();
+        this.id_number = ko.observable();
+        this.company_name = ko.observable();
+        this.first_name = ko.observable();
+        this.last_name = ko.observable();
+        this.phone = ko.observable();
+        this.email = ko.observable();
+    
+        this.clear = function(){
+            for(var prop in this){
+                if(ko.isWriteableObservable(this[prop])){
+                    this[prop](null);
+                }
+            }
+        }.bind(this);
+
+        this.search = function(callback){
+            $.ajax({
+                url:  "/customers/search.json",
+                type: "post",
+                data: ko.toJSON(this),
+                contentType: "application/json",
+                success: function(result) {
+                    if(result.errors){
+                        alert("Error attempting to query server: " + ko.toJSON(result.errors));
+                    } else {
+                        callback(ko.mapToModelList(Customer, result, viewModel));
+                    }
+                }
+            });
+        }.bind(this);
+    }
     
     /////////// Consignees ////////////////
     

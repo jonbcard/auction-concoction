@@ -16,68 +16,68 @@
         }).popup();
   });
 
-  function parse_bidder(viewModel, json){
-    return new bidder(viewModel, json.id, json.number, json.first_name, json.last_name, json.id_number, json.status);
+  function parseBidders(viewModel, data){
+    var results = $.map(data, function(json) {
+        var bidder = new Bidder(viewModel, json.id);
+        ko.mapToModel(bidder, json);
+        return bidder;
+    });
+    return results;
   }
 
-  function bidder(viewModel, id, number, first_name, last_name, id_number, status) {
+  function Bidder(viewModel, id) {
     this.id = ko.property(id);
-    this.number = ko.property(number);
-    this.first_name = ko.property(first_name);
-    this.last_name = ko.property(last_name);
-    this.id_number = ko.property(id_number);
-    this.status = ko.property(status ? status : "ACTIVE");
+    
+    this.bidder_number = ko.property();
+    this.company_name = ko.property();
+    this.first_name = ko.property();
+    this.last_name = ko.property();
+    this.phone = ko.property();
+    this.email = ko.property();
+    this.address = ko.property();
+    this.city = ko.property();
+    this.state = ko.property();
 
+    this.customer_id = ko.property();
+    this.number = ko.property();
+    this.id_number = ko.property();
+    this.status = ko.property("ACTIVE");
+    
     // functions
+    this.getId = function(){
+      // Get an ID number for this bidder from the server
+      var nextNumber = util.getJSON("bidders/next_number").next;
+      this.number(nextNumber);
+    }.bind(this);
+
     this.edit = function(){
       viewModel.activeBidder(this);
-      $("#bidderDialog").dialog({title:"Edit Bidder"});
-    }
+      $("#bidderDialog").dialog({title:"Edit Bidder",width:"410px"});
+    }.bind(this);
 
     this.cancel = function(){
       viewModel.activeBidder.reset();
       $("#bidderDialog").dialog("close");
-    }
+    }.bind(this);
 
-    var self = this;
     this.save = function(){
-      if(id == undefined){
+      var wrapper = this;
+      var id = wrapper().id;
+      if(!id()){
         // create the record
-        var self = this;
-        $.ajax({
-          url:  "bidders/new.json",
-          type: "post",
-          data: ko.tempToJSON(this),
-          contentType: "application/json",
-          success: function(result) {
-            if(result.errors){
-              viewModel.activeBidder.applyErrors(result.errors);
-            } else {
-              viewModel.activeBidder.commit();
-              viewModel.activeBidder().id(result.id);
-              viewModel.bidders.push(viewModel.activeBidder());
-              viewModel.activeBidder.reset();
-              $("#bidderDialog").dialog("close");
-              $.growlUI("Bidder Created"); 
-            }
-          }
+        wrapper.save("bidders/new.json", function(result){
+            id(result.id);
+            wrapper().customer_id(result.customer_id);
+            viewModel.bidders.push(wrapper());
+            $("#bidderDialog").dialog("close");
+            $.growlUI("Bidder Created"); 
         });
+        
       } else {
         // save the record
-        $.ajax({
-          url:  "bidders/" + id + ".json",
-          type: "post",
-          data: ko.tempToJSON(this),
-          contentType: "application/json",
-          success: function(result) {
-            if(result.errors){
-              viewModel.activeBidder.applyErrors(result.errors);
-            } else {
-              viewModel.activeBidder.commit().reset();
-              $("#bidderDialog").dialog("close");
-              $.growlUI("Bidder Saved"); 
-            }
-          }
+        wrapper.save("bidders/" + id() + ".json", function(){
+            $("#bidderDialog").dialog("close");
+            $.growlUI("Bidder Saved"); 
         });
       }
     }
@@ -96,8 +96,7 @@
     }, this);
 
     this.newBidder = function() {
-      aNewBidder = new bidder(this);
-      aNewBidder.status("ACTIVE");
+      aNewBidder = new Bidder(this);
       aNewBidder.edit();
     };
 
@@ -105,11 +104,8 @@
     
     this.load = function() {
       var self = this;
-      $.get("bidders.json", function(data) {
-        var allBidders = $.map(data, function(json) {
-            return parse_bidder(self, json);
-        });
-        self.bidders(allBidders);
+      $.get("bidders.json", function(json) {
+          self.bidders(parseBidders(self, json));
       });
     }
     
@@ -127,29 +123,20 @@
     .message.error{:'data-bind' => "visible: activeBidder.hasErrors()"}
       Errors occurred while saving the bidder.
   %form.form{:id => 'bidderForm', :'data-bind' => "submit: save"}
-    .group
-      %label{:for=>:number}Number:
-      %span.error{:'data-bind' => "text: number.errors"}
-      %br
-      %input.required{:'data-bind' => "value: number.temp"}
-    .group
-      %label{:for=>:first_name}First Name:
-      %span.error{:'data-bind' => "text: first_name.errors"}
-      %br
-      %input.required{:'data-bind' => "value: first_name.temp"}
-    .group
-      %label{:for=>:last_name}Last Name:
-      %span.error{:'data-bind' => "text: last_name.errors"}
-      %br
-      %input.required{:'data-bind' => "value: last_name.temp"}
-    .group
-      %label{:for=>:id_number}ID Number:
-      %span.error{:'data-bind' => "text: id_number.errors"}
-      %br
-      %input.required{:'data-bind' => "value: id_number.temp"}
-    .group
-      %label{:for=>:id_number}Status:
-      %span{:'data-bind' => "text: status, style: { color: status.temp == 'ACTIVE' ? 'green' : 'red' }"}
+    %fieldset{:style => "padding:6px"}
+      %legend
+        Current Auction
+      .group
+        %label Bidder Number:
+        %span.error{:'data-bind' => "text: number.errors"}
+        %input.required{:'data-bind' => "value: number", :style => "width: 75px", :maxlength => 6}
+        %a{:href => '#', :'data-bind' => 'click: getId'}
+          Assign
+      .group
+        %label Status:
+        %span{:'data-bind' => "text: status, style: { color: status.temp == 'ACTIVE' ? 'green' : 'red' }"}
+    =partial 'templates/customer_edit'
+    
     %button.form_button{:type => 'submit'}
       Save
     &nbsp;&nbsp;|&nbsp;&nbsp;
@@ -204,7 +191,8 @@
           %a{:href=>"#"}
             Export To Excel
     .inner
-      %table.table{:'data-bind' =>  "dataTable: { dataSource: displayedBidders, rowTemplate: 'bidderRow', columns: ['number', 'first_name', 'last_name', 'status'], options:{'sPaginationType':'full_numbers'} }"}
+      %table.table{:'data-bind' =>  "dataTable: { dataSource: displayedBidders, rowTemplate: 'bidderRow', columns: ['number', 'first_name', 'last_name', 'status', null], 
+                                         options:{sPaginationType:'full_numbers', } }"}
         %thead
           %th.first=mat(:bidder, :number)
           %th=mat(:bidder, :first_name)

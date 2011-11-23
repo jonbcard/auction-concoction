@@ -1,97 +1,10 @@
--content_for(:context_panel) do
-  #filter.block
-    %h3 Search Customers
-    .content
-      %form.form{:'data-bind' => 'submit: search().search'}
-        .group
-          %label Bidder Num:
-          %br
-          %input.text_field{:type => 'text', :style => "width:75px", :'data-bind'=>"value: search().bidder_number"}
-        .group
-          %label ID Number:
-          %br
-          %input.text_field{:type => 'text', :style => "width:75px", :'data-bind'=>"value: search().id_number" }
-        .group
-          %label Company:
-          %br
-          %input.text_field{:type => 'text', :style => "width:150px", :'data-bind'=>"value: search().company_name"  }
-        .group
-          %label First Name:
-          %br
-          %input.text_field{:type => 'text', :style => "width:150px", :'data-bind'=>"value: search().first_name"  }
-        .group
-          %label Last Name:
-          %br
-          %input.text_field{:type => 'text', :style => "width:150px", :'data-bind'=>"value: search().last_name" }
-        .group
-          %label Phone:
-          %br
-          %input.text_field{:type => 'text', :style => "width:150px", :'data-bind'=>"value: search().phone, mask:'(999) 999-9999'" }
-        .group
-          %label Email:
-          %br
-          %input.text_field{:type => 'text', :style => "width:150px", :'data-bind'=>"value: search().email" }
-        %button.form_button{:type => "submit"}
-          Search
-        &nbsp;&nbsp;|&nbsp;&nbsp;
-        =link_to("Clear", "#clear", :class => :button_to, :'data-bind'=>"click: search().clear")
-
 :javascript
   $(function(){
     ko.applyBindings(viewModel());
   });
 
-  function parseCustomers(viewModel, data){
-    var results = $.map(data, function(json) {
-        var cust = new Customer(viewModel, json.id);
-        ko.mapToModel(cust, json);
-        return cust;
-    });
-    return results;
-  }
-
-  var SearchCustomer = function(viewModel){
-    var self = this;
-    this.bidder_number = ko.observable();
-    this.id_number = ko.observable();
-    this.company_name = ko.observable();
-    this.first_name = ko.observable();
-    this.last_name = ko.observable();
-    this.phone = ko.observable();
-    this.email = ko.observable();
-    
-    this.clear = function(){
-        self.bidder_number(null);
-        self.id_number(null);
-        self.company_name(null);
-        self.first_name(null);
-        self.last_name(null);
-        self.phone(null);
-        self.email(null);
-    }
-
-    this.search = function(){
-
-       $.ajax({
-          url:  "customers/search.json",
-          type: "post",
-          data: ko.toJSON(self),
-          contentType: "application/json",
-          success: function(result) {
-            if(result.errors){
-                alert("Error attempting to query server: " + ko.toJSON(result.errors));
-            } else {
-                viewModel.customers(parseCustomers(viewModel, result));
-            }
-          }
-        });
-    }
-  }
-
-  var Customer = function(viewModel, id){
-    $.extend(this, models.BaseModel)
-
-    this.id = ko.property(id);
+  var Customer = function(viewModel){
+    this.id = ko.property();
     this.bidder_number = ko.property();
     this.company_name = ko.property();
     this.first_name = ko.property();
@@ -101,6 +14,7 @@
     this.address = ko.property();
     this.city = ko.property();
     this.state = ko.property();
+    this.id_number = ko.property();
 
     // functions
     this.edit = function(){
@@ -113,61 +27,47 @@
       $("#editDialog").dialog("close");
     };
 
-    var self = this;
     this.save = function(){
-      if(id == undefined){
-        // create the record
-        var self = this;
-        $.ajax({
-          url:  "customers/new.json",
-          type: "post",
-          data: ko.tempToJSON(this),
-          contentType: "application/json",
-          success: function(result) {
-            if(result.errors){
-              viewModel.activeCustomer.applyErrors(result.errors);
-            } else {
-              viewModel.activeCustomer.commit();
-              viewModel.activeCustomer().id(result.id);
-              viewModel.customers.push(viewModel.activeCustomer());
-              viewModel.activeCustomer.reset();
-              $("#editDialog").dialog("close");
-              $.growlUI("Customer Created"); 
-            }
-          }
+      var wrapper = this;
+      var id = wrapper().id;
+      if(!id()){
+        wrapper.save("customers/new.json", function(result){
+            id(result.id);
+            viewModel.customers.push(wrapper());
+            $("#editDialog").dialog("close");
+            $.growlUI("Customer Created"); 
         });
       } else {
-        // save the record
-        $.ajax({
-          url:  "customers/" + id + ".json",
-          type: "post",
-          data: ko.tempToJSON(this),
-          contentType: "application/json",
-          success: function(result) {
-            if(result.errors){
-              viewModel.activeCustomer.applyErrors(result.errors);
-            } else {
-              viewModel.activeCustomer.commit().reset();
-              $("#editDialog").dialog("close");
-              $.growlUI("Customer Saved"); 
-            }
-          }
+        wrapper.save("customers/" + id() + ".json", function(){
+            $("#editDialog").dialog("close");
+            $.growlUI("Customer Saved"); 
         });
       }
     }
   }
 
-  
-
   var viewModel = function(){
     this.customers = ko.observableArray([]);
     this.activeCustomer = ko.model();
-    this.search = ko.observable(new SearchCustomer(this));
-
+    this.search = ko.observable(new models.SearchCustomer(this));
     this.newCustomer = function() {
       new Customer(this).edit();
     };
   }
+
+-content_for(:context_panel) do
+  #filter.block
+    %h3 Search Customers
+    .content
+      %div{:'data-bind' => "template: {name:'searchForm', data: search}"}
+
+%script{:type => "text/x-jquery-tmpl", :id => "searchForm"}
+  %form.form{:'data-bind' => 'submit: function(){ search(customers) }'}
+    =partial 'templates/customer_search'
+    %button.form_button{:type => "submit"}
+      Search
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    =link_to("Clear", "#clear", :class => :button_to, :'data-bind'=>"click: clear")
 
 #editDialog{ :style=>"display:none;"}
   %div{:'data-bind' => "template: {name:'editForm', data: activeCustomer}"}

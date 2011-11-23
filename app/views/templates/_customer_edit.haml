@@ -20,21 +20,29 @@
           %br
           %input.required{:'data-bind' => "value: last_name.temp"}
         .group
-          %label Phone:
+          %label Phone
           %span.error{:'data-bind' => "text: phone.errors"}
           %br
           %input.required{:'data-bind' => "value: phone.temp, mask: '(999) 999-9999'"} 
         .group
-          %label Email:
+          %label Email
           %span.error{:'data-bind' => "text: email.errors"}
           %br
           %input.required{:'data-bind' => "value: email.temp"} 
         .group
-          %label Permanent Bidder Number:
+          %label Permanent Bidder Number
           %span.error{:'data-bind' => "text: bidder_number.errors"}
           %br
           %input.required{:'data-bind' => "value: bidder_number.temp"}
     %td{:valign => 'top'}
+      %fieldset{:style => "padding:6px"}
+        %legend
+          =pat(:identification)
+        .group
+          %label ID Number
+          %span.error{:'data-bind' => "text: id_number.errors"}
+          %br
+          %input.required{:'data-bind' => "value: id_number.temp"}
       %fieldset{:style => "padding:6px"}
         %legend
           =pat(:address)

@@ -12,9 +12,10 @@ class Bidder
   key  :last_name,  String, :required => true
   key  :id_number,  String, :required => true
   key  :status,     String
+  key  :customer_id,BSON::ObjectId
 
   one  :receipt, :class_name => 'BidderReceipt'
-
+  
   embedded_in :auction
 
   validate :validate_status

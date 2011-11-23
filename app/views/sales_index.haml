@@ -65,7 +65,7 @@
       sales: new ko.observableArray([]),
       lots : new ko.observableArray([]),
       addSale: function() {
-        ajaxSubmit($("#sale"), function(results){
+        util.ajaxSubmit($("#sale"), function(results){
               if(results.errors){
                 viewModel.lastErrorsFull(results.errors_full);
               } else {

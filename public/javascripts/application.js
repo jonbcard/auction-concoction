@@ -11,23 +11,15 @@ $(function(){
         // it is different, and 2) its wasteful.
         setupConfirmationDialog($("#dialog"), $(this), $(this).attr("data-confirm"));
     });
-// Automatically apply JQuery validation for simple forms
-// Note that this is currently commented out because it is playing a bit
-// strangely with some of the other JQuery UI components like the datepicker.
-//$(".simple_form").validate({
-//    errorPlacement: function(error, element) {
-//        error.insertBefore(element);
-//    }
-//});
-
-
 });
 
 // ---- General helper functions ----
-var util = new function() {
+(function() {
+    // ---- General helper functions ----
+    util = {};
     
     /* Get JSON syncronously from the server */
-    this.getJSON = function(url){
+    util.getJSON = function(url){
         var result = null;
         $.ajax({
             url: url,
@@ -40,7 +32,22 @@ var util = new function() {
         return result;
     }
     
-    this.todayAsDate = function(){
+    util.ajaxSubmit = function(form, successHandler){
+        var type = form.attr("method");
+        var method = form.attr("action");
+        $.ajax({
+            type: form.attr("method"),
+            url: form.attr("action"),
+            data: form.serialize(),
+            dataType: 'json',
+            success: successHandler,
+            error: function(request, status, error_thrown){
+                alert(error_thrown);
+            }
+        });
+    }
+    
+    util.todayAsDate = function(){
         var day = new Date();
         day.setHours(0); 
         day.setMinutes(0); 
@@ -52,7 +59,7 @@ var util = new function() {
      * Note : eventually we'll need to add support for doing sort comparisons
      * other than just by Strings. This should be good enough (for now), though.
      */
-    this.sortArrayByProperty = function(array, property){
+    util.sortArrayByProperty = function(array, property){
         return array.sort(function(a,b) {
             var x = eval("a." + property);
             var y = eval("b." + property);
@@ -60,7 +67,9 @@ var util = new function() {
             return ((x < y) ? -1 : ((x > y) ? 1 : 0));  
         });
     }
-};
+    
+    
+}).call(this);
 
 // ---- JQuery helper stuff ----
 ConfirmationDialog = $.extend({}, $.ui.dialog.prototype, {
@@ -102,18 +111,10 @@ $.widget("ui.confirmationDialog", $.ui.dialog, ConfirmationDialog);
 
 setupConfirmationDialog = function(dialogHandle, domHandle, dialogText){
     // Setup the options on the dialog
-    dialogHandle.dialog({
-        modal:true,
-        closeOnEscape:false,
-        autoOpen:false,
-        resizable:false,
-        buttons : {
-            "Confirm" : function() {
-                domHandle.get()[0].submit();
-            },
-            "Cancel" : function() {
-                $(this).dialog("close");
-            }
+    dialogHandle.confirmationDialog({
+        autoOpen : false,
+        onConfirm : function(){
+            domHandle.get()[0].submit();
         }
     });
 
@@ -125,21 +126,6 @@ setupConfirmationDialog = function(dialogHandle, domHandle, dialogText){
 
     domHandle.click(function(e){
         e.stopPropagation();
-    });
-}
-
-ajaxSubmit = function(form, successHandler){
-    var type = form.attr("method");
-    var method = form.attr("action");
-    $.ajax({
-        type: form.attr("method"),
-        url: form.attr("action"),
-        data: form.serialize(),
-        dataType: 'json',
-        success: successHandler,
-        error: function(request, status, error_thrown){
-            alert(error_thrown);
-        }
     });
 }
 
@@ -223,6 +209,7 @@ ko.bindingHandlers.iconSecondary = {
 };
 
 ko.protectedObservable = function(initialValue) {
+    
     var result = ko.observable(initialValue);
 
     //expose temp value for binding.  ko.toJS is an easy way to get a clean copy
@@ -274,12 +261,13 @@ ko.protectedObservable = function(initialValue) {
 ko.model = function(initialValue) {
     if(initialValue){
         initialValue.display = function(){
-            alert(ko.toJSON(this));
+            alert(ko.toJSON(initialValue));
         }
     }
     
+    
     // TODO -- add dirty detection
-    var result = ko.observable(initialValue);
+    var result = ko.observable(initialValue); 
      
     result.hasErrors = ko.observable(false);
     
@@ -305,6 +293,28 @@ ko.model = function(initialValue) {
             }
         }
     }
+    
+    // Create a new record on the server
+    result.save = function(url, callback){
+        var wrapper = this;
+        $.ajax({
+          url:  url,
+          type: "post",
+          data: ko.tempToJSON(this),
+          contentType: "application/json",
+          success: function(result) {
+            if(result.errors){
+              wrapper.applyErrors(result.errors);
+            } else {
+              wrapper.commit();
+              if(callback){
+                  callback.call(wrapper, result);
+              }
+              wrapper.reset();
+            }
+          }
+        });
+    }
 
     // Iterate over all properties on the model and commit them
     result.commit = function() {
@@ -315,7 +325,6 @@ ko.model = function(initialValue) {
                 original[prop].commit();
             }
         }
-       
         return result; //for chaining
     };
 
@@ -381,7 +390,7 @@ ko.mapToModel = function(model, json){
 
 ko.mapToModelList = function(modelType, data, viewModel){
     var results = $.map(data, function(json) {
-        var model = new modelType(viewModel);
+        var model = new modelType(viewModel, json.id);
         return ko.mapToModel(model, json);
     });
     return results;

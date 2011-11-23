@@ -47,6 +47,12 @@ class Auction
       push(:bidders => bidder.to_mongo) &&
       bidders << bidder
   end
+  
+  def next_bidder_num
+    max = 0
+    bidders.each { |bidder| max = bidder.number.to_i if bidder.number.to_i > max}
+    return max+1
+  end
 
   ##
   # Validate then save an existing bidder.
@@ -142,4 +148,6 @@ class Auction
       bidders.each { |bidder| nums << bidder.number if bidder.status=="ACTIVE" || bidder.status=="NEW"}
       nums
     end
+    
+    
 end
