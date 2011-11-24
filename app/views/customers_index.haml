@@ -32,7 +32,6 @@
       var id = wrapper().id;
       if(!id()){
         wrapper.save("customers/new.json", function(result){
-            id(result.id);
             viewModel.customers.push(wrapper());
             $("#editDialog").dialog("close");
             $.growlUI("Customer Created"); 

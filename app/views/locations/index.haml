@@ -7,18 +7,14 @@
     ko.applyBindings(viewModel);
   });
 
-  function parse_location(viewModel, json){
-    return new locationModel(viewModel, json.id, json.code, json.name, json.address, json.city, json.state, json.color);
-  }
-
-  function locationModel(viewModel, id, code, name, address, city, state, color){
-    this.id = ko.property(id);
-    this.code = ko.property(code);
-    this.name = ko.property(name);
-    this.address = ko.property(address);
-    this.city = ko.property(city);
-    this.state = ko.property(state);
-    this.color = ko.property(color);
+  function LocationModel(viewModel){
+    this.id = ko.property();
+    this.code = ko.property();
+    this.name = ko.property();
+    this.address = ko.property();
+    this.city = ko.property();
+    this.state = ko.property();
+    this.color = ko.property();
 
     // functions
     this.edit = function(){
@@ -32,46 +28,21 @@
       $("#locationDialog").dialog("close");
     }
 
-    var self = this;
     this.save = function(){
-      if(id == undefined){
+      var wrapper = this;
+      var id = wrapper().id;
+      if(!id()){
         // create the record
-        var self = this;
-        $.ajax({
-          url:  "locations/new.json",
-          type: "post",
-          data: ko.tempToJSON(this),
-          contentType: "application/json",
-          success: function(result) {
-            if(result.errors){
-              viewModel.activeLocation.applyErrors(result.errors);
-            } else {
-              viewModel.activeLocation.commit();
-              viewModel.activeLocation().id(result.id);
-              viewModel.locations.push(viewModel.activeLocation());
-              viewModel.activeLocation.reset();
-              afterLoad();
-              $("#locationDialog").dialog("close");
-              $.growlUI("Location Created"); 
-            }
-          }
+        wrapper.save("locations/new.json", function(result){
+            viewModel.locations.push(wrapper());
+            $("#locationDialog").dialog("close");
+            $.growlUI("Location Created"); 
         });
       } else {
-        // save the record
-        $.ajax({
-          url:  "locations/" + id + ".json",
-          type: "post",
-          data: ko.tempToJSON(this),
-          contentType: "application/json",
-          success: function(result) {
-            if(result.errors){
-              viewModel.activeLocation.applyErrors(result.errors);
-            } else {
-              viewModel.activeLocation.commit().reset();
+        // save existing record
+        wrapper.save("locations/" + id() + ".json", function(result){
               $("#locationDialog").dialog("close");
               $.growlUI("Location Saved"); 
-            }
-          }
         });
       }
     }
@@ -88,7 +59,7 @@
     }, this);
 
     this.newLocation = function() {
-      aNewLocation = new locationModel(this);
+      aNewLocation = new LocationModel(this);
       aNewLocation.edit();
     };
 
@@ -97,16 +68,9 @@
     this.load = function() {
       var self = this;
       $.get("locations.json", function(data) {
-        var allLocations = $.map(data, function(json) {
-            return parse_location(self, json);
-        });
+        var allLocations = ko.mapToModelList(LocationModel, data, self);
         self.locations(allLocations);
-        afterLoad();
       });
-    }
-
-    this.afterLoad = function(){
-      $("button#edit").button({text: false, icons: { primary: "ui-icon-pencil" }});
     }
     
     load();
@@ -119,7 +83,7 @@
   .flash
     .message.error{:'data-bind' => "visible: activeLocation.hasErrors()"}
       Errors occurred while saving the location.
-  %form.form{:id => 'locationForm'}
+  %form.form{:id => 'locationForm', :'data-bind' => 'submit:save'}
     .group
       %label{:for=>:code}Code:
       %span.error{:'data-bind' => "text: code.errors"}
@@ -148,28 +112,26 @@
     .group
       %label{:for=>:color}Color:
       %span.error{:'data-bind' => "text: color.errors"}
-      %input#color{:type=>"text", :'data-bind'=> 'value: color.temp'}
-      
-  %button.form_button{:'data-bind' => "click: save"}
-    Save
-  &nbsp;&nbsp;|&nbsp;&nbsp;
-  =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
+      %input#color{:type=>"text", :'data-bind'=> 'value: color.temp'}  
+    %button.form_button{:type => 'submit'}
+      Save
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
 
 %script{:type => "text/x-jquery-tmpl", :id => "locationRow"}
-  %tr
-    %td
-      %span{:'data-bind' => "text: code"}
-    %td
-      %span{:'data-bind' => "text: name"}
-    %td
-      %span{:'data-bind' => "text: address"}
-    %td
-      %span{:'data-bind' => "text: city"}
-    %td
-      %div{:class=>'color_swatch', :'data-bind' => "style: {backgroundColor: color()}"}
-    %td.last
-      %button#edit{:class => 'small-button', :'data-bind' => "click: edit"} 
-        Edit
+  %td
+    %span{:'data-bind' => "text: code"}
+  %td
+    %span{:'data-bind' => "text: name"}
+  %td
+    %span{:'data-bind' => "text: address"}
+  %td
+    %span{:'data-bind' => "text: city"}
+  %td
+    %div{:class=>'color_swatch', :'data-bind' => "style: {backgroundColor: color()}"}
+  %td.last
+    %span{:'data-bind' => "click: edit, clickBubble: false"}
+      =image_tag 'page_white_edit.png'
 
 .block
   .content
@@ -181,15 +143,12 @@
       %button#reload{:href => "", :'data-bind' => "click : load, icon: 'ui-icon-refresh'"}
         Reload
     .inner
-      %table.table
-        %tr
+      %table.table{:'data-bind' =>  "dataTable: { dataSource: locations, rowTemplate: 'locationRow', columns: ['code', 'name', 'address', 'city', 'color', null], 
+                                         options:{sPaginationType:'full_numbers', } }"}
+        %thead
           %th.first=mat(:location, :code)
           %th=mat(:location, :name)
           %th=mat(:location, :address)
           %th=mat(:location, :city)
           %th=mat(:location, :color)
           %th.last="&nbsp;"
-        %tbody{:'data-bind' => "template: {name:'locationRow', foreach: locations()}"}
-      .actions-bar.wat-cf
-        .actions
-          %span{:'data-bind' => 'text: displayCount'}

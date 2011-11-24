@@ -16,18 +16,8 @@
         }).popup();
   });
 
-  function parseBidders(viewModel, data){
-    var results = $.map(data, function(json) {
-        var bidder = new Bidder(viewModel, json.id);
-        ko.mapToModel(bidder, json);
-        return bidder;
-    });
-    return results;
-  }
-
-  function Bidder(viewModel, id) {
-    this.id = ko.property(id);
-    
+  function Bidder(viewModel) {
+    this.id = ko.property();
     this.bidder_number = ko.property();
     this.company_name = ko.property();
     this.first_name = ko.property();
@@ -66,8 +56,6 @@
       if(!id()){
         // create the record
         wrapper.save("bidders/new.json", function(result){
-            id(result.id);
-            wrapper().customer_id(result.customer_id);
             viewModel.bidders.push(wrapper());
             $("#bidderDialog").dialog("close");
             $.growlUI("Bidder Created"); 
@@ -105,7 +93,7 @@
     this.load = function() {
       var self = this;
       $.get("bidders.json", function(json) {
-          self.bidders(parseBidders(self, json));
+          self.bidders(ko.mapToModelList(Bidder, json, self));
       });
     }
     

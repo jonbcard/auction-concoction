@@ -258,13 +258,7 @@ ko.protectedObservable = function(initialValue) {
     return result;
 };
   
-ko.model = function(initialValue) {
-    if(initialValue){
-        initialValue.display = function(){
-            alert(ko.toJSON(initialValue));
-        }
-    }
-    
+ko.model = function(initialValue) {  
     
     // TODO -- add dirty detection
     var result = ko.observable(initialValue); 
@@ -306,6 +300,7 @@ ko.model = function(initialValue) {
             if(result.errors){
               wrapper.applyErrors(result.errors);
             } else {
+              ko.mapToModel(wrapper(), result);
               wrapper.commit();
               if(callback){
                   callback.call(wrapper, result);
