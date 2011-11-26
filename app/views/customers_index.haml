@@ -20,12 +20,12 @@
     this.edit = function(){
       viewModel.activeCustomer(this);
       $("#editDialog").dialog({title:"Edit Customer",width:"410px"});
-    };
+    }.bind(this);
 
     this.cancel = function(){
       viewModel.activeCustomer.reset();
       $("#editDialog").dialog("close");
-    };
+    }.bind(this);
 
     this.save = function(){
       var wrapper = this;
@@ -45,7 +45,7 @@
     }
   }
 
-  viewModel = function(){
+  var viewModel = function(){
     this.customers = ko.observableArray([]);
     this.activeCustomer = ko.model();
     this.search = ko.observable(new models.SearchCustomer(this));
@@ -54,15 +54,14 @@
       new Customer(this).edit();
     };
 
-    
-    
-  }
-
-  var doSearch = function(){
+    this.doSearch = function(){
+      var self = this;
       search().search(function(result){
-        customers(ko.mapToModelList(Customer, result, viewModel));
+        customers(ko.mapToModelList(Customer, result, self));
       });
+    }.bind(this);
   };
+
 
 -content_for(:context_panel) do
   #filter.block

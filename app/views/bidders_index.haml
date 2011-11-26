@@ -111,7 +111,7 @@
       $.get("bidders.json", function(json) {
           self.bidders(ko.mapToModelList(Bidder, json, self));
       });
-    }
+    }.bind(this);
     
    
     this.doSearch = function(){

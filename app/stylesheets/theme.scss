@@ -119,8 +119,17 @@ hr {
 /* tables */
 .table {
   th {
-    &.clickable:hover {
-      cursor: pointer; }
+    &.sorting:hover {
+      cursor: pointer; 
+    }
+
+    &.sorting_asc:hover {
+      cursor: pointer; ;
+    }
+
+    &.sorting_desc:hover {
+      cursor: pointer; 
+    }
 
     padding: 5px;
     background: #253618;
