@@ -45,14 +45,24 @@
     }
   }
 
-  var viewModel = function(){
+  viewModel = function(){
     this.customers = ko.observableArray([]);
     this.activeCustomer = ko.model();
     this.search = ko.observable(new models.SearchCustomer(this));
+    
     this.newCustomer = function() {
       new Customer(this).edit();
     };
+
+    
+    
   }
+
+  var doSearch = function(){
+      search().search(function(result){
+        customers(ko.mapToModelList(Customer, result, viewModel));
+      });
+  };
 
 -content_for(:context_panel) do
   #filter.block
@@ -61,7 +71,7 @@
       %div{:'data-bind' => "template: {name:'searchForm', data: search}"}
 
 %script{:type => "text/x-jquery-tmpl", :id => "searchForm"}
-  %form.form{:'data-bind' => 'submit: function(){ search(customers) }'}
+  %form.form{:'data-bind' => 'submit: doSearch'}
     =partial 'templates/customer_search'
     %button.form_button{:type => "submit"}
       Search

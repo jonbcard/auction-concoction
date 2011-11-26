@@ -34,7 +34,8 @@ var models = new function() {
                     if(result.errors){
                         alert("Error attempting to query server: " + ko.toJSON(result.errors));
                     } else {
-                        callback(ko.mapToModelList(Customer, result, viewModel));
+                        callback(result);
+                        //callback(ko.mapToModelList(Customer, result, viewModel));
                     }
                 }
             });

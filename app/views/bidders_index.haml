@@ -1,9 +1,5 @@
 :javascript
   $(function(){
-    var viewModel =  biddersViewModel();
-    ko.applyBindings(viewModel);
-
-
     $("button#import").button({
           icons: {
             primary: "ui-icon-transfer-e-w",
@@ -14,6 +10,8 @@
             $(this).hide();
           }
         }).popup();
+    ko.applyBindings(viewModel);
+
   });
 
   function Bidder(viewModel) {
@@ -40,6 +38,16 @@
       this.number(nextNumber);
     }.bind(this);
 
+    this.checkIn = function(){
+      // Check-in a bidder
+      $("#customerSearch").dialog("close");
+      this.customer_id(this.id());
+      this.id("");
+      this.number(this.bidder_number());
+      viewModel.activeBidder(this);
+      $("#bidderDialog").dialog({title:"Edit Bidder",width:"410px"});
+    }.bind(this);
+
     this.edit = function(){
       viewModel.activeBidder(this);
       $("#bidderDialog").dialog({title:"Edit Bidder",width:"410px"});
@@ -58,7 +66,7 @@
         wrapper.save("bidders/new.json", function(result){
             viewModel.bidders.push(wrapper());
             $("#bidderDialog").dialog("close");
-            $.growlUI("Bidder Created"); 
+            $.growlUI("Bidder Added"); 
         });
         
       } else {
@@ -74,6 +82,8 @@
   function biddersViewModel(){
     this.bidders = ko.observableArray([]);
     this.activeBidder = ko.model();
+    this.search = ko.observable();
+    this.searchResults = ko.observableArray([]);
     this.showInactive = new ko.observable(false);
 
     // view model functions
@@ -88,6 +98,12 @@
       aNewBidder.edit();
     };
 
+    this.searchCustomers = function() {
+      this.searchResults([]);
+      this.search(new models.SearchCustomer(this));
+      $("#customerSearch").dialog({title:"Check-In Existing Customer",width:"710px"});
+    };
+
     // Load the initial state from server
     
     this.load = function() {
@@ -97,14 +113,58 @@
       });
     }
     
+   
+    this.doSearch = function(){
+        var self = this;
+        search().search(function(result){
+           searchResults(ko.mapToModelList(Bidder, result, self));
+        });
+    }.bind(this);
+
     load();
+  };
 
+  viewModel =  biddersViewModel();
 
-  }
+#customerSearch{:style => "display:none;"}
+  %table
+    %tr
+      %td
+        %fieldset{:style => 'padding: 6px;margin-right: 6px;'}
+          %legend=pat(:search)
+          %div{:'data-bind' => "template: {name:'searchForm', data: search}" }
+      %td{:valign => 'top'}
+        %table.table.search{:'data-bind' =>  "dataTable: { dataSource: searchResults, rowTemplate: 'searchRow', columns: ['last_name','first_name', 'company_name', 'email', 'bidder_number'], 
+                                                    options:{sPaginationType:'full_numbers', bFilter : false, bLengthChange : false, 
+                                                             iDisplayLength:10,
+                                                             oLanguage : {sInfo: 'Showing _START_ to _END_ of _TOTAL_ search results.',
+                                                                          sInfoEmpty: 'Showing 0 of 0 search results.' } } }"}
+          %thead
+            %th.first=mat(:customer, :last_name)
+            %th=mat(:customer, :first_name)
+            %th=mat(:customer, :company_name)
+            %th=mat(:customer, :email)
+            %th.last Bidder #
+
+%script{:type => "text/x-jquery-tmpl", :id => "searchForm"}
+  %form.form{:'data-bind' => "submit: doSearch"}
+    =partial 'templates/customer_search'
+    %button.form_button{:type => "submit"}=pat(:Search)
+
+%script{:type => "text/x-jquery-tmpl", :id => "searchRow"}
+  %td{:'data-bind' => 'click : checkIn'}
+    %span{:'data-bind' => "text: last_name"}
+  %td{:'data-bind' => 'click : checkIn'}
+    %span{:'data-bind' => "text: first_name"}
+  %td{:'data-bind' => 'click : checkIn'}
+    %span{:'data-bind' => "text: company_name"}
+  %td{:'data-bind' => 'click : checkIn'}
+    %span{:'data-bind' => "text: email"}
+  %td.last{:'data-bind' => 'click : checkIn'}
+    %span{:'data-bind' => "text: bidder_number"}
 
 #bidderDialog{ :style=>"display:none;"}
   %div{:'data-bind' => "template: {name:'bidderForm', data: activeBidder}"}
-
 
 %script{:type => "text/x-jquery-tmpl", :id => "bidderForm"}
   .flash
@@ -159,7 +219,7 @@
       %h2 #{@auction.title} :: Bidders
     #title-menu
       %button#new{:'data-bind' => "click : newBidder, icon: 'ui-icon-plus'"}=pat(:new)
-      %button#checkin{:'data-bind' => "click : newBidder, icon: 'ui-icon-person'"} Check-in
+      %button#checkin{:'data-bind' => "click : searchCustomers, icon: 'ui-icon-person'"} Check-in
       %button#reload{:'data-bind' => "click : load, icon: 'ui-icon-refresh'"}=pat(:reload)
       %button#import{:'data-bind' => "click : load, image: 'ui-icon-transfer-e-w', imageSecondary: 'ui-icon-triangle-1-s'"}
         Import / Export
@@ -180,7 +240,7 @@
             Export To Excel
     .inner
       %table.table{:'data-bind' =>  "dataTable: { dataSource: displayedBidders, rowTemplate: 'bidderRow', columns: ['number', 'first_name', 'last_name', 'status', null], 
-                                         options:{sPaginationType:'full_numbers', } }"}
+                                         options:{sPaginationType:'full_numbers' } }"}
         %thead
           %th.first=mat(:bidder, :number)
           %th=mat(:bidder, :first_name)
