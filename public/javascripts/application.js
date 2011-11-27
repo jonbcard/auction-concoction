@@ -362,6 +362,23 @@ ko.property = function(initialValue, errors) {
     return result;
 };
 
+ko.storedObservable = function(initialValue, name) {
+    if(localStorage.hasOwnProperty(name)){
+        try{
+          initialValue = JSON.parse(localStorage.getItem(name));
+        }catch(e){};
+    } else {
+        localStorage.setItem(name,  JSON.stringify(initialValue));
+    }
+    var result = ko.observable(initialValue);
+    
+    result.subscribe(function(newValue) {
+        localStorage.setItem(name,  JSON.stringify(newValue));
+    });
+    
+    return result;
+}
+
 ko.saveModel = function(model, url, successHandler){
     $.ajax({
         url:  url,

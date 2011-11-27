@@ -41,9 +41,14 @@
     this.checkIn = function(){
       // Check-in a bidder
       $("#customerSearch").dialog("close");
+
+      if(viewModel.autonumber() && !this.bidder_number()){
+        this.getId();
+      } else {
+        this.number(this.bidder_number());
+      }
       this.customer_id(this.id());
       this.id("");
-      this.number(this.bidder_number());
       viewModel.activeBidder(this);
       $("#bidderDialog").dialog({title:"Edit Bidder",width:"410px"});
     }.bind(this);
@@ -85,6 +90,7 @@
     this.search = ko.observable();
     this.searchResults = ko.observableArray([]);
     this.showInactive = new ko.observable(false);
+    this.autonumber = ko.storedObservable(false,"bidder.autoNumber");
 
     // view model functions
     this.displayedBidders = ko.dependentObservable(function() {
@@ -95,6 +101,9 @@
 
     this.newBidder = function() {
       aNewBidder = new Bidder(this);
+      if(this.autonumber()){
+        aNewBidder.getId();
+      }
       aNewBidder.edit();
     };
 
@@ -212,6 +221,9 @@
         .group
           %label Show Inactive?
           %input{:type => 'checkbox', :'data-bind' => 'checked: showInactive'}
+        .group
+          %label Auto-number?
+          %input{:type => 'checkbox', :'data-bind' => 'checked: autonumber'}
 
 .block
   .content

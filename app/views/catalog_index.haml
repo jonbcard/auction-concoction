@@ -189,6 +189,7 @@
         %thead
           %th.first=mat(:catalog, :number)
           %th=mat(:catalog, :description)
+          %th=mat(:catalog, :quantity)
           %th.last="&nbsp;"
 
 %script{:type => "text/x-jquery-tmpl", :id => "itemRow"}
@@ -196,6 +197,8 @@
     %span{:'data-bind' => "text: number"}
   %td
     %span{:'data-bind' => "text: description"}
+  %td
+    %span{:'data-bind' => "text: quantity"}
   %td.last
     %span.clickable{:'data-bind' => "click: edit"}
       =image_tag 'page_white_edit.png', :title => pat(:edit)

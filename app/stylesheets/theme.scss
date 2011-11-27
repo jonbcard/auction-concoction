@@ -100,6 +100,17 @@ hr {
     padding: 5px; }}
 
 /* pagination */
+.dataTables_paginate .paginate_button {
+  &:hover {
+    color: $white;
+    background: #262626; 
+    cursor: pointer;
+  }
+}
+.dataTables_paginate .paginate_active {
+  color: $white;
+  background: #262626; 
+}
 
 .pagination span.current {
   background: #262626;
