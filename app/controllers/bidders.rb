@@ -1,7 +1,7 @@
 AuctionNow.controllers :bidders, :parent => :auctions do
 
   before do
-    @auction = Auction.find(params[:auction_id])
+    @details = Auction.find(params[:auction_id]).details
   end
   
   # Regular browser endpoints
@@ -10,13 +10,13 @@ AuctionNow.controllers :bidders, :parent => :auctions do
       when :html
         render 'bidders_index'
       when :json
-        @auction.bidders.to_json
+        @details.bidders.to_json
     end
   end
   
   get :next_number, :provides => [:json] do
     # TODO: better support for multi-user registration w/ reservation system
-    val = @auction.next_bidder_num
+    val = @details.next_bidder_num
     return {:next => val}.to_json
   end
 
@@ -38,7 +38,7 @@ AuctionNow.controllers :bidders, :parent => :auctions do
     @customer.save!
     @bidder.customer_id = @customer.id
     
-    if @auction.add_bidder(@bidder)
+    if @details.add_bidder(@bidder)
       return @bidder.to_json
     else
       # Weird repitition. Right now this is because the add_bidder call does
@@ -64,7 +64,7 @@ AuctionNow.controllers :bidders, :parent => :auctions do
     
     @customer.save!
     
-    if @auction.update_bidder(@bidder)
+    if @details.update_bidder(@bidder)
       return @bidder.to_json
     else
       return {:errors => @bidder.errors}.to_json
@@ -72,7 +72,7 @@ AuctionNow.controllers :bidders, :parent => :auctions do
   end
 
   get :checkout, :with=> :id, :provides => [:html, :pdf] do
-    bidder = @auction.bidders.find(params[:id])
+    bidder = @details.bidders.find(params[:id])
     @receipt =  !bidder.receipt.nil? ? bidder.receipt : bidder.create_receipt
     case content_type
       when :html    
@@ -84,7 +84,7 @@ AuctionNow.controllers :bidders, :parent => :auctions do
   end
 
   post :checkout, :with => :id, :provides => :html do
-    bidder = @auction.bidders.find(params[:id])
+    bidder = @details.bidders.find(params[:id])
     # TODO : add some sort of checksum to make sure bidder has not changed
     bidder.checkout
     flash[:notice] = 'Bidder successfully checked out.'

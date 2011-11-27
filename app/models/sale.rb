@@ -10,7 +10,7 @@ class Sale
   key  :quantity,     Integer, :required => true
   key  :sale_time,    Time,    :required => true
   
-  embedded_in :auction
+  embedded_in :auction_details
   
   # Validations
   # Why is the lot # not required unique? The same lot #

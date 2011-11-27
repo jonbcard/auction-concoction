@@ -90,7 +90,7 @@
     this.search = ko.observable();
     this.searchResults = ko.observableArray([]);
     this.showInactive = new ko.observable(false);
-    this.autonumber = ko.storedObservable(false,"bidder.autoNumber");
+    this.autonumber = ko.storedObservable(false, "bidder.autoNumber");
 
     // view model functions
     this.displayedBidders = ko.dependentObservable(function() {
@@ -228,7 +228,7 @@
 .block
   .content
     #title
-      %h2 #{@auction.title} :: Bidders
+      %h2 #{@details.auction.title} :: Bidders
     #title-menu
       %button#new{:'data-bind' => "click : newBidder, icon: 'ui-icon-plus'"}=pat(:new)
       %button#checkin{:'data-bind' => "click : searchCustomers, icon: 'ui-icon-person'"} Check-in

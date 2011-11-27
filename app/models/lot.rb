@@ -9,13 +9,13 @@ class Lot
   key  :high,         Money
   key  :qty_available,Integer, :required => true
   
-  embedded_in :auction
+  embedded_in :auction_details
 
   #validate :validate_number
 
   private
     def validate_number
-      auction.lots.each do |lot|
+      auction_details.lots.each do |lot|
         if(lot.id != id && lot.number == number)
           errors.add(:number, "cannot be duplicate")
         end

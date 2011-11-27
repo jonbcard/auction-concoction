@@ -2,7 +2,7 @@ AuctionNow.controllers :dashboard, :parent => :auctions do
   get :index do
     # /auctions/:auction_id/dashboard"
     print params[:auction_id]
-    @auction = Auction.find(params[:auction_id])
+    @auction = Auction.find(params[:auction_id]).details
     render 'dashboard/index'
   end
 end

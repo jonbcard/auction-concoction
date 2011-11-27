@@ -6,11 +6,10 @@ AuctionNow.controllers :lots, :parent => :auctions do
   include Sinatra::Prawn
   
   before do
-    @auction = Auction.find(params[:auction_id])
+    @auction = Auction.find(params[:auction_id]).details
   end
 
   get :index, :provides => [:html, :json] do
-    # /auctions/#{params[:auction_id]}/bidders"
     case content_type
       when :html
         render 'lots_index'

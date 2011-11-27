@@ -39,10 +39,10 @@
       -if @receipt.new?
         -form_for @receipt, nil, :method => :post, :class => :form,
           :'data-confirm' => "Would you like to complete checkout for this bidder?" do |f|
-          =f.simple_submit("/auctions/#{@auction.id}/bidders", :submit_text => "Checkout")
+          =f.simple_submit("/auctions/#{params[:auction_id]}/bidders", :submit_text => "Checkout")
       -else
         %p Bidder has already been checked-out.
-        =button_to "Return to Bidders", "/auctions/#{@auction.id}/bidders", :method => :get, :class => :button_to
+        =button_to "Return to Bidders", "/auctions/#{params[:auction_id]}/bidders", :method => :get, :class => :button_to
 
 -content_for(:context_panel) do
   #options.block

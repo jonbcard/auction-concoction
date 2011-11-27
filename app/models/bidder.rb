@@ -16,13 +16,13 @@ class Bidder
 
   one  :receipt, :class_name => 'BidderReceipt'
   
-  embedded_in :auction
+  embedded_in :auction_details
 
   validate :validate_status
 
   def create_receipt
     bidder_receipt = BidderReceipt.new(
-      :auction    => auction,
+      :auction    => auction_details.auction,
       :bidder_id  => id,
       :number     => number,
       :first_name => first_name,
@@ -45,7 +45,7 @@ class Bidder
 
     self.status = "INACTIVE"
     self.receipt = receipt
-    auction.update_bidder(self)
+    auction_details.update_bidder(self)
     receipt
   end
 
@@ -57,6 +57,6 @@ class Bidder
     end
 
     def all_sales
-      auction.sales.find_all {|s| s.bidder == number}
+      auction_details.sales.find_all {|s| s.bidder == number}
     end
 end

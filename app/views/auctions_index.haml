@@ -62,7 +62,7 @@
   }, viewModel);
 
   // Load the initial state from server
-  $.get("auctions.json", function(data) {
+  $.get("auctions/all.json", function(data) {
     
     var allAuctions = $.map(data, function(json) {
       return new auction(json.id, json.title, json.start, json.end, json.description, json.location_id);

@@ -55,8 +55,8 @@
   }
 
   var viewModel = {
-      autoNumber: new ko.observable(false),
-      showLowHigh: new ko.observable(false),
+      autoNumber: new ko.storedObservable(false, "lot.autoNumber"),
+      showLowHigh: new ko.storedObservable(false, "lot.showLowHigh"),
       currentLot: new ko.observable(new models.Lot()),
       lastErrorsFull: new ko.observable(""),
       lots: new ko.observableArray([]),
@@ -134,7 +134,7 @@
 .block
   .content
     #title
-      %h2.title #{@auction.title} :: Lots
+      %h2.title #{@auction.auction.title} :: Lots
     #title-menu
       %button.print{:onClick => "window.open('lots/catalog.pdf','mywindow','width=600,height=800')"}
         View/Print Catalog
@@ -148,7 +148,7 @@
           %a{:href => '#catalog'}
             By Catalog Number
     .inner
-      %form.form{:id => 'lot',:method => 'post', :action=> "/auctions/#{@auction.id}/lots/new"}
+      %form.form{:id => 'lot',:method => 'post', :action=> "/auctions/#{params[:auction_id]}/lots/new"}
         %table.table{:'data-bind' =>  "dataTable: { dataSource: lots, rowTemplate: 'lotsListTemplate', columns: ['number', 'consignee_text', 'description', 'low','high','qty_available',null], 
                        options:{'sPaginationType':'full_numbers','bSort': false}}"}
           %thead

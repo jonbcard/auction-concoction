@@ -132,7 +132,7 @@
 .block
   .content
     #title
-      %h2.title #{@auction.title} :: Sales
+      %h2.title #{@auction.auction.title} :: Sales
     #title-menu
       %button#mode
         Entry Mode
@@ -146,7 +146,7 @@
     
     .inner
       %form.form{:id => 'sale',:method => 'post', :autocomplete => "false",
-                 :action=>"/auctions/#{@auction.id}/sales/new"}
+                 :action=>"/auctions/#{params[:auction_id]}/sales/new"}
         %table.table{:'data-bind' =>  "dataTable: { dataSource: sales, rowTemplate: 'saleRow', columns: ['lot', 'consignee_text', 'description', 'bidder', 'price', 'quantity', null], 
                        options:{'sPaginationType':'full_numbers','bSort': false}}"}
           %thead
