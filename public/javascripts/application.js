@@ -130,41 +130,10 @@ setupConfirmationDialog = function(dialogHandle, domHandle, dialogText){
 }
 
 // ---- Custom Knockout JS bindings and stuff ----
-
-ko.utils.stringStartsWith = function (string, startsWith) {        
-    string = string || "";
-    if (startsWith.length > string.length)
-        return false;
-    return string.substring(0, startsWith.length) === startsWith;
-};
-
-ko.isProperty = function(instance){
-    return ((typeof instance == "function") && instance.__ko_proto__ === ko.property);
-}
-
-ko.tempToJS = function(rootObject) {   
-    var unwrappedObject = ko.utils.unwrapObservable(rootObject);
-    var outputProperties = {};
-    for (var prop in unwrappedObject) {
-        if(ko.isProperty(unwrappedObject[prop])){
-            outputProperties[prop] = unwrappedObject[prop].temp;
-        }
-    }
-    return outputProperties;
-}
-
-ko.tempToJSON = function(rootObject) {
-    var plainJavaScriptObject = ko.tempToJS(rootObject);
-    return ko.utils.stringifyJson(plainJavaScriptObject);
-};
-
 ko.bindingHandlers.confirm = {
     init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
         var valueUnwrapped = ko.utils.unwrapObservable(valueAccessor());
         setupConfirmationDialog($("#dialog"), $(element), valueUnwrapped);
-    },
-    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-    // NO-OP - for now, no support for dynamic dialog text.
     }
 }
 
@@ -172,9 +141,6 @@ ko.bindingHandlers.mask = {
     init: function (element, valueAccessor) {
         var value = valueAccessor();
         $(element).mask(ko.utils.unwrapObservable(value));
-    },
-    update: function (element, valueAccessor) {
-    // Nothing to do
     }
 };
 
@@ -202,10 +168,45 @@ ko.bindingHandlers.iconSecondary = {
                 secondary: ko.utils.unwrapObservable(value)
             }
         });
-    },
-    update: function (element, valueAccessor) {
-    // Nothing to do
     }
+};
+
+ko.bindingHandlers.type = {
+    init: function (element, valueAccessor) {
+        var value = valueAccessor();
+        if(value == 'date'){
+            $(element).datepicker({
+                dateFormat: 'yy-mm-dd'
+            });
+        }
+    }
+}
+
+ko.utils.stringStartsWith = function (string, startsWith) {        
+    string = string || "";
+    if (startsWith.length > string.length)
+        return false;
+    return string.substring(0, startsWith.length) === startsWith;
+};
+
+ko.isProperty = function(instance){
+    return ((typeof instance == "function") && instance.__ko_proto__ === ko.property);
+}
+
+ko.tempToJS = function(rootObject) {   
+    var unwrappedObject = ko.utils.unwrapObservable(rootObject);
+    var outputProperties = {};
+    for (var prop in unwrappedObject) {
+        if(ko.isProperty(unwrappedObject[prop])){
+            outputProperties[prop] = unwrappedObject[prop].temp;
+        }
+    }
+    return outputProperties;
+}
+
+ko.tempToJSON = function(rootObject) {
+    var plainJavaScriptObject = ko.tempToJS(rootObject);
+    return ko.utils.stringifyJson(plainJavaScriptObject);
 };
   
 ko.model = function(initialValue) {  

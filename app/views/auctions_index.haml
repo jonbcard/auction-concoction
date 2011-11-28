@@ -163,6 +163,7 @@
     }
 
     this.remove = function(){
+      var self = this;
       var text = "Are you sure you want to remove this Auction record? Note that " 
           + "it will only be possible to remove the record if it has no associated data.";
       $("#dialog").html(text);
@@ -170,15 +171,15 @@
         autoStart: true,
         onConfirm: function(){
           $.ajax({
-            url:  "auctions/destroy/" + id + "?_method=delete",
+            url:  "auctions/destroy/" + self.id() + "?_method=delete",
             type: "get",
             success: function(result) {
-              viewModel.auctions.remove(function(item) { return item.id() == id });
+              viewModel.auctions.remove(function(item) { return item.id() == self.id() });
             }
           });
         }
       });
-    };
+    }.bind(this);
   }
 
   $(function(){
@@ -256,17 +257,17 @@
         %td{:style => 'width:120px'}
           .group
             =label_tag :auction_date
-            %input.text_field{:'data-type' => 'date', :'data-bind' => 'value: auction_date'}
+            %input.text_field{:'data-bind' => 'value: auction_date, type: "date"'}
         %td{:style => 'width:60px;padding-left:8px'}
           .group
             =label_tag :start
-            %input.text_field{:'data-type' => '_time', :'data-bind' => 'value: start_time'}
+            %input.text_field{:'data-bind' => 'value: start_time'}
         %td{:style => 'padding-left:8px'}
           to
         %td{:style => 'width:60px;padding-left:8px'}
           .group
             =label_tag :end
-            %input.text_field{ :'data-type' => '_time', :'data-bind' => 'value: end_time'}
+            %input.text_field{:'data-bind' => 'value: end_time'}
     .group
       %label{:for=>:description}Description:
       %span.error{:'data-bind' => "text: description.errors"}
