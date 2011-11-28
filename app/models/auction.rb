@@ -2,12 +2,11 @@ class Auction
   include MongoMapper::Document
   
   # Keys
-  key :title,            String
-  key :start,            Time
-  key :end,              Time
+  key :title,            String,           :required => true
+  key :start,            Time,             :required => true
+  key :end,              Time,             :required => true          
   key :description,      String
   key :location_id,      BSON::ObjectId
-  key :auction_id,       BSON::ObjectId
 
   key :active_bidders,      Integer
   key :total_lots_created,  Integer

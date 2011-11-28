@@ -24,8 +24,7 @@
   viewModel = {
     locations : #{@locations.to_json},
     auctions : ko.observableArray([]),
-    activeAuction : ko.protectedObservable(),
-    errors : ko.observable("")
+    activeAuction : ko.model(),
   }
 
   viewModel.getAuctionById = function(id){
@@ -63,10 +62,7 @@
 
   // Load the initial state from server
   $.get("auctions/all.json", function(data) {
-    
-    var allAuctions = $.map(data, function(json) {
-      return new auction(json.id, json.title, json.start, json.end, json.description, json.location_id);
-    });
+    var allAuctions = ko.mapToModelList(auction, data, viewModel);
     viewModel.auctions(allAuctions);
   });
   
@@ -76,22 +72,17 @@
     $('#calendar').fullCalendar("refetchEvents");
   });
 
-  function parse_errors(json){
-    return new auction_errors(json.id, json.title, json.start, json.end, json.location);
-  }
-
   function formatDate(date,format){
     return $.fullCalendar.formatDate($.fullCalendar.parseDate(date), format);
   }
 
-
-  function auction(id, title, start, end, description, location_id){
-    this.id = ko.observable(id);
-    this.title = ko.observable(title);
-    this.start = ko.observable(start);
-    this.end = ko.observable(end);
-    this.description = ko.observable(description);
-    this.location_id = ko.observable(location_id);
+  function auction(viewModel){
+    this.id = ko.property();
+    this.title = ko.property();
+    this.start = ko.property();
+    this.end = ko.property();
+    this.description = ko.property();
+    this.location_id = ko.property();
 
     var self = this;
 
@@ -107,7 +98,7 @@
             return formatDate(self.start(), 'yyyy-MM-dd');
         },
         write: function (value) {
-            self.start(value + " " + self.start_time());
+            self.start.temp = value + " " + self.start_time();
         },
         owner : viewModel
     });
@@ -117,7 +108,7 @@
             return formatDate(self.start(), 'HH:mm');
         },
         write: function (value) {
-            self.start(self.auction_date() + " " + value);
+            self.start.temp = self.auction_date() + " " + value;
         },
         owner : viewModel
     });
@@ -127,7 +118,7 @@
             return formatDate(self.end(), 'HH:mm');
         },
         write: function (value) {
-            self.end(self.auction_date() + " " + value)
+            self.end.temp = self.auction_date() + " " + value
         },
         owner : viewModel
     });
@@ -138,60 +129,35 @@
     });
 
     this.edit = function(){
-      viewModel.activeAuction.init(this);
+      viewModel.activeAuction(this);
       $("#editDialog").dialog({
         title: "Edit Auction",
         modal: true
       });
-    }
+    }.bind(this);
 
     this.cancel = function(){
-      viewModel.errors("");
-      viewModel.activeAuction.clear();;
+      viewModel.activeAuction.reset();
       $("#editDialog").dialog("close");
-    }
+    }.bind(this);
 
     this.save = function(){
-      if(id == undefined){
+      var wrapper = this;
+      var id = wrapper().id;
+      if(!id()){
         // create the record
-        var self = this;
-        $.ajax({
-          url:  "auctions/new.json",
-          type: "post",
-          data: ko.toJSON(this),
-          contentType: "application/json",
-          success: function(result) {
-            if(result.errors){
-              viewModel.errors(parse_errors(result.errors));
-            } else {
-              viewModel.errors("");
-              viewModel.activeAuction.commit();
-              viewModel.activeAuction().id(result.id);
-              viewModel.auctions.push(viewModel.activeAuction());
-              viewModel.activeAuction.clear();
-              $("#editDialog").dialog("close");
-              $.growlUI('Auction Created'); 
-            }
-          }
+        wrapper.save("auctions/new.json", function(result){
+            viewModel.auctions.push(viewModel.activeAuction());            
+            $("#editDialog").dialog("close");
+            $.growlUI('Auction Created'); 
         });
+        
       } else {
         // save the record
-        $.ajax({
-          url:  "auctions/" + id + ".json",
-          type: "post",
-          data: ko.toJSON(this),
-          contentType: "application/json",
-          success: function(result) {
-            if(result.errors){
-              viewModel.errors(parse_errors(result.errors));
-            } else {
-              viewModel.errors("");
-              viewModel.activeAuction.commit().clear();
-              $("#editDialog").dialog("close");
-              $('#calendar').fullCalendar("refetchEvents");
-              $.growlUI('Auction Saved'); 
-            }
-          }
+        wrapper.save("auctions/" + id() + ".json", function(){
+            $("#editDialog").dialog("close");
+            $('#calendar').fullCalendar("refetchEvents");
+            $.growlUI('Auction Saved'); 
         });
       }
     }
@@ -215,16 +181,6 @@
     };
   }
 
-  function auction_errors(id, title, auction_date, start, end, description, location_id){
-    this.id = ko.observable(id);
-    this.title = ko.observable(title);
-    this.auction_date = ko.observable(auction_date);
-    this.start = ko.observable(start);
-    this.end = ko.observable(start);
-    this.description = ko.observable(description);
-    this.location_id = ko.observable(location_id);
-  }
-
   $(function(){
     ko.applyBindings(viewModel);
     
@@ -246,10 +202,16 @@
         if(allDay){  
           var startTime = $.fullCalendar.formatDate(start, 'yyyy-MM-dd')  + ' 12:00';
           var endTime = $.fullCalendar.formatDate(start, 'yyyy-MM-dd' ) + ' 15:00';
-          new auction(null, null, startTime, endTime).edit();
+          var newAuc = new auction(viewModel);
+          newAuc.start(startTime);
+          newAuc.end(endTime);
+          newAuc.edit();
 
         } else {
-          new auction(null, null, startTime, endTime).edit();
+          var newAuc = new auction(viewModel);
+          newAuc.start(startTime);
+          newAuc.end(endTime);
+          newAuc.edit();
         }
       },
       events : function(start, end, callback) { 
@@ -271,23 +233,23 @@
   }
 
 #editDialog{ :style=>"display:none;"}
-  %div{:'data-bind' => "template: {name:'auctionForm', data: activeAuction.temp}"}
+  %div{:'data-bind' => "template: {name:'auctionForm', data: activeAuction}"}
 
 %script{:type => "text/x-jquery-tmpl", :id => "auctionForm"}
   .flash
-    .message.error{:'data-bind' => "visible: viewModel.errors()"}
+    .message.error{:'data-bind' => "visible: viewModel.activeAuction.hasErrors()"}
       Errors occurred while saving the auction record.
-  %form.form{:id => 'auctionForm'}
+  %form.form{:id => 'auctionForm', :'data-bind' => "submit: save"}
     .group
       %label{:for=>:title}Title:
-      %span.error{:'data-bind' => "text: viewModel.errors().title"}
+      %span.error{:'data-bind' => "text: title.errors"}
       %br
-      %input.text_field{:'data-bind' => "value: title"}
+      %input.text_field{:'data-bind' => "value: title.temp"}
     .group
       %label{:for=>:location_id}Location:
-      %span.error{:'data-bind' => "text: viewModel.errors().location_id"}
+      %span.error{:'data-bind' => "text: location_id.errors"}
       %br
-      %select{:'data-bind' => "options: viewModel.locations, optionsText: 'name', optionsValue:'id', value:location_id, optionsCaption: 'Choose Location...'"}
+      %select{:'data-bind' => "options: viewModel.locations, optionsText: 'name', optionsValue:'id', value:location_id.temp, optionsCaption: 'Choose Location...'"}
       
     %table
       %tr
@@ -307,13 +269,13 @@
             %input.text_field{ :'data-type' => '_time', :'data-bind' => 'value: end_time'}
     .group
       %label{:for=>:description}Description:
-      %span.error{:'data-bind' => "text: viewModel.errors().description"}
+      %span.error{:'data-bind' => "text: description.errors"}
       %br
-      %textarea.text_area{:'data-bind' => 'value: description'}
-  %button.form_button{:'data-bind' => "click: save"}
-    Save
-  &nbsp;&nbsp;|&nbsp;&nbsp;
-  =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
+      %textarea.text_area{:'data-bind' => 'value: description.temp'}
+    %button.form_button{:type => 'submit'}
+      Save
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
 
 %script{:type => "text/x-jquery-tmpl", :id => "auctionRow"}
   %tr.clickable{:onClick => "document.location=\'auctions/${id}/bidders\'", 'data-bind'=>"style: { fontWeight: is_today() ? 'bold' : '' }"}

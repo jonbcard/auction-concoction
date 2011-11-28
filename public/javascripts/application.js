@@ -207,56 +207,6 @@ ko.bindingHandlers.iconSecondary = {
     // Nothing to do
     }
 };
-
-ko.protectedObservable = function(initialValue) {
-    
-    var result = ko.observable(initialValue);
-
-    //expose temp value for binding.  ko.toJS is an easy way to get a clean copy
-    result.temp = ko.observable(ko.toJS(initialValue));
-    result.temp.model = result;
-
-    //apply edits to the original (only goes one level deep)
-    result.commit = function() {
-        var original = result(),
-        edited = result.temp();
-
-        for (var prop in edited) {
-            if (original.hasOwnProperty(prop)) {
-                if (ko.isWriteableObservable(original[prop])) {
-                    original[prop](edited[prop]);
-                //ignore dependentObservables + methods
-                } else if (typeof original[prop] !== "function") {
-                    original[prop] = edited[prop];
-                }
-            }
-        }
-
-        return result; //for chaining
-    };
-
-    //start over with a new value
-    result.init = function(newValue) {
-        result.temp(ko.toJS(newValue));
-        result(newValue);
-        return result;  //for chaining
-    }
-
-    //revert back to a fresh copy
-    result.reset = function(newValue){
-        result.temp(ko.toJS(result));
-        return result;  //for chaining
-    };
-
-    //clear it out, so it is ready for a new one
-    result.clear = function() {
-        result.temp(null);
-        result(null);
-        return result; //for chaining
-    }
-
-    return result;
-};
   
 ko.model = function(initialValue) {  
     
