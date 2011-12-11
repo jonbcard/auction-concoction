@@ -11,52 +11,42 @@
         }
     }).popup();
 
-    $("#lot_number").focus();
+    $("#lot_num").focus();
 
 
     $("#lot").validate({
-       // the remote valation isn't playing well with onkeyup
-       onkeyup: false,
        submitHandler: function() {
          viewModel.addLot();
-       },
-       errorPlacement: function(error, element) {
-         var errorDiv = element.next();
-         error.appendTo(errorDiv);
-       },
-       highlight: function(element, errorClass, validClass) {
-         $(element).addClass(errorClass).removeClass(validClass);
-         var errorDiv = $(element).next();
-         $(errorDiv).show();
-       },
-       unhighlight: function(element, errorClass, validClass) {
-         if(element != null){
-           $(element).removeClass(errorClass).addClass(validClass);
-           var errorDiv = $(element).next();
-           $(errorDiv).hide();
-         }
        }
     });
-    jQuery.validator.addMethod("uniqueLot", function(value, element) {
+    $.validator.addMethod("uniqueLot", function(value, element) {
         return !viewModel.lotNumberExists(value);
     }, "Duplicate lot");
-    $("#lot_number").rules("add", {uniqueLot : true} );
+    $("#lot_num").rules("add", {uniqueLot : true} );
+
     ko.applyBindings(viewModel);
  
   });
 
   models.Lot.prototype.remove = function(){
-      var self = this;
-      $.post("lots/destroy/" + this.id(), function() {
+    var self = this;
+    var text = "Are you sure you want to remove this Lot record from the auction?";
+    $("#dialog").html(text);
+    $("#dialog").confirmationDialog({
+      autoStart: true,
+      onConfirm: function(){
+        $.post("lots/destroy/" + self.id(), function() {
           viewModel.lots.remove(function(item) { return item.id() == self.id() });
           $.growlUI("Lot Removed",null,1000); 
-      });
-      
+        });
+      }
+    });
   }
 
   var viewModel = {
       autoNumber: new ko.storedObservable(false, "lot.autoNumber"),
       showLowHigh: new ko.storedObservable(false, "lot.showLowHigh"),
+      fromCatalog: new ko.storedObservable(false, "lot.fromCatalog"),
       currentLot: new ko.observable(new models.Lot()),
       lastErrorsFull: new ko.observable(""),
       lots: new ko.observableArray([]),
@@ -78,7 +68,7 @@
                     viewModel.currentLot().number(nextLotNumber());
                     $('#lot_consignee').focus();
                 } else {
-                    $('#lot_number').focus();
+                    $('#lot_num').focus();
                 }
             }
           }
@@ -148,13 +138,14 @@
           %a{:href => '#catalog'}
             By Catalog Number
     .inner
-      %form.form{:id => 'lot',:method => 'post', :action=> "/auctions/#{params[:auction_id]}/lots/new"}
-        %table.table{:'data-bind' =>  "dataTable: { dataSource: lots, rowTemplate: 'lotsListTemplate', columns: ['number', 'consignee_text', 'description', 'low','high','qty_available',null], 
+      %form#lot.form{:action=> "/auctions/#{params[:auction_id]}/lots/new"}
+        %table.table{:'data-bind' =>  "dataTable: { dataSource: lots, rowTemplate: 'lotsListTemplate', columns: ['catalog_number', 'number', 'consignee_text', 'description', 'low','high','qty_available',null], 
                        options:{'sPaginationType':'full_numbers','bSort': false}}"}
           %thead
             %tr
               %th.first Lot #
-              %th Consginee
+              %th{:'data-bind' => "visible : fromCatalog"} Catalog #
+              %th Consignee
               %th Description
               %th{:'data-bind' => "visible : showLowHigh"}=pat(:low)
               %th{:'data-bind' => "visible : showLowHigh"}=pat(:high)
@@ -162,37 +153,42 @@
               %th.last
             %tr
               %td{:valign => 'top'}
-                %input.text_field.required{:id => 'lot_number', :type => 'text', 
-                       :name => 'lot[number]', :class => "text_field", :style => "width:50px",
-                       :'data-bind' => "value: currentLot().number"  }
+                %input#lot_num.text_field.required{:style => "width:50px", 
+                       :'data-bind' => "value: currentLot().number, uniqueName: true"  }
+                .floating-error
+              %td{:valign => 'top', :'data-bind' => "visible : fromCatalog"}
+                %input#catalog_num.text_field{:style => "width:50px",
+                       :'data-bind' => "value: currentLot().catalog_number, uniqueName: true"  }
                 .floating-error
               %td{:valign => 'top'}
-                %input.text_field{:type => 'hidden', :name => 'lot[consignee_id]',
-                        :'data-bind'=>'value:currentLot().consignee_id'}
-                %input.text_field.required{:id => 'lot_consignee', :name => 'lot[consignee]',
-                       :style => "width:50px", :'data-bind'=>'value:currentLot().consignee_code'}
-                
+                %input#lot_consignee.text_field.required{:name => 'lot_consignee', :style => "width:50px", 
+                        :'data-bind'=>'value:currentLot().consignee_code, uniqueName: true'}
                 .floating-error
                 %br
                 %span{:'data-bind' => 'text:currentLot().consignee_text()'}
               %td{:valign => 'top'}
-                %textarea.text_area.required{:id => 'lot_description', :name => 'lot[description]',
-                       :style => "width:200px", :'data-bind'=>'value:currentLot().description' }
+                %textarea#lot_desc.text_area.required{:style => "width:200px", 
+                        :'data-bind'=>'value:currentLot().description, uniqueName: true' }
                 .floating-error
               %td{:valign => 'top', :'data-bind' => "visible : showLowHigh"}
-                %input.text_field{:type => 'text', :style => "width:50px", :'data-bind'=>'value:currentLot().low'}
+                %input#lot_high.text_field{:style => "width:50px", 
+                        :'data-bind'=>'value:currentLot().low, uniqueName: true'}
                 .floating-error
               %td{:valign => 'top', :'data-bind' => "visible : showLowHigh"}
-                %input.text_field{:type => 'text', :style => "width:50px", :'data-bind'=>'value:currentLot().high'}
+                %input#lot_low.text_field{:style => "width:50px", 
+                        :'data-bind'=>'value:currentLot().high, uniqueName: true'}
                 .floating-error
               %td{:valign => 'top'}
-                %input.text_field.required{:id => 'qty', :type => 'text',
-                       :name => 'lot[qty_available]', :style => "width:30px", :'data-bind'=>'value:currentLot().qty_available' }
+                %input#lot_qty.text_field.required{:style => "width:30px", 
+                      :'data-bind'=>'value:currentLot().qty_available, uniqueName: true' }
                 .floating-error
               %td{:valign => 'top'}
-                %input.form_button{:id => 'submit', :type => 'submit', :name => 'Submit',:tabindex => "4"}
+                %button.form_button{:type => 'submit'}
+                  Save
 
 %script{:type => "text/html", :id => "lotsListTemplate"}
+  %td
+    %span{:'data-bind' => "text: catalog_number"}
   %td
     %span{:'data-bind' => "text: number"}
   %td

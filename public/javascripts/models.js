@@ -1,11 +1,4 @@
-var models = new function() {
-    this.BaseModel = {
-        display : function(){
-            alert(ko.tempToJSON(this));
-        }
-    }
-    
-    
+var models = new function() {       
     /////////// Customers ////////////////
     this.SearchCustomer = function(viewModel){
         this.bidder_number = ko.observable();
@@ -90,6 +83,55 @@ var models = new function() {
         }
         return result;
     };
+    
+    /////////// Catalog ////////////////
+    
+    /** Lazy-loaded catalog list */
+    var catalogItems = [];
+    
+    /** Load a consignee (by ID) from either the server or lazy cache */
+    this.getCatalogItemById = function(id){
+        // Early out when no ID is provided
+        if(!id){
+            return null;
+        }
+        
+        var result = ko.utils.arrayFirst(catalogItems, 
+            function(c) {
+                return c.id == id;
+            }
+            );
+            
+        if(!result){
+            result = util.getJSON("/catalog/" + id + ".json");
+            if(result){
+                catalogItems.push(result);
+            }
+        }
+        return result;
+    };
+    
+    /** Load a catalog (by Code) from either the server or lazy cache */
+    this.getCatalogItemByCode = function(number){
+        // Early out when no Code is provided
+        if(!number){
+            return null;
+        }
+        
+        var result = ko.utils.arrayFirst(catalogItems, 
+            function(c) { 
+                return c.number == number; 
+            }
+            );
+
+        if(!result){
+            result = util.getJSON("/catalog/number/" + number);
+            if(result){
+                catalogItems.push(result);
+            }
+        }
+        return result;
+    };
 
 
     /////////// Customers ////////////////
@@ -116,12 +158,13 @@ var models = new function() {
    
     /////////////// Lots ////////////////////
     this.parseLot = function (json){
-        return new models.Lot(json.id, json.number, json.consignee_id, json.description, json.low, json.high, json.qty_available);
+        return new models.Lot(json.id, json.number, json.catalog_id, json.consignee_id, json.description, json.low, json.high, json.qty_available);
     }
 
-    this.Lot = function(id, number, consignee_id, description, low, high, qty_available){
+    this.Lot = function(id, number, catalog_id, consignee_id, description, low, high, qty_available){
         this.id = ko.property(id)
         this.number = ko.property(number);
+        this.catalog_id = ko.property(catalog_id)
         this.consignee_id = ko.property(consignee_id);
         this.description = ko.property(description);
         this.low = ko.property(low);
@@ -148,10 +191,31 @@ var models = new function() {
                 return (con == undefined ? "" : "(" + con.code + ")" + " " + con.name);
             }, self
             );
-            
+          
+          
+        this.catalog = ko.dependentObservable({
+            read: function () {
+                return models.getCatalogItemById(this.catalog_id());
+            },
+            owner: self
+        });
+        
+        this.catalog_number = ko.dependentObservable({
+            read: function () {
+                var catalog = this.catalog();
+                return (catalog == undefined ? null : catalog.number);
+            },
+            write: function (value) {
+                var catalog = models.getCatalogItemByCode(value);
+                this.catalog_id(catalog == undefined ? null : catalog.id);
+            },
+            owner: self
+        });
+        
         this.reset = function(){
             this.id("");
             this.number("");
+            this.catalog_id("");
             this.consignee_id("");
             this.description("");
             this.low("");

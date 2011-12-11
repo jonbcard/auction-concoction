@@ -143,7 +143,7 @@
           %legend=pat(:search)
           %div{:'data-bind' => "template: {name:'searchForm', data: search}" }
       %td{:valign => 'top'}
-        %table.table.search{:'data-bind' =>  "dataTable: { dataSource: searchResults, rowTemplate: 'searchRow', columns: ['last_name','first_name', 'company_name', 'email', 'bidder_number'], 
+        %table.table.search{:'data-bind' =>  "dataTable: { dataSource: searchResults, rowTemplate: 'searchRow', columns: ['last_name','first_name', 'company_name', 'phone', 'email', 'bidder_number'], 
                                                     options:{sPaginationType:'full_numbers', bFilter : false, bLengthChange : false, 
                                                              iDisplayLength:10,
                                                              oLanguage : {sInfo: 'Showing _START_ to _END_ of _TOTAL_ search results.',
@@ -152,6 +152,7 @@
             %th.first=mat(:customer, :last_name)
             %th=mat(:customer, :first_name)
             %th=mat(:customer, :company_name)
+            %th=mat(:customer, :phone)
             %th=mat(:customer, :email)
             %th.last Bidder #
 
@@ -167,6 +168,8 @@
     %span{:'data-bind' => "text: first_name"}
   %td{:'data-bind' => 'click : checkIn'}
     %span{:'data-bind' => "text: company_name"}
+  %td{:'data-bind' => 'click : checkIn'}
+    %span{:'data-bind' => "text: phone"}
   %td{:'data-bind' => 'click : checkIn'}
     %span{:'data-bind' => "text: email"}
   %td.last{:'data-bind' => 'click : checkIn'}

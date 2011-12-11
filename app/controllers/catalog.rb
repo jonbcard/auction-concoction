@@ -13,8 +13,8 @@ AuctionNow.controllers :catalog do
     return  CatalogItem.find(params[:id]).to_json
   end
   
-  get :code, :with => :code, :provides => :json do
-    result =  CatalogItem.by_code(params[:code]).first
+  get :number, :with => :number, :provides => :json do
+    result =  CatalogItem.by_number(params[:number]).first
     return result ? result.to_json : nil
   end
   

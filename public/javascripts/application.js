@@ -72,6 +72,26 @@ $(function(){
 }).call(this);
 
 // ---- JQuery helper stuff ----
+$.extend( $.validator.defaults, {
+    onkeyup: false,
+    errorPlacement: function(error, element) {
+        var errorDiv = element.next();
+        error.appendTo(errorDiv);
+    },
+    highlight: function(element, errorClass, validClass) {
+        $(element).addClass(errorClass).removeClass(validClass);
+        var errorDiv = $(element).next();
+        $(errorDiv).show();
+    },
+    unhighlight: function(element, errorClass, validClass) {
+        if(element != null){
+            $(element).removeClass(errorClass).addClass(validClass);
+            var errorDiv = $(element).next();
+            $(errorDiv).hide();
+        }
+    }
+});
+
 ConfirmationDialog = $.extend({}, $.ui.dialog.prototype, {
     options: {
         onConfirm: function(){
@@ -243,22 +263,22 @@ ko.model = function(initialValue) {
     result.save = function(url, callback){
         var wrapper = this;
         $.ajax({
-          url:  url,
-          type: "post",
-          data: ko.tempToJSON(this),
-          contentType: "application/json",
-          success: function(result) {
-            if(result.errors){
-              wrapper.applyErrors(result.errors);
-            } else {
-              ko.mapToModel(wrapper(), result);
-              wrapper.commit();
-              if(callback){
-                  callback.call(wrapper, result);
-              }
-              wrapper.reset();
+            url:  url,
+            type: "post",
+            data: ko.tempToJSON(this),
+            contentType: "application/json",
+            success: function(result) {
+                if(result.errors){
+                    wrapper.applyErrors(result.errors);
+                } else {
+                    ko.mapToModel(wrapper(), result);
+                    wrapper.commit();
+                    if(callback){
+                        callback.call(wrapper, result);
+                    }
+                    wrapper.reset();
+                }
             }
-          }
         });
     }
 
@@ -316,7 +336,7 @@ ko.property = function(initialValue, errors) {
 ko.storedObservable = function(initialValue, name) {
     if(localStorage.hasOwnProperty(name)){
         try{
-          initialValue = JSON.parse(localStorage.getItem(name));
+            initialValue = JSON.parse(localStorage.getItem(name));
         }catch(e){};
     } else {
         localStorage.setItem(name,  JSON.stringify(initialValue));

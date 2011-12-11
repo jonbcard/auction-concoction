@@ -9,30 +9,12 @@
     }).popup();
    
     $("#sale").validate({
-       // the remote valation isn't playing well with onkeyup
-       onkeyup: false,
+       messages:{
+         "sale[bidder]" : { remote : "Unregistered number" }
+       },
        submitHandler: function() {
          viewModel.addSale();
        },
-       errorPlacement: function(error, element) {
-         var errorDiv = element.next();
-         error.appendTo(errorDiv);
-       },
-       highlight: function(element, errorClass, validClass) {
-         $(element).addClass(errorClass).removeClass(validClass);
-         var errorDiv = $(element).next();
-         $(errorDiv).show();
-       },
-       unhighlight: function(element, errorClass, validClass) {
-         if(element != null){
-           $(element).removeClass(errorClass).addClass(validClass);
-           var errorDiv = $(element).next();
-           $(errorDiv).hide();
-         }
-       },
-       messages:{
-         "sale[bidder]" : { remote : "Unregistered number" }
-       }
      });
     reset();
     ko.applyBindings(viewModel);
@@ -49,12 +31,18 @@
   }
 
   models.Sale.prototype.remove = function(){
-      var self = this;
-      $.post("sales/destroy/" + this.id(), function() {
+    var self = this;
+    var text = "Are you sure you want to remove this Sale record from the auction?";
+    $("#dialog").html(text);
+    $("#dialog").confirmationDialog({
+      autoStart: true,
+      onConfirm: function(){
+        $.post("sales/destroy/" + self.id(), function() {
           viewModel.sales.remove(function(sale) { return sale.id() == self.id() });
           $.growlUI("Sale Removed",null,1000); 
       });
-      
+      }
+    });
   }
   
   

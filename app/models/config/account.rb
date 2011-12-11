@@ -2,15 +2,13 @@ require 'digest/sha1'
 
 class Account
   include MongoMapper::Document
+  include Authentication
+  
   attr_accessor :password
 
   # Keys
-  key :username,         String
   key :name,             String
   key :surname,          String
-  key :email,            String
-  key :crypted_password, String
-  key :salt,             String
   key :role,             String
 
   # Validations
@@ -21,8 +19,8 @@ class Account
   validates_confirmation_of :password,                   :if => :password_required
   validates_length_of       :username,    :within => 3..25
   validates_uniqueness_of   :username,    :case_sensitive => false
-  validates_uniqueness_of   :email,    :case_sensitive => false
-  validates_format_of       :email,    :with => /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i
+  
+  
   validates_format_of       :role,     :with => /[A-Za-z]/m
 
   # Callbacks
