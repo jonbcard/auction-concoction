@@ -1,37 +1,34 @@
 AuctionNow.controllers :accounts do
 
-  get :index do
-    @accounts = Account.all
-    render 'accounts/index'
+  
+  get :index, :provides => [:html, :json] do
+    case content_type
+      when :html
+        render 'accounts/index'
+      when :json
+        Account.all.to_json
+    end
+  end
+  
+  get :index, :with => :id, :provides => :json do
+    return  Account.find(params[:id]).to_json
   end
 
-  get :new do
-    @account = Account.new
-    render 'accounts/new'
-  end
-
-  post :create do
-    @account = Account.new(params[:account])
+  post :new, :provides => [:json] do
+    @account = Account.new(parse_json(request))
     if @account.save
-      flash[:notice] = 'Account was successfully created.'
-      redirect url(:accounts, :edit, :id => @account.id)
+      return @account.to_json
     else
-      render 'accounts/new'
+      return {:errors => @account.errors}.to_json
     end
   end
 
-  get :edit, :with => :id do
-    @account = Account.find(params[:id])
-    render 'accounts/edit'
-  end
-
-  put :update, :with => :id do
-    @account = Account.find(params[:id])
-    if @account.update_attributes(params[:account])
-      flash[:notice] = 'Account was successfully updated.'
-      redirect url(:accounts, :edit, :id => @account.id)
+  post :index, :with => :id, :provides => :json do
+    @account = Account.new(parse_json(request))
+    if !@account.save
+      return {:errors => @account.errors}.to_json
     else
-      render 'accounts/edit'
+      return @account.to_json
     end
   end
 

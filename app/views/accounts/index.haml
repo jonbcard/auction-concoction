@@ -1,26 +1,147 @@
 :javascript
   $(function(){
-    $("button#new").button({icons: {
-      primary: "ui-icon-plus"
-    }});
+    ko.applyBindings(viewModel());
   });
 
-  var newAccount = function(){
-    document.location = "accounts/new";
-  };
+  function Account(viewModel){
+    this.id = ko.property();
+    this.username = ko.property();
+    this.name = ko.property();
+    this.surname = ko.property();
+    this.email = ko.property();
+    this.password = ko.property();
+    this.password_confirmation = ko.property();
+    this.role = ko.property();
+
+    // functions
+    this.edit = function(){
+      viewModel.activeAccount(this);
+      $("#editDialog").dialog({title:"Edit Account"});
+    }
+
+    this.cancel = function(){
+      viewModel.activeAccount.reset();
+      $("#editDialog").dialog("close");
+    }
+
+    this.save = function(){
+      var wrapper = this;
+      var id = wrapper().id;
+      if(!id()){
+        // create the record
+        wrapper.save("accounts/new.json", function(result){
+            viewModel.accounts.push(wrapper());
+            $("#editDialog").dialog("close");
+            $.growlUI("Account Created"); 
+        });
+      } else {
+        // save existing record
+        wrapper.save("accounts/" + id() + ".json", function(result){
+              $("#editDialog").dialog("close");
+              $.growlUI("Account Saved"); 
+        });
+      }
+    }
+  }
+
+  viewModel = function(){
+    this.accounts = ko.observableArray([]);
+    this.activeAccount = ko.model();
+
+    this.newAccount = function() {
+      acc = new Account(this);
+      acc.edit();
+    };
+
+    // Load the initial state from server
+    
+    this.load = function() {
+      var self = this;
+      $.get("accounts.json", function(data) {
+        var all = ko.mapToModelList(Account, data, self);
+        self.accounts(all);
+      });
+    }
+    
+    load();
+  }
+
+#editDialog{ :style=>"display:none;"}
+  %div{:'data-bind' => "template: {name:'accountForm', data: activeAccount}"}
+
+%script{:type => "text/x-jquery-tmpl", :id => "accountForm"}
+  .flash
+    .message.error{:'data-bind' => "visible: activeAccount.hasErrors()"}
+      Errors occurred while saving the account.
+  %form.form{:id => 'accountForm', :'data-bind' => 'submit:save'}
+    .group
+      %label Username:
+      %span.error{:'data-bind' => "text: username.errors"}
+      %br
+      %input.required{:'data-bind' => "value: username.temp"}
+    .group
+      %label First Name:
+      %span.error{:'data-bind' => "text: name.errors"}
+      %br
+      %input.required{:'data-bind' => "value: name.temp"}
+    .group
+      %label Last Name:
+      %span.error{:'data-bind' => "text: surname.errors"}
+      %br
+      %input.required{:'data-bind' => "value: surname.temp"}
+    .group
+      %label Email:
+      %span.error{:'data-bind' => "text: email.errors"}
+      %br
+      %input.required{:'data-bind' => "value: email.temp"}
+    .group
+      %label Password:
+      %span.error{:'data-bind' => "text: password.errors"}
+      %br
+      %input{:type => 'password', :'data-bind' => "value: password.temp"}
+    .group
+      %label Confirm Password:
+      %span.error{:'data-bind' => "text: password_confirmation.errors"}
+      %br
+      %input{:type => 'password', :'data-bind' => "value: password_confirmation.temp"}
+    .group
+      %label Role:
+      %span.error{:'data-bind' => "text: role.errors"}
+      %br
+      =select_tag '', :'data-bind' => "value: role.temp", :options => access_control.roles
+    %button.form_button{:type => 'submit'}
+      Save
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
+
+%script{:type => "text/x-jquery-tmpl", :id => "row"}
+  %td
+    %span{:'data-bind' => "text: username"}
+  %td
+    %span{:'data-bind' => "text: name"}
+  %td
+    %span{:'data-bind' => "text: surname"}
+  %td
+    %span{:'data-bind' => "text: email"}
+  %td.last
+    %span{:'data-bind' => "click: edit, clickBubble: false"}
+      =image_tag 'page_white_edit.png'
 
 .block
   .content
     #title
-      %h2.title
-        =pat(:all)
-        =mt(:accounts)
+      %h2 Accounts
     #title-menu
-      %button#new{:'data-bind' => "click : newAccount"}
+      %button#new{:href => "", :'data-bind' => "click : newAccount, icon: 'ui-icon-plus'"}
         New
+      %button#reload{:href => "", :'data-bind' => "click : load, icon: 'ui-icon-refresh'"}
+        Reload
     .inner
-      =simple_table(@accounts,[:username, :name, :surname, :email],
-         :edit => "accounts/edit/${row.id}",
-         :delete => "accounts/destroy/${row.id}") 
-      .actions-bar.wat-cf
-        
+      %table.table{:'data-bind' =>  "dataTable: { dataSource: accounts, rowTemplate: 'row', columns: ['username', 'name', 'surname', 'email', null], 
+                                         options:{sPaginationType:'full_numbers', } }"}
+        %thead
+          %th.first=mat(:account, :username)
+          %th=mat(:account, :name)
+          %th=mat(:account, :surname)
+          %th=mat(:account, :email)
+          %th.last="&nbsp;"

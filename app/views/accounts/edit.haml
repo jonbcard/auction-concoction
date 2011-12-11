@@ -1,8 +1,0 @@
-.block
-  .content
-    %h2.title
-      =pat(:edit)
-      =mt(:account)
-    .inner
-      -form_for :account, url(:accounts, :update, :id => @account.id), :method => :put, :class => :form do |f|
-        =partial "accounts/form", :locals => { :f => f }
