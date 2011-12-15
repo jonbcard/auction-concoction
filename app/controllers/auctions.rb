@@ -27,7 +27,12 @@ AuctionNow.controllers :auctions do
   ##
   get :destroy, :with => :id do
     auction = Auction.find(params[:id])
-    return auction.destroy.to_json
+    if auction.total_lot_count == 0 && auction.total_sale_count == 0 then
+      return auction.destroy.to_json
+    else
+      return {:errors => "Cannot remove an auction with associated lots or sales."}.to_json
+    end
+    
   end
   
   get :index, :with => :id, :provides => :json do

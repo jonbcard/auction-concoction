@@ -5,13 +5,13 @@ AuctionNow.controllers :parameters do
     render "parameters/index"
   end
 
-  put :update do
+  put :update, :provides => :json do
     @app_parameters = AppParameters.get
-    if @app_parameters.update_attributes(params[:app_parameters])
-      flash[:notice] = 'Application Parameters were successfully updated.'
-      redirect url(:parameters, :index)
+    if @app_parameters.update_attributes(parse_json(request))
+      return @app_parameters.to_json
     else
-      render 'parameters/index'
+      return {:errors => @app_parameters.errors}.to_json
     end
   end
+  
 end

@@ -8,10 +8,10 @@ class Auction
   key :description,      String
   key :location_id,      BSON::ObjectId
 
-  key :active_bidders,      Integer
-  key :total_lots_created,  Integer
-  key :total_lots_sold,     Integer
-  key :total_sales,         Money
+  key :active_bidders,    Integer, :default => 0
+  key :total_lot_count,   Integer, :default => 0
+  key :total_sale_count,  Integer, :default => 0
+  key :total_sales,       Money,   :default => Money.new(0)
 
   one :details, :class_name => 'AuctionDetails'
   

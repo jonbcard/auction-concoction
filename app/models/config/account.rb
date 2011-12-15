@@ -52,6 +52,5 @@ class Account
     def password_required
       crypted_password.blank? || !password.blank?
     end
-
-
+    
 end

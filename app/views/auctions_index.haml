@@ -165,16 +165,21 @@
     this.remove = function(){
       var self = this;
       var text = "Are you sure you want to remove this Auction record? Note that " 
-          + "it will only be possible to remove the record if it has no associated data.";
+          + "it will only be possible to remove the record if it has no associated lots or sales.";
       $("#dialog").html(text);
       $("#dialog").confirmationDialog({
         autoStart: true,
         onConfirm: function(){
           $.ajax({
             url:  "auctions/destroy/" + self.id() + "?_method=delete",
+            dataType: "json",
             type: "get",
             success: function(result) {
-              viewModel.auctions.remove(function(item) { return item.id() == self.id() });
+              if(result.errors){
+                $.growlError("Error Removing Auction",result.errors); 
+              } else {
+                viewModel.auctions.remove(function(item) { return item.id() == self.id() });
+              }
             }
           });
         }

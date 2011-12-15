@@ -281,3 +281,13 @@ ul.list li .item .avatar {
 div.growlUI h1, div.growlUI h2 {
   color: white; 
 }
+
+div.growlUIError {
+  background: url(/images/cross.png) no-repeat 16px 22px;
+  text-align: left;
+  padding: 5px 5px 5px 75px; 
+}
+
+div.growlUIError h1, div.growlUIError h4 {
+  color: white; 
+}

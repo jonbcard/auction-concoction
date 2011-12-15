@@ -149,6 +149,19 @@ setupConfirmationDialog = function(dialogHandle, domHandle, dialogText){
     });
 }
 
+$.growlError = function(title, message) {
+	var $m = $('<div class="growlUIError"></div>');
+	if (title) $m.append('<h1>'+title+'</h1>');
+	if (message) $m.append('<h4>'+message+'</h4>');
+        $m.append('(click to close)');
+	$.blockUI({
+		message: $m, fadeIn: 700, centerY: false,
+		showOverlay: false,
+		css: $.blockUI.defaults.growlCSS
+	});
+        $('.growlUIError').click($.unblockUI); 
+};
+
 // ---- Custom Knockout JS bindings and stuff ----
 ko.bindingHandlers.confirm = {
     init: function(element, valueAccessor, allBindingsAccessor, viewModel) {

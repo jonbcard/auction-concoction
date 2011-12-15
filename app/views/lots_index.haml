@@ -188,9 +188,9 @@
 
 %script{:type => "text/html", :id => "lotsListTemplate"}
   %td
-    %span{:'data-bind' => "text: catalog_number"}
-  %td
     %span{:'data-bind' => "text: number"}
+  %td{:'data-bind' => "visible: viewModel.fromCatalog"}
+    %span{:'data-bind' => "text: catalog_number"}
   %td
     %span{:'data-bind' => "text: consignee_text"}
   %td

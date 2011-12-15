@@ -55,24 +55,29 @@ class AuctionDetails
     sale.valid? &&
       validate_bidder_exists(sale) &&
       push(:sales => sale.to_mongo) &&
-      sales << sale
+      sales << sale && 
+      auction.increment(:total_sale_count => 1)
   end
 
   def remove_sale(sale_id)
     sale = sales.find(sale_id)
     has_active_bidder?(sale.bidder) &&
-      pull(:sales => {:_id => BSON::ObjectId(sale_id)})
+      pull(:sales => {:_id => BSON::ObjectId(sale_id)}) &&
+      auction.decrement(:total_sale_count => 1)
   end
 
   def add_lot(lot)
     lot.valid? &&
       validate_lot_unique(lot) &&
       push(:lots => lot.to_mongo) &&
-      lots << lot
+      lots << lot && 
+      auction.increment(:total_lot_count => 1)
+      
   end
 
   def remove_lot(lot_id)
-    pull(:lots => {:_id => BSON::ObjectId(lot_id)})
+    pull(:lots => {:_id => BSON::ObjectId(lot_id)}) &&
+      auction.decrement(:total_lot_count => 1)
   end
 
   def sales_and_lots
