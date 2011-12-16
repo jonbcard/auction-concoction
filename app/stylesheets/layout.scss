@@ -20,7 +20,8 @@ body{font-size:12px;font-family:sans-serif;}
 #container{min-width:960px;}
 #header,#wrapper{padding:0 20px;}
 #header{position:relative;padding-top:1px;}
-#header h1{margin:0;padding:10px 0;font-size:26px;}
+#header #top-banner {padding: 5px 0px 5px 24px; }
+#header #top-banner h1{margin:0;padding:0px 0;font-size:20px;}
 #header h1 a:link,#header h1 a:active,#header h1 a:hover,#header h1 a:visited{text-decoration:none;}
 #main{width:73%;float:right;}
 .actions-bar{padding:10px 1px;}

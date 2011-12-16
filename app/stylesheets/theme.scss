@@ -25,11 +25,16 @@ hr {
 #header {
   background: #c9deb7;
 
-  h1 {
-    padding: 20px 0;
-    font-weight: bold;
+  #top-banner {
+    background: url(/images/gavel_16.png) no-repeat 2px 16px;
+    text-align: left;
+    
+    h1 {
+      font-family: 'Sigmar One', sans-serif;
+      a:link,a:active,a:hover,a:visited { color: $dark-green; }}
+  }
 
-    a:link,a:active,a:hover,a:visited { color: $dark-green; }}}
+}
 
 #main {
   .block .content {
