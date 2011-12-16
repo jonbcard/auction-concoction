@@ -66,31 +66,6 @@ hr {
       background: #D3E8C1;
       color: $white; }}}
 
-#main-navigation {
-  background: #44721e;
-  margin-right: 20px;
-  padding: 7px 7px 0 7px;
-
-  ul li.active {
-    background: #e4ebe4;
-    border: 1px solid #91B96F;
-    border-bottom: none;
-    font-weight: bold;
-
-    a:link,a:visited,a:hover,a:active { color: #262626; }
-  }
-
-  ul li {
-    background: #91B96F;
-    margin-right: 7px;
-
-    a {
-      padding: 10px 10px 5px 10px;
-
-      &:hover,&:link,&:visited,&:active {
-        text-decoration: none;
-        color: $white; }}}}
-
 #user-navigation ul{
   li {
     a:link, a:visited, a:active { color: $dark-green; }
@@ -248,8 +223,7 @@ ul.list li .item .avatar {
 
 /* rounded borders */
 
-#main, #main-navigation, #main-navigation li, 
-#main .block, #sidebar .block, 
+#main, #main .block, #sidebar .block, 
 #sidebar h3, ul.list li, #footer .block, 
 .form input.button, #box .block, #box .block h2 {
   @include border-top-left-radius(4px);

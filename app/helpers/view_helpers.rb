@@ -38,6 +38,11 @@ AuctionNow.helpers do
       yield(row) if block_given?
     end
   end
+  
+  def button_link(caption, url, options={})
+    options.reverse_merge!(:onClick => "document.location='#{url}'")
+    content_tag(:button, caption, options)
+  end
 
   def button_to_edit(url, args={})
     args.reverse_merge!(:method => :get, :class => :button_to)
