@@ -35,9 +35,13 @@
     $("#dialog").confirmationDialog({
       autoStart: true,
       onConfirm: function(){
-        $.post("lots/destroy/" + self.id(), function() {
-          viewModel.lots.remove(function(item) { return item.id() == self.id() });
-          $.growlUI("Lot Removed",null,1000); 
+        $.post("lots/destroy/" + self.id(), function(result) {
+          if(result.errors){
+            $.growlError("Error Removing Lot",result.errors); 
+          } else {
+            viewModel.lots.remove(function(item) { return item.id() == self.id() });
+            $.growlUI("Lot Removed",null,1000); 
+          }
         });
       }
     });
@@ -58,7 +62,7 @@
           contentType: "application/json",
           success: function(result) {
             if(result.errors){
-              viewModel.lastErrorsFull(result.errors_full);
+              $.growlError("Unable to Create Lot",result.errors_full); 
             } else {
                 viewModel.lastErrorsFull("");
                 viewModel.lots.unshift(models.parseLot(result));
@@ -119,8 +123,6 @@
           %label Show Low/High
           %input{:type => 'checkbox', :'data-bind' => 'checked: showLowHigh'}
 
-.flash
-  .message.error{:'data-bind' => "text: lastErrorsFull, visible: lastErrorsFull() != ''"}
 .block
   .content
     #title
@@ -202,5 +204,5 @@
   %td
     %span{:'data-bind' => "text: qty_available"}
   %td
-    %span{:'data-bind' => "click: remove, clickBubble: false"}
+    %span.clickable{:'data-bind' => "click: remove, clickBubble: false"}
       =image_tag 'page_white_delete.png'

@@ -277,6 +277,10 @@ ul.list li .item .avatar {
   border-width: 1px;
 }
 
+/* Random styling stuff */
+.clickable:hover {
+  cursor: pointer; }
+
 /* Growl message theme */
 div.growlUI h1, div.growlUI h2 {
   color: white; 

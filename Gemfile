@@ -4,9 +4,7 @@ source 'http://gems.github.com'
 # Project requirements
 gem 'rake'
 gem 'sinatra-flash', :require => 'sinatra/flash'
-gem 'thin' # or mongrel
-#gem 'ruport'
-#gem 'ruport-util'
+gem 'thin'
 gem 'prawn'
 gem 'sbfaulkner-sinatra-prawn'
 
@@ -18,6 +16,7 @@ gem 'haml', '3.1.3'
 gem 'fancy-buttons'
 gem 'money'
 gem 'mongo_mapper', '0.9.2'
+gem 'joint'
 gem 'bson_ext', :require => "mongo"
 gem 'json', '1.6.1'
 

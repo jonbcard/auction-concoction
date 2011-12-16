@@ -179,6 +179,7 @@
                 $.growlError("Error Removing Auction",result.errors); 
               } else {
                 viewModel.auctions.remove(function(item) { return item.id() == self.id() });
+                $.growlUI("Auction Removed"); 
               }
             }
           });

@@ -1,0 +1,63 @@
+:javascript
+  $(function(){
+    ko.applyBindings(viewModel);
+  });
+
+  function Parameters(json){
+    this.company_name = ko.property(json.company_name);
+    this.fee_percent = ko.property(json.fee_percent);
+    this.tax_line1_name = ko.property(json.tax_line1_name);
+    this.tax_line1_percent = ko.property(json.tax_line1_percent);
+  }
+
+  viewModel = {
+    params : ko.model(new Parameters(#{@app_parameters.to_json}))
+  }
+
+  //var paramModel = ;
+
+  //alert(paramModel);
+  //viewModel.params(paramModel);
+
+
+  viewModel.save = function(){
+    this.params.save("parameters/update.json", function(result){
+      $.growlUI("Parameters Saved"); 
+    });
+  }.bind(viewModel);
+
+
+  viewModel.cancel = function(){
+    this.params(new Parameters(util.getJSON("parameters.json")));
+  }.bind(viewModel);
+
+.block
+  .content
+    %h2.title Manage Parameters
+    .inner
+      %form.form{:id => 'parametersForm', :'data-bind' => 'submit: save'}
+        .group
+          %label Company Name:
+          %span.error{:'data-bind' => "text: params().company_name.errors"}
+          %br
+          %input.required{:'data-bind' => "value: params().company_name"}
+        .group
+          %label Fee Percent:
+          %span.error{:'data-bind' => "text: params().fee_percent.errors"}
+          %br
+          %input.required{:'data-bind' => "value: params().fee_percent"}
+        .group
+          %label Tax Line Name 1:
+          %span.error{:'data-bind' => "text: params().tax_line1_name.errors"}
+          %br
+          %input.required{:'data-bind' => "value: params().tax_line1_name"}
+        .group
+          %label Tax Line Percent 1:
+          %span.error{:'data-bind' => "text: params().tax_line1_percent.errors"}
+          %br
+          %input.required{:'data-bind' => "value: params().tax_line1_percent"}
+        .group.navform.wat-cf
+          %button.form_button{:type => "submit"}
+            =pat(:save)
+          &nbsp;&nbsp;|&nbsp;&nbsp;
+          =link_to("Cancel", "#", :class => :button_to, :'data-bind' => "click : cancel")

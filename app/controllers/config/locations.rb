@@ -2,7 +2,7 @@ AuctionNow.controllers :locations do
   get :index, :provides => [:html, :json] do
     case content_type
       when :html
-        render 'locations/index'
+        render 'config/locations_index'
       when :json
         Location.all.to_json
     end

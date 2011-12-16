@@ -4,7 +4,7 @@ AuctionNow.controllers :accounts do
   get :index, :provides => [:html, :json] do
     case content_type
       when :html
-        render 'accounts/index'
+        render 'config/accounts_index'
       when :json
         Account.all.to_json
     end
