@@ -40,7 +40,7 @@ AuctionNow.helpers do
   end
   
   def button_link(caption, url, options={})
-    options.reverse_merge!(:onClick => "document.location='#{url}'")
+    options.reverse_merge!(:'data-href' => url, :onClick => "document.location='#{url}'")
     content_tag(:button, caption, options)
   end
 

@@ -22,12 +22,20 @@
         }).popup();
 
         $("#main-navigation button").button();
+        setActiveButton();
 
+        $("#container").css("display", "block");
       });
+
+      function setActiveButton(){
+        $("#main-navigation button").each(function(e){
+          // TODO : Complete
+        });
+      }
     =[:error, :warning, :notice].map { |type| flash_growl(type) }.join
     =yield_content :head
   %body
-    #container
+    #container{:style => "display:none"}
       #header
         #top-banner
           %h1=link_to "Auction Floor"
