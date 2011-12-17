@@ -2,16 +2,35 @@
   $(function(){
     var viewModel =  profilesViewModel();
     ko.applyBindings(viewModel);
+
   });
 
   function Profile(viewModel){
     this.id = ko.property();
     this.name = ko.property();
+    this.premium_type = ko.property("PERCENT");
+    this.premium_amount = ko.property();
+    this.is_default = ko.property(false);
+    
+    this.premium_symbol = ko.dependentObservable(function(){
+      return (this.premium_type() == "PERCENT" ? "%" : "$");
+    }, this);
 
+    this.premium_formatted = ko.dependentObservable(function(){
+      if(this.premium_symbol() && this.premium_amount()){
+        return this.premium_symbol() + this.premium_amount().toFixed(2);
+      }
+      return null; 
+    }, this);
+
+    this.resetAmount = function(){
+      this.premium_amount().temp = null;
+    }.bind(this);
 
     // functions
     this.edit = function(){
       viewModel.activeProfile(this);
+      $("#premium_type").buttonset();
       $("#editDialog").dialog({title:"Edit Profile"});
     }
 
@@ -74,6 +93,22 @@
       %span.error{:'data-bind' => "text: name.errors"}
       %br
       %input.required{:'data-bind' => "value: name.temp"}
+    .group
+      %label Auction House Premium:
+      %span.error{:'data-bind' => "text: premium_type.errors"}
+      %br
+        #premium_type
+          %input{:id => "prem_fixed", :name => "premium_type", :type => "radio", :value => "FIXED", :'data-bind' => "checked: premium_type.temp"}
+          %label{:for => "prem_fixed"} Fixed
+          %input{:id => "prem_pct", :name => "premium_type", :type => "radio", :value => "PERCENT", :'data-bind' => "checked: premium_type.temp"}
+          %label{:for => "prem_pct"} Percent
+        %br
+        %input{:style => "width:75px", :'data-bind' => "value: premium_amount"}
+    .group
+      %label Default:
+      %span.error{:'data-bind' => "text: is_default.errors"}
+      %br
+      %input{:type => 'checkbox', :'data-bind' => "checked: is_default.temp"}
     %button.form_button{:type => 'submit'}
       Save
     &nbsp;&nbsp;|&nbsp;&nbsp;
@@ -82,6 +117,10 @@
 %script{:type => "text/x-jquery-tmpl", :id => "row"}
   %td
     %span{:'data-bind' => "text: name"}
+  %td
+    %span{:'data-bind' => "text: premium_formatted"} 
+  %td
+    %input{:type => 'checkbox', :'data-bind' => "checked: is_default", :disabled => true}
   %td.last
     %span.clickable{:'data-bind' => "click: edit, clickBubble: false"}
       =image_tag 'page_white_edit.png'
@@ -89,13 +128,15 @@
 .block
   .content
     #title
-      %h2 Profiles
+      %h2 Auction Profiles
     #title-menu
       %button#new{:href => "", :'data-bind' => "click : newProfile, icon: 'ui-icon-plus'"}
         New
     .inner
-      %table.table{:'data-bind' =>  "dataTable: { dataSource: profiles, rowTemplate: 'row', columns: ['name', null], 
+      %table.table{:'data-bind' =>  "dataTable: { dataSource: profiles, rowTemplate: 'row', columns: ['name', 'premium_amount', 'is_default', null], 
                                          options:{sPaginationType:'full_numbers', } }"}
         %thead
           %th.first=mat(:profile, :name)
+          %th Premium Amount
+          %th=mat(:profile, :default)
           %th.last="&nbsp;"
