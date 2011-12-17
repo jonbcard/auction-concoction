@@ -57,9 +57,11 @@
             #config-menu
               %button=pat(:configure)
               %ul
+                %li=link_to pat(:parameters), "/parameters"
+                %li=link_to pat(:profiles), "/profiles"
                 %li=link_to pat(:accounts), "/accounts"
                 %li=link_to pat(:locations), "/locations"
-                %li=link_to pat(:parameters), "/parameters"
+                
                 %li=link_to pat(:customizations), "/customizations"
                   
       #wrapper.wat-cf

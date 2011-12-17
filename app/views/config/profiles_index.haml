@@ -1,0 +1,101 @@
+:javascript
+  $(function(){
+    var viewModel =  profilesViewModel();
+    ko.applyBindings(viewModel);
+  });
+
+  function Profile(viewModel){
+    this.id = ko.property();
+    this.name = ko.property();
+
+
+    // functions
+    this.edit = function(){
+      viewModel.activeProfile(this);
+      $("#editDialog").dialog({title:"Edit Profile"});
+    }
+
+    this.cancel = function(){
+      viewModel.activeProfile.reset();
+      $("#editDialog").dialog("close");
+    }
+
+    this.save = function(){
+      var wrapper = this;
+      var id = wrapper().id;
+      if(!id()){
+        // create the record
+        wrapper.save("profiles/new.json", function(result){
+            viewModel.profiles.push(wrapper());
+            $("#editDialog").dialog("close");
+            $.growlUI("Profile Created"); 
+        });
+      } else {
+        // save existing record
+        wrapper.save("profiles/" + id() + ".json", function(result){
+              $("#editDialog").dialog("close");
+              $.growlUI("Profile Saved"); 
+        });
+      }
+    }
+  }
+
+  var profilesViewModel = function(){
+    this.profiles = ko.observableArray([]);
+    this.activeProfile = ko.model();
+
+    this.newProfile = function() {
+      new Profile(this).edit();
+    };
+
+    // Load the initial state from server
+    
+    this.load = function() {
+      var self = this;
+      $.get("profiles.json", function(data) {
+        var all = ko.mapToModelList(Profile, data, self);
+        self.profiles(all);
+      });
+    }
+    
+    load();
+  }
+
+#editDialog{ :style=>"display:none;"}
+  %div{:'data-bind' => "template: {name:'editForm', data: activeProfile}"}
+
+%script{:type => "text/x-jquery-tmpl", :id => "editForm"}
+  .flash
+    .message.error{:'data-bind' => "visible: activeProfile.hasErrors()"}
+      Errors occurred while saving the profile.
+  %form.form{:id => 'profileForm', :'data-bind' => 'submit:save'}
+    .group
+      %label{:for=>:name}Name:
+      %span.error{:'data-bind' => "text: name.errors"}
+      %br
+      %input.required{:'data-bind' => "value: name.temp"}
+    %button.form_button{:type => 'submit'}
+      Save
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")
+
+%script{:type => "text/x-jquery-tmpl", :id => "row"}
+  %td
+    %span{:'data-bind' => "text: name"}
+  %td.last
+    %span.clickable{:'data-bind' => "click: edit, clickBubble: false"}
+      =image_tag 'page_white_edit.png'
+
+.block
+  .content
+    #title
+      %h2 Profiles
+    #title-menu
+      %button#new{:href => "", :'data-bind' => "click : newProfile, icon: 'ui-icon-plus'"}
+        New
+    .inner
+      %table.table{:'data-bind' =>  "dataTable: { dataSource: profiles, rowTemplate: 'row', columns: ['name', null], 
+                                         options:{sPaginationType:'full_numbers', } }"}
+        %thead
+          %th.first=mat(:profile, :name)
+          %th.last="&nbsp;"
