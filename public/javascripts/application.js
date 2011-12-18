@@ -92,7 +92,7 @@ $.extend( $.validator.defaults, {
     }
 });
 
-ConfirmationDialog = $.extend({}, $.ui.dialog.prototype, {
+$.widget("ui.confirmationDialog", $.ui.dialog, $.extend({}, $.ui.dialog.prototype, {
     options: {
         onConfirm: function(){
             alert("'onConfirm' action on dialog not properly specified.")
@@ -126,8 +126,15 @@ ConfirmationDialog = $.extend({}, $.ui.dialog.prototype, {
             }
         }
     }
+}));
+
+$.widget("ui.verticalTabs", $.ui.tabs, {
+    _create: function() {
+        this._super( "_create" );
+        $("#tabs").addClass('ui-tabs-vertical ui-helper-clearfix');
+        $("#tabs li").removeClass('ui-corner-top').addClass('ui-corner-left');
+    }
 });
-$.widget("ui.confirmationDialog", $.ui.dialog, ConfirmationDialog);
 
 setupConfirmationDialog = function(dialogHandle, domHandle, dialogText){
     // Setup the options on the dialog

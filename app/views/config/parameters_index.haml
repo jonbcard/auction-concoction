@@ -5,20 +5,16 @@
 
   function Parameters(json){
     this.company_name = ko.property(json.company_name);
+    this.profile_id = ko.property(json.profile_id);
     this.fee_percent = ko.property(json.fee_percent);
     this.tax_line1_name = ko.property(json.tax_line1_name);
     this.tax_line1_percent = ko.property(json.tax_line1_percent);
   }
 
   viewModel = {
+    profiles : #{@profiles.to_json || []},
     params : ko.model(new Parameters(#{@app_parameters.to_json}))
   }
-
-  //var paramModel = ;
-
-  //alert(paramModel);
-  //viewModel.params(paramModel);
-
 
   viewModel.save = function(){
     this.params.save("parameters/update.json", function(result){
@@ -41,6 +37,11 @@
           %span.error{:'data-bind' => "text: params().company_name.errors"}
           %br
           %input.required{:'data-bind' => "value: params().company_name"}
+        .group
+          %label Default Profile:
+          %span.error{:'data-bind' => "text: params().default_profile.errors"}
+          %br
+          %select{:'data-bind' => "options: viewModel.profiles, optionsText: 'name', optionsValue:'id', value:profile_id.temp, optionsCaption: 'Select A Profile...'"}
         .group
           %label Fee Percent:
           %span.error{:'data-bind' => "text: params().fee_percent.errors"}

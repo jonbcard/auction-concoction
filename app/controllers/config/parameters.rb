@@ -1,6 +1,7 @@
 AuctionNow.controllers :parameters do
 
   get :index, :provides => [:html, :json] do
+    @profiles = Profile.all
     @app_parameters = AppParameters.get
     case content_type
       when :html

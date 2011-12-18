@@ -14,6 +14,8 @@ class AppParameters
   key  :tax_line2_name,    String
   key  :tax_line2_percent, Integer
 
+  one  :default_profile,   :class_name => 'Profile'
+  
   attachment :file
   
   # Validations

@@ -8,29 +8,40 @@
   function Profile(viewModel){
     this.id = ko.property();
     this.name = ko.property();
-    this.premium_type = ko.property("PERCENT");
-    this.premium_amount = ko.property();
+    this.buyer_premium_type = ko.property("PERCENT");
+    this.buyer_premium_amount = ko.property();
+    this.commission_type = ko.property("NONE");
+    this.commission_amount = ko.property();
     this.is_default = ko.property(false);
     
-    this.premium_symbol = ko.dependentObservable(function(){
-      return (this.premium_type() == "PERCENT" ? "%" : "$");
+    this.buyer_premium_symbol = ko.dependentObservable(function(){
+      return (this.buyer_premium_type() == "PERCENT" ? "%" : "$");
     }, this);
 
-    this.premium_formatted = ko.dependentObservable(function(){
-      if(this.premium_symbol() && this.premium_amount()){
-        return this.premium_symbol() + this.premium_amount().toFixed(2);
+    this.commission_symbol = ko.dependentObservable(function(){
+      if(this.commission_type()=="NONE") return "N/A";
+      if(this.commission_type()=="FIXED") return "$";
+      return "%";
+    }, this);
+
+    this.buyer_premium_formatted = ko.dependentObservable(function(){
+      if(this.buyer_premium_symbol() && this.buyer_premium_amount()){
+        return this.buyer_premium_symbol() + this.buyer_premium_amount().toFixed(2);
       }
       return null; 
     }, this);
 
-    this.resetAmount = function(){
-      this.premium_amount().temp = null;
-    }.bind(this);
+    this.commission_formatted = ko.dependentObservable(function(){
+      if(this.commission_type()=="NONE") return "N/A";
+      if(this.commission_symbol() && this.commission_amount()){
+        return this.commission_symbol() + this.commission_amount().toFixed(2);
+      }
+    }, this);
 
     // functions
     this.edit = function(){
       viewModel.activeProfile(this);
-      $("#premium_type").buttonset();
+      $(".buttonset").buttonset();
       $("#editDialog").dialog({title:"Edit Profile"});
     }
 
@@ -94,16 +105,31 @@
       %br
       %input.required{:'data-bind' => "value: name.temp"}
     .group
-      %label Auction House Premium:
-      %span.error{:'data-bind' => "text: premium_type.errors"}
+      %label Buyer Premium:
+      %span.error{:'data-bind' => "text: buyer_premium_type.errors"}
       %br
-        #premium_type
-          %input{:id => "prem_fixed", :name => "premium_type", :type => "radio", :value => "FIXED", :'data-bind' => "checked: premium_type.temp"}
-          %label{:for => "prem_fixed"} Fixed
-          %input{:id => "prem_pct", :name => "premium_type", :type => "radio", :value => "PERCENT", :'data-bind' => "checked: premium_type.temp"}
-          %label{:for => "prem_pct"} Percent
+        .buttonset
+          %input{:id => "buyer_prem_fixed", :name => "buyer_premium_type", :type => "radio", :value => "FIXED", :'data-bind' => "checked: buyer_premium_type.temp"}
+          %label{:for => "buyer_prem_fixed"} Fixed
+          %input{:id => "buyer_prem_pct", :name => "buyer_premium_type", :type => "radio", :value => "PERCENT", :'data-bind' => "checked: buyer_premium_type.temp"}
+          %label{:for => "buyer_prem_pct"} Percent
         %br
-        %input{:style => "width:75px", :'data-bind' => "value: premium_amount"}
+        %input{:style => "width:75px", :'data-bind' => "value: buyer_premium_amount"}
+        %span.error{:'data-bind' => "text: buyer_premium_amount.errors"}
+    .group
+      %label Commission:
+      %span.error{:'data-bind' => "text: commission_type.errors"}
+      %br
+        .buttonset
+          %input{:id => "commission_none", :name => "commission_type", :type => "radio", :value => "NONE", :'data-bind' => "checked: commission_type.temp"}
+          %label{:for => "commission_none"} None
+          %input{:id => "commission_fixed", :name => "commission_type", :type => "radio", :value => "FIXED", :'data-bind' => "checked: commission_type.temp"}
+          %label{:for => "commission_fixed"} Fixed
+          %input{:id => "commission_pct", :name => "commission_type", :type => "radio", :value => "PERCENT", :'data-bind' => "checked: commission_type.temp"}
+          %label{:for => "commission_pct"} Percent
+        %br
+        %input{:style => "width:75px", :'data-bind' => "value: commission_amount"}    
+        %span.error{:'data-bind' => "text: commission_amount.errors"}
     .group
       %label Default:
       %span.error{:'data-bind' => "text: is_default.errors"}
@@ -118,7 +144,9 @@
   %td
     %span{:'data-bind' => "text: name"}
   %td
-    %span{:'data-bind' => "text: premium_formatted"} 
+    %span{:'data-bind' => "text: buyer_premium_formatted"} 
+  %td
+    %span{:'data-bind' => "text: commission_formatted"} 
   %td
     %input{:type => 'checkbox', :'data-bind' => "checked: is_default", :disabled => true}
   %td.last
@@ -133,10 +161,11 @@
       %button#new{:href => "", :'data-bind' => "click : newProfile, icon: 'ui-icon-plus'"}
         New
     .inner
-      %table.table{:'data-bind' =>  "dataTable: { dataSource: profiles, rowTemplate: 'row', columns: ['name', 'premium_amount', 'is_default', null], 
+      %table.table{:'data-bind' =>  "dataTable: { dataSource: profiles, rowTemplate: 'row', columns: ['name', 'buyer_premium_formatted', 'is_default', null], 
                                          options:{sPaginationType:'full_numbers', } }"}
         %thead
           %th.first=mat(:profile, :name)
-          %th Premium Amount
+          %th Buyer Premium
+          %th Commission
           %th=mat(:profile, :default)
           %th.last="&nbsp;"

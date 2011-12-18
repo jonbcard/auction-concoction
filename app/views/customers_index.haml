@@ -1,6 +1,7 @@
 :javascript
   $(function(){
     ko.applyBindings(viewModel());
+    $("#tabs").verticalTabs();
   });
 
   var Customer = function(viewModel){
@@ -18,8 +19,9 @@
 
     // functions
     this.edit = function(){
+      var customerTitle = (this.last_name() == null) ? "New Customer" : this.last_name() + ", " + this.first_name();
       viewModel.activeCustomer(this);
-      $("#editDialog").dialog({title:"Edit Customer",width:"410px"});
+      $("#editDialog").dialog({title:customerTitle,height:430,width:630 });
     }.bind(this);
 
     this.cancel = function(){
@@ -78,7 +80,16 @@
     =link_to("Clear", "#clear", :class => :button_to, :'data-bind'=>"click: clear")
 
 #editDialog{ :style=>"display:none;"}
-  %div{:'data-bind' => "template: {name:'editForm', data: activeCustomer}"}
+  #tabs
+    %ul
+      %li 
+        %a{:href => '#customer-edit'}Edit General 
+      %li 
+        %a{:href => '#customer-history'}Auction History 
+    #customer-edit{:style => "float:right"}
+      %div{:'data-bind' => "template: {name:'editForm', data: activeCustomer}"}
+    #customer-history{:style => "float:right"}
+      TODO: Customer's auction history would go here!
 
 %script{:type => "text/x-jquery-tmpl", :id => "editForm"}
   .flash
