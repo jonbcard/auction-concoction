@@ -48,5 +48,5 @@
   #options.block
     %h3 Actions
     .content
-      %button.print{:onClick => "window.open('4eadc91e1d41c8727400010a.pdf','mywindow','width=600,height=800')"}
+      %button.print{:onClick => "window.open('#{params[:id]}.pdf','mywindow','width=600,height=800')"}
         Print Receipt
