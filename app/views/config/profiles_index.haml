@@ -1,8 +1,6 @@
 :javascript
   $(function(){
-    var viewModel =  profilesViewModel();
     ko.applyBindings(viewModel);
-
   });
 
   function Profile(viewModel){
@@ -12,30 +10,24 @@
     this.buyer_premium_amount = ko.property();
     this.commission_type = ko.property("NONE");
     this.commission_amount = ko.property();
-    this.is_default = ko.property(false);
-    
-    this.buyer_premium_symbol = ko.dependentObservable(function(){
-      return (this.buyer_premium_type() == "PERCENT" ? "%" : "$");
-    }, this);
-
-    this.commission_symbol = ko.dependentObservable(function(){
-      if(this.commission_type()=="NONE") return "N/A";
-      if(this.commission_type()=="FIXED") return "$";
-      return "%";
-    }, this);
+    this.tax_exempt = ko.property(false);
 
     this.buyer_premium_formatted = ko.dependentObservable(function(){
-      if(this.buyer_premium_symbol() && this.buyer_premium_amount()){
-        return this.buyer_premium_symbol() + this.buyer_premium_amount().toFixed(2);
+      if(this.buyer_premium_type() && this.buyer_premium_amount()){
+        return (this.buyer_premium_type() == "FIXED" ? "$" + this.buyer_premium_amount().toFixed(2) : this.buyer_premium_amount() + "%");
       }
-      return null; 
+      return "N/A"; 
+
     }, this);
 
     this.commission_formatted = ko.dependentObservable(function(){
-      if(this.commission_type()=="NONE") return "N/A";
-      if(this.commission_symbol() && this.commission_amount()){
-        return this.commission_symbol() + this.commission_amount().toFixed(2);
+      var isCommissionSpecified = this.commission_type() && 
+            this.commission_type() != "NONE" && 
+            this.commission_amount();
+      if(isCommissionSpecified){
+        return (this.commission_type() == "FIXED" ? "$" + this.commission_amount().toFixed(2) : this.commission_amount() + "%");
       }
+      return "N/A";
     }, this);
 
     // functions
@@ -70,7 +62,7 @@
     }
   }
 
-  var profilesViewModel = function(){
+  viewModel = function(){
     this.profiles = ko.observableArray([]);
     this.activeProfile = ko.model();
 
@@ -89,7 +81,7 @@
     }
     
     load();
-  }
+  }.call();
 
 #editDialog{ :style=>"display:none;"}
   %div{:'data-bind' => "template: {name:'editForm', data: activeProfile}"}
@@ -131,10 +123,10 @@
         %input{:style => "width:75px", :'data-bind' => "value: commission_amount"}    
         %span.error{:'data-bind' => "text: commission_amount.errors"}
     .group
-      %label Default:
-      %span.error{:'data-bind' => "text: is_default.errors"}
+      %label Tax Exempt:
+      %span.error{:'data-bind' => "text: tax_exempt.errors"}
       %br
-      %input{:type => 'checkbox', :'data-bind' => "checked: is_default.temp"}
+      %input{:type => 'checkbox', :'data-bind' => "checked: tax_exempt.temp"}
     %button.form_button{:type => 'submit'}
       Save
     &nbsp;&nbsp;|&nbsp;&nbsp;
@@ -148,7 +140,7 @@
   %td
     %span{:'data-bind' => "text: commission_formatted"} 
   %td
-    %input{:type => 'checkbox', :'data-bind' => "checked: is_default", :disabled => true}
+    %input{:type => 'checkbox', :'data-bind' => "checked: tax_exempt", :disabled => true}
   %td.last
     %span.clickable{:'data-bind' => "click: edit, clickBubble: false"}
       =image_tag 'page_white_edit.png'
@@ -161,11 +153,11 @@
       %button#new{:href => "", :'data-bind' => "click : newProfile, icon: 'ui-icon-plus'"}
         New
     .inner
-      %table.table{:'data-bind' =>  "dataTable: { dataSource: profiles, rowTemplate: 'row', columns: ['name', 'buyer_premium_formatted', 'is_default', null], 
+      %table.table{:'data-bind' =>  "dataTable: { dataSource: profiles, rowTemplate: 'row', columns: ['name', 'buyer_premium_formatted', 'tax_exempt', null], 
                                          options:{sPaginationType:'full_numbers', } }"}
         %thead
           %th.first=mat(:profile, :name)
           %th Buyer Premium
           %th Commission
-          %th=mat(:profile, :default)
+          %th=mat(:profile, :tax_exempt)
           %th.last="&nbsp;"

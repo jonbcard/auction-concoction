@@ -11,7 +11,7 @@
           }
         }).popup();
     ko.applyBindings(viewModel);
-
+    $("#tabs").verticalTabs();
   });
 
   function Bidder(viewModel) {
@@ -50,12 +50,14 @@
       this.customer_id(this.id());
       this.id("");
       viewModel.activeBidder(this);
-      $("#bidderDialog").dialog({title:"Edit Bidder",width:"410px"});
+      $("#bidderDialog").dialog({title:"Edit Bidder", height:520, width:730});
+      $("#tabs").verticalTabs();
     }.bind(this);
 
     this.edit = function(){
       viewModel.activeBidder(this);
-      $("#bidderDialog").dialog({title:"Edit Bidder",width:"410px"});
+      $("#bidderDialog").dialog({title:"Edit Bidder", height:520, width:730});
+      $("#tabs").verticalTabs();
     }.bind(this);
 
     this.cancel = function(){
@@ -176,9 +178,20 @@
     %span{:'data-bind' => "text: bidder_number"}
 
 #bidderDialog{ :style=>"display:none;"}
-  %div{:'data-bind' => "template: {name:'bidderForm', data: activeBidder}"}
+  %div{:'data-bind' => "template: {name:'bidderTabs', data: activeBidder}"}
 
-%script{:type => "text/x-jquery-tmpl", :id => "bidderForm"}
+%script#bidderTabs{:type => "text/x-jquery-tmpl"}
+  #tabs
+    %ul
+      %li 
+        %a{:href => "#bidder-edit"} Edit General 
+      %li 
+        %a{:href => "bidders/purchases/${id}"} Purchases 
+    #bidder-edit{:style => "float:right"}
+      %div{:'data-bind' => "template: {name:'bidderForm', data: activeBidder}"}
+
+
+%script#bidderForm{:type => "text/x-jquery-tmpl"}
   .flash
     .message.error{:'data-bind' => "visible: activeBidder.hasErrors()"}
       Errors occurred while saving the bidder.

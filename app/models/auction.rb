@@ -7,6 +7,7 @@ class Auction
   key :end,              Time,             :required => true          
   key :description,      String
   key :location_id,      BSON::ObjectId
+  key :profile_id,       BSON::ObjectId,   :required => true
 
   key :active_bidders,    Integer, :default => 0
   key :total_lot_count,   Integer, :default => 0
@@ -21,7 +22,8 @@ class Auction
       :description => auction_map['description'],
       :start => Time.parse(auction_map['start']),
       :end => Time.parse(auction_map['end']),
-      :location_id => auction_map['location_id']
+      :location_id => auction_map['location_id'],
+      :profile_id => auction_map['profile_id']
     )
     auction.details = AuctionDetails.new()
     return auction
@@ -33,5 +35,6 @@ class Auction
     self.start = Time.parse(auction_map['start'])
     self.end   = Time.parse(auction_map['end'])
     self.location_id = auction_map['location_id']
+    self.profile_id = auction_map['profile_id']
   end
 end

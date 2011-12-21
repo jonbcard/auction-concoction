@@ -48,6 +48,10 @@ class Bidder
     auction_details.update_bidder(self)
     receipt
   end
+  
+  def all_sales
+    auction_details.sales.find_all {|s| s.bidder == number}
+  end
 
   private
     def validate_status
@@ -56,7 +60,5 @@ class Bidder
       end
     end
 
-    def all_sales
-      auction_details.sales.find_all {|s| s.bidder == number}
-    end
+    
 end

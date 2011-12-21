@@ -22,9 +22,11 @@
     };
 
   viewModel = {
+    profiles : #{@profiles.to_json},
     locations : #{@locations.to_json},
     auctions : ko.observableArray([]),
     activeAuction : ko.model(),
+    auctionProfile : new ko.observable()
   }
 
   viewModel.getAuctionById = function(id){
@@ -83,6 +85,7 @@
     this.end = ko.property();
     this.description = ko.property();
     this.location_id = ko.property();
+    this.profile_id = ko.property();
 
     var self = this;
 
@@ -128,12 +131,47 @@
       return today == self.auction_date();
     });
 
+    this.profile = ko.dependentObservable(function(){
+      if(!this.profile_id){
+        return null;
+      }
+      var id = this.profile_id.temp();
+      return ko.utils.arrayFirst(viewModel.profiles, function(prof) {
+              return prof.id == id;
+      });
+    }, this);
+
+    this.buyer_premium_formatted = ko.dependentObservable(function(){
+      var p = this.profile();
+      if(p && p.buyer_premium_type && p.buyer_premium_amount){
+        return (p.buyer_premium_type == "FIXED" ? "$" + p.buyer_premium_amount.toFixed(2) : p.buyer_premium_amount + "%");
+      }
+      return "N/A"; 
+
+    }, this);
+
+    this.commission_formatted = ko.dependentObservable(function(){
+      var p = this.profile();
+      if(p && p.commission_type && p.commission_amount){
+        return (p.commission_type == "FIXED" ? "$" + p.commission_amount.toFixed(2) : p.commission_amount + "%");
+      }
+      return "N/A"; 
+
+    }, this);
+
+    this.tax_exempt = ko.dependentObservable(function(){
+      return this.profile() && this.profile().tax_exempt;
+    }, this);
+
     this.edit = function(){
+      var title = this.id() ? this.title() : "New Auction";
       viewModel.activeAuction(this);
       $("#editDialog").dialog({
-        title: "Edit Auction",
-        modal: true
+        title: title,
+        modal: true,
+        height:430,width:740
       });
+      $("#tabs").verticalTabs();
     }.bind(this);
 
     this.cancel = function(){
@@ -191,7 +229,7 @@
   $(function(){
     ko.applyBindings(viewModel);
     
-    $('#accordian').accordion({ autoHeight: false, clearStyle: true });
+    $("#accordian").accordion({ autoHeight: false, clearStyle: true });
 
     $('#calendar').fullCalendar({
       ignoreTimezone: false,
@@ -240,45 +278,82 @@
   }
 
 #editDialog{ :style=>"display:none;"}
-  %div{:'data-bind' => "template: {name:'auctionForm', data: activeAuction}"}
+  %div{:'data-bind' => "template: {name:'auctionTabs', data: viewModel.activeAuction}"}
 
-%script{:type => "text/x-jquery-tmpl", :id => "auctionForm"}
+%script#auctionTabs{:type => "text/x-jquery-tmpl"}
+  #tabs
+    %ul
+      %li 
+        %a{:href => "#auction-edit"}Edit General 
+      %li 
+        %a{:href => "auctions/statistics/${id}"} Statistics
+    #auction-edit{:style => "float:right"}
+      %div{:'data-bind' => "template: {name:'auctionForm', data: viewModel.activeAuction}"}
+
+%script#auctionForm{:type => "text/x-jquery-tmpl"}
   .flash
     .message.error{:'data-bind' => "visible: viewModel.activeAuction.hasErrors()"}
       Errors occurred while saving the auction record.
   %form.form{:id => 'auctionForm', :'data-bind' => "submit: save"}
-    .group
-      %label{:for=>:title}Title:
-      %span.error{:'data-bind' => "text: title.errors"}
-      %br
-      %input.text_field{:'data-bind' => "value: title.temp"}
-    .group
-      %label{:for=>:location_id}Location:
-      %span.error{:'data-bind' => "text: location_id.errors"}
-      %br
-      %select{:'data-bind' => "options: viewModel.locations, optionsText: 'name', optionsValue:'id', value:location_id.temp, optionsCaption: 'Choose Location...'"}
-      
     %table
       %tr
-        %td{:style => 'width:120px'}
-          .group
-            =label_tag :auction_date
-            %input.text_field{:'data-bind' => 'value: auction_date, type: "date"'}
-        %td{:style => 'width:60px;padding-left:8px'}
-          .group
-            =label_tag :start
-            %input.text_field{:'data-bind' => 'value: start_time'}
-        %td{:style => 'padding-left:8px'}
-          to
-        %td{:style => 'width:60px;padding-left:8px'}
-          .group
-            =label_tag :end
-            %input.text_field{:'data-bind' => 'value: end_time'}
-    .group
-      %label{:for=>:description}Description:
-      %span.error{:'data-bind' => "text: description.errors"}
-      %br
-      %textarea.text_area{:'data-bind' => 'value: description.temp'}
+        %td{:valign => 'top'}
+          %fieldset{:style => "padding:6px"}
+            %legend
+              General
+            .group
+              %label{:for=>:title}Title:
+              %span.error{:'data-bind' => "text: title.errors"}
+              %br
+              %input.text_field{:'data-bind' => "value: title.temp"}
+            .group
+              %label{:for=>:location_id}Location:
+              %span.error{:'data-bind' => "text: location_id.errors"}
+              %br
+              %select{:'data-bind' => "options: viewModel.locations, optionsText: 'name', optionsValue:'id', value:location_id.temp, optionsCaption: 'Choose Location...'"}
+      
+            %table
+              %tr
+                %td{:style => 'width:120px'}
+                  .group
+                    =label_tag :auction_date
+                    %input.text_field{:'data-bind' => 'value: auction_date, type: "date"'}
+                %td{:style => 'width:60px;padding-left:8px'}
+                  .group
+                    =label_tag :start
+                    %input.text_field{:'data-bind' => 'value: start_time'}
+                %td{:style => 'padding-left:8px'}
+                  to
+                %td{:style => 'width:60px;padding-left:8px'}
+                  .group
+                    =label_tag :end
+                    %input.text_field{:'data-bind' => 'value: end_time'}
+            .group
+              %label{:for=>:description}Description:
+              %span.error{:'data-bind' => "text: description.errors"}
+              %br
+              %textarea.text_area{:'data-bind' => 'value: description.temp'}
+        %td{:valign => 'top'}
+          %fieldset{:style => "padding:6px"}
+            %legend
+              Config
+            .group
+              %label Config Profile:
+              %span.error{:'data-bind' => "text: profile_id.errors"}
+              %br
+              %select{:'data-bind' => "options: viewModel.profiles, optionsText: 'name', optionsValue:'id', value: profile_id.temp, optionsCaption: 'Select A Profile...'"}
+            .group
+              %label Buyer Premium:
+              %br
+              %span{:'data-bind' => "text: buyer_premium_formatted"}
+            .group
+              %label Commission:
+              %br
+              %span{:'data-bind' => "text: commission_formatted"}
+            .group
+              %label Tax Exempt?
+              %br
+              %input{:type => 'checkbox', :'data-bind' => "checked: tax_exempt", :disabled => true}
     %button.form_button{:type => 'submit'}
       Save
     &nbsp;&nbsp;|&nbsp;&nbsp;

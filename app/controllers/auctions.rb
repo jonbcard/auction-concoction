@@ -2,6 +2,7 @@ AuctionNow.controllers :auctions do
 
   get :index do
     @locations = Location.all
+    @profiles  = Profile.all
     render 'auctions_index'
   end
   
@@ -39,4 +40,8 @@ AuctionNow.controllers :auctions do
     return Auction.find(params[:id]).to_json
   end
 
+  get :statistics, :with => :id, :provides => :json do
+    @auction = Auction.find(params[:id])
+    partial "templates/auction_statistics.haml"
+  end
 end

@@ -1,6 +1,8 @@
 class Sale
   include MongoMapper::EmbeddedDocument
 
+  SALES_STATES = ['PENDING', 'SETTLED']
+  
   # Keys
   key  :lot,          String,  :required => true
   key  :consignee_id, BSON::ObjectId
@@ -9,6 +11,7 @@ class Sale
   key  :price,        Money,   :required => true
   key  :quantity,     Integer, :required => true
   key  :sale_time,    Time,    :required => true
+  key  :state,        String
   
   embedded_in :auction_details
   

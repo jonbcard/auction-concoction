@@ -39,9 +39,9 @@
           %input.required{:'data-bind' => "value: params().company_name"}
         .group
           %label Default Profile:
-          %span.error{:'data-bind' => "text: params().default_profile.errors"}
+          %span.error{:'data-bind' => "text: params().profile_id.errors"}
           %br
-          %select{:'data-bind' => "options: viewModel.profiles, optionsText: 'name', optionsValue:'id', value:profile_id.temp, optionsCaption: 'Select A Profile...'"}
+          %select{:'data-bind' => "options: viewModel.profiles, optionsText: 'name', optionsValue:'id', value: params().profile_id, optionsCaption: 'Select A Profile...'"}
         .group
           %label Fee Percent:
           %span.error{:'data-bind' => "text: params().fee_percent.errors"}

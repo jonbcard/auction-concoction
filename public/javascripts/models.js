@@ -28,7 +28,7 @@ var models = new function() {
                         alert("Error attempting to query server: " + ko.toJSON(result.errors));
                     } else {
                         callback(result);
-                        //callback(ko.mapToModelList(Customer, result, viewModel));
+                    //callback(ko.mapToModelList(Customer, result, viewModel));
                     }
                 }
             });
@@ -225,7 +225,7 @@ var models = new function() {
         
         
     }
-    
+
     /////////////// Sales ////////////////////
     this.parseSale = function(json){
         return new models.Sale(json.id, json.lot, json.consignee_id, json.description, json.bidder, json.price, json.quantity, json.sale_time);

@@ -5,6 +5,7 @@ class BidderReceipt
 
   # Keys
   key  :bidder_id,  BSON::ObjectId, :index => true
+  key  :customer_id,BSON::ObjectId, :index => true
   key  :number,     String, :required => true
   key  :first_name, String, :required => true
   key  :last_name,  String, :required => true

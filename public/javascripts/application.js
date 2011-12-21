@@ -238,7 +238,7 @@ ko.tempToJS = function(rootObject) {
     var outputProperties = {};
     for (var prop in unwrappedObject) {
         if(ko.isProperty(unwrappedObject[prop])){
-            outputProperties[prop] = unwrappedObject[prop].temp;
+            outputProperties[prop] = unwrappedObject[prop].temp();
         }
     }
     return outputProperties;
@@ -333,20 +333,20 @@ ko.model = function(initialValue) {
 ko.property = function(initialValue, errors) {
     var result = ko.observable(initialValue);
     result.errors = ko.observable(errors);
-    result.temp = initialValue;
+    result.temp = ko.observable(initialValue);
     
     result.subscribe(function(newValue) {
         // Ensure the temp value is kept up-to-date with change to the observable..
         // TODO: maybe just make temp a dependent-observable?
-        result.temp = newValue;
+        result.temp(newValue);
     });
     
     result.commit = function(){
-        result(result.temp);
+        result(result.temp());
     };
     
     result.reset = function(){
-        result.temp = result();
+        result.temp(result());
     }
     
     result.__ko_proto__ = ko.property;

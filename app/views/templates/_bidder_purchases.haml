@@ -1,0 +1,16 @@
+-if @purchases.empty?
+  Bidder has not purchased any items in this auction.  
+-else
+  %table.table
+    %tr
+      %th.first{:style => "width: 38px"} Lot
+      %th{:style => "width: 320px"} Description
+      %th{:style => "width: 60px"} Price
+      %th.last{:style => "width: 36px"} Qty.
+    -@purchases.each do |sale|
+      %tr
+        %td=sale.lot
+        %td=sale.description
+        %td=sale.price
+        %td=sale.quantity
+    
