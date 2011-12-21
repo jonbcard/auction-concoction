@@ -21,7 +21,6 @@ class AppParameters
   attachment :file
   
   # Validations
-  validates_numericality_of :fee_percent, :if => lambda {not fee_percent.blank? }
   validates_numericality_of :tax_line1_percent, :if => lambda {not tax_line1_percent.blank? }
   validates_numericality_of :tax_line2_percent, :if => lambda {not tax_line2_percent.blank? }
   validates_presence_of :tax_line1_name, :if => lambda { not tax_line1_percent.blank? }

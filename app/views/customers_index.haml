@@ -21,7 +21,7 @@
     this.edit = function(){
       var customerTitle = (this.last_name() == null) ? "New Customer" : this.last_name() + ", " + this.first_name();
       viewModel.activeCustomer(this);
-      $("#editDialog").dialog({title:customerTitle,height:430,width:630 });
+      $("#editDialog").dialog({title:customerTitle,height:450,width:640 });
     }.bind(this);
 
     this.cancel = function(){

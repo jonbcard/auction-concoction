@@ -12,12 +12,26 @@
     this.commission_amount = ko.property();
     this.tax_exempt = ko.property(false);
 
+    this.buyer_premium_symbol = ko.dependentObservable(function(){
+        return (this.buyer_premium_type.temp() == "FIXED" ? "$" : "%");
+    }, this);
+
     this.buyer_premium_formatted = ko.dependentObservable(function(){
       if(this.buyer_premium_type() && this.buyer_premium_amount()){
         return (this.buyer_premium_type() == "FIXED" ? "$" + this.buyer_premium_amount().toFixed(2) : this.buyer_premium_amount() + "%");
       }
       return "N/A"; 
 
+    }, this);
+
+    this.commission_symbol = ko.dependentObservable(function(){
+        if(this.commission_type.temp() == "FIXED"){
+            return "$";
+        }
+        if(this.commission_type.temp() == "PERCENT"){
+            return "%";
+        }
+        return "";
     }, this);
 
     this.commission_formatted = ko.dependentObservable(function(){
@@ -106,7 +120,8 @@
           %input{:id => "buyer_prem_pct", :name => "buyer_premium_type", :type => "radio", :value => "PERCENT", :'data-bind' => "checked: buyer_premium_type.temp"}
           %label{:for => "buyer_prem_pct"} Percent
         %br
-        %input{:style => "width:75px", :'data-bind' => "value: buyer_premium_amount"}
+        %span{:'data-bind' => "text:buyer_premium_symbol"}  
+        %input{:style => "width:75px", :maxlength => 3, :'data-bind' => "value: buyer_premium_amount"}
         %span.error{:'data-bind' => "text: buyer_premium_amount.errors"}
     .group
       %label Commission:
@@ -120,7 +135,8 @@
           %input{:id => "commission_pct", :name => "commission_type", :type => "radio", :value => "PERCENT", :'data-bind' => "checked: commission_type.temp"}
           %label{:for => "commission_pct"} Percent
         %br
-        %input{:style => "width:75px", :'data-bind' => "value: commission_amount"}    
+        %span{:'data-bind' => "text:commission_symbol"}  
+        %input{:style => "width:75px", :maxlength => 3, :'data-bind' => "value: commission_amount, visible: commission_type.temp() != 'NONE'"}  
         %span.error{:'data-bind' => "text: commission_amount.errors"}
     .group
       %label Tax Exempt:
