@@ -3,6 +3,15 @@
 -else
   %table
     %tr
-      %td Test
-      %td Another
+      %td 
+        %label Lots
+      %td=@auction.details.lots.size
+    %tr
+      %td 
+        %label Sales
+      %td=@auction.details.sales.size
+    %tr
+      %td 
+        %label Total Bidders
+      %td=@auction.details.bidders.size
     

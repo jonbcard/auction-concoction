@@ -40,7 +40,7 @@ AuctionNow.controllers :auctions do
     return Auction.find(params[:id]).to_json
   end
 
-  get :statistics, :with => :id, :provides => :json do
+  get :statistics, :with => :id, :provides => :html do
     @auction = Auction.find(params[:id])
     partial "templates/auction_statistics.haml"
   end
