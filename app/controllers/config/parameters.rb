@@ -12,6 +12,7 @@ AuctionNow.controllers :parameters do
   end
 
   post :update, :provides => :json do
+    # TODO: Appears to still be saving when there are validation errors
     @app_parameters = AppParameters.get
     if @app_parameters.update_attributes(parse_json(request))
       return @app_parameters.to_json

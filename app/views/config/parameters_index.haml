@@ -6,9 +6,15 @@
   function Parameters(json){
     this.company_name = ko.property(json.company_name);
     this.profile_id = ko.property(json.profile_id);
-    this.fee_percent = ko.property(json.fee_percent);
     this.tax_line1_name = ko.property(json.tax_line1_name);
     this.tax_line1_percent = ko.property(json.tax_line1_percent);
+    this.tax_line2_name = ko.property(json.tax_line2_name);
+    this.tax_line2_percent = ko.property(json.tax_line2_percent);
+
+    this.bidder_autonumber_start = ko.property(json.bidder_autonumber_start || 1);
+    this.permanent_autonumber_start = ko.property(json.permanent_autonumber_start || 1000);
+
+    this.surcharge_types = ko.observableArray(json.surcharge_types || []);
   }
 
   viewModel = {
@@ -43,20 +49,37 @@
           %br
           %select{:'data-bind' => "options: viewModel.profiles, optionsText: 'name', optionsValue:'id', value: params().profile_id, optionsCaption: 'Select A Profile...'"}
         .group
-          %label Fee Percent:
-          %span.error{:'data-bind' => "text: params().fee_percent.errors"}
+          %label Bidder Auto-Number Start:
+          %span.error{:'data-bind' => "text: params().bidder_autonumber_start.errors"}
           %br
-          %input.required{:'data-bind' => "value: params().fee_percent"}
+          %input.short{:'data-bind' => "value: params().bidder_autonumber_start"}
         .group
-          %label Tax Line Name 1:
-          %span.error{:'data-bind' => "text: params().tax_line1_name.errors"}
+          %label Permanent Auto-Number Start:
+          %span.error{:'data-bind' => "text: params().permanent_autonumber_start.errors"}
           %br
-          %input.required{:'data-bind' => "value: params().tax_line1_name"}
+          %input.short{:'data-bind' => "value: params().permanent_autonumber_start"}
         .group
-          %label Tax Line Percent 1:
-          %span.error{:'data-bind' => "text: params().tax_line1_percent.errors"}
-          %br
-          %input.required{:'data-bind' => "value: params().tax_line1_percent"}
+          %label Tax Lines
+          %table.table{:style => "width:400px"}
+            %tr
+              %th.first Tax Name
+              %th.last Amount (%)
+            %tr
+              %td
+                %input{:'data-bind' => "value: params().tax_line1_name"}
+                %span.error{:'data-bind' => "text: params().tax_line1_name.errors"}
+              %td
+                %input.short{:'data-bind' => "value: params().tax_line1_percent", :maxlength => 3}
+                %span.error{:'data-bind' => "text: params().tax_line1_percent.errors"}
+            %tr
+              %td
+                %input{:'data-bind' => "value: params().tax_line2_name"}
+                %span.error{:'data-bind' => "text: params().tax_line2_name.errors"}
+              %td
+                %input.short{:'data-bind' => "value: params().tax_line2_percent", :maxlength => 3}
+                %span.error{:'data-bind' => "text: params().tax_line2_percent.errors"}
+              
+          
         .group.navform.wat-cf
           %button.form_button{:type => "submit"}
             =pat(:save)

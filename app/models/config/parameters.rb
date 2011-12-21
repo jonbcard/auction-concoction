@@ -8,11 +8,13 @@ class AppParameters
   end
 
   key  :company_name,      String, :required => true
-  key  :fee_percent,       Integer
   key  :tax_line1_name,    String
   key  :tax_line1_percent, Integer
   key  :tax_line2_name,    String
   key  :tax_line2_percent, Integer
+  
+  key  :bidder_autonumber_start, Integer
+  key  :permanent_autonumber_start, Integer
 
   one  :default_profile,   :class_name => 'Profile'
   

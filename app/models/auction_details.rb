@@ -20,9 +20,9 @@ class AuctionDetails
   end
   
   def next_bidder_num
-    max = 0
-    bidders.each { |bidder| max = bidder.number.to_i if bidder.number.to_i > max}
-    return max+1
+    next_num = AppParameters.get.bidder_autonumber_start || 1
+    bidders.each { |bidder| next_num = bidder.number.to_i+1 if bidder.number.to_i >= next_num}
+    return next_num
   end
 
   ##
