@@ -6,11 +6,18 @@
       %th.first{:style => "width: 38px"} Lot
       %th{:style => "width: 320px"} Description
       %th{:style => "width: 60px"} Price
-      %th.last{:style => "width: 36px"} Qty.
+      %th{:style => "width: 36px"} Qty.
+      %th.last{:style => "width: 60px"} Total
+    -subtotal = Money.new(0) 
     -@purchases.each do |sale|
+      -tot = sale.price*sale.quantity
+      -subtotal += tot
       %tr
         %td=sale.lot
         %td=sale.description
-        %td=sale.price
+        %td $#{sale.price}
         %td=sale.quantity
-    
+        %td $#{tot}
+    %tr
+      %td{:colspan=>4} Subtotal:
+      %td $#{subtotal}  

@@ -39,6 +39,17 @@ class AuctionDetails
       return false
     end
   end
+  
+  ##
+  # Validate then save an existing lot.
+  def update_lot(lot)
+    if(lot.valid? && validate_lot_unique(lot))
+      AuctionDetails.set({:_id => id, "lots._id" => lot.id},
+        "lots.$" => lot.to_mongo)
+    else
+      return false
+    end
+  end
 
   ##
   # Check whether the given bidder number corresponds to an 'ACTIVE' bidder

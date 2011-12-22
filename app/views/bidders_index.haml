@@ -50,13 +50,13 @@
       this.customer_id(this.id());
       this.id("");
       viewModel.activeBidder(this);
-      $("#bidderDialog").dialog({title:"Edit Bidder", height:520, width:730});
+      $("#bidderDialog").dialog({title:"Edit Bidder", height:540, width:800});
       $("#tabs").verticalTabs();
     }.bind(this);
 
     this.edit = function(){
       viewModel.activeBidder(this);
-      $("#bidderDialog").dialog({title:"Edit Bidder", height:520, width:730});
+      $("#bidderDialog").dialog({title:"Edit Bidder", height:540, width:800});
       $("#tabs").verticalTabs();
     }.bind(this);
 
@@ -207,7 +207,7 @@
           Assign
       .group
         %label Status:
-        %span{:'data-bind' => "text: status, style: { color: status.temp == 'ACTIVE' ? 'green' : 'red' }"}
+        %span{:'data-bind' => "text: status, style: { color: status.temp() == 'ACTIVE' ? 'green' : 'red' }"}
     =partial 'templates/customer_edit'
     
     %button.form_button{:type => 'submit'}

@@ -15,6 +15,7 @@ class AppParameters
   
   key  :bidder_autonumber_start, Integer
   key  :permanent_autonumber_start, Integer
+  key  :allow_bidder_autoregister, Boolean
 
   one  :default_profile,   :class_name => 'Profile'
   
