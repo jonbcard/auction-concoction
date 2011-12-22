@@ -86,6 +86,14 @@ class AuctionDetails
 
   # Stats methods
   
+  def sales_estimate_low
+    lots.sum{|l| l.low * l.qty_available}
+  end
+
+  def sales_estimate_high
+    lots.sum{|l| l.high * l.qty_available}
+  end
+  
   def gross_sales
     sales.sum{ |s| s.price * s.quantity }
   end

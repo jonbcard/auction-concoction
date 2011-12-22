@@ -1,15 +1,24 @@
 -if !@auction
   No statistics yet exist for this auction.
 -else
-  %table
+  %table.table
     %tr
       %td 
-        %label Lots
+        %label Lots Registered
       %td=@auction.details.lots.size
     %tr
       %td 
-        %label Sales
+        %label Lots Sold
       %td=@auction.details.sales.size
+    -if @auction.details.sales_estimate_low > 0 || @auction.details.sales_estimate_high > 0
+      %tr
+        %td 
+          %label Sales Estimate
+          %td $#{@auction.details.sales_estimate_low} - $#{@auction.details.sales_estimate_high}
+    %tr
+      %td
+        %label Total Sales
+      %td $#{@auction.details.gross_sales}
     %tr
       %td 
         %label Total Bidders

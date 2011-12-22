@@ -121,7 +121,7 @@
           %label{:for => "buyer_prem_pct"} Percent
         %br
         %span{:'data-bind' => "text:buyer_premium_symbol"}  
-        %input{:style => "width:75px", :maxlength => 3, :'data-bind' => "value: buyer_premium_amount"}
+        %input.short{:maxlength => 3, :'data-bind' => "value: buyer_premium_amount"}
         %span.error{:'data-bind' => "text: buyer_premium_amount.errors"}
     .group
       %label Commission:
@@ -136,7 +136,7 @@
           %label{:for => "commission_pct"} Percent
         %br
         %span{:'data-bind' => "text:commission_symbol"}  
-        %input{:style => "width:75px", :maxlength => 3, :'data-bind' => "value: commission_amount, visible: commission_type.temp() != 'NONE'"}  
+        %input.short{:maxlength => 3, :'data-bind' => "value: commission_amount, visible: commission_type.temp() != 'NONE'"}  
         %span.error{:'data-bind' => "text: commission_amount.errors"}
     .group
       %label Tax Exempt:
