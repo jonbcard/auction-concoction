@@ -37,12 +37,7 @@ AuctionNow.controllers :lots, :parent => :auctions do
   end
   
   post :destroy, :with => :id do
-    if @auction.remove_lot(params[:id])
-      flash[:notice] = 'Lot was successfully removed.'
-    else
-      flash[:error] = 'Lot could not be removed'
-    end
-    redirect url(:lots, :index, :auction_id => params[:auction_id])
+    @auction.remove_lot(params[:id])
   end
   
   get :catalog, :provides => :pdf do
