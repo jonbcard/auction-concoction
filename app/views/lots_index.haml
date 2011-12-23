@@ -3,13 +3,6 @@
     $("button.print").button({icons: {
       primary: "ui-icon-print"
     }});
-    $("button#mode").button({icons: {
-      secondary: "ui-icon-triangle-1-s"
-    }}).next().menu({
-        select: function(event, ui) {
-            $(this).hide();
-        }
-    }).popup();
 
     $("#lot_num").focus();
 
@@ -30,7 +23,8 @@
 
   models.Lot.prototype.edit = function(){
     viewModel.activeLot(this);
-    $("#editDialog").dialog({height:430,width:740});
+    var editTitle = "Lot " + this.number();
+    $("#editDialog").dialog({title:editTitle,height:430,width:740});
     $("#tabs").verticalTabs();
   }
 
@@ -153,15 +147,7 @@
     #title-menu
       %button.print{:onClick => "window.open('lots/catalog.pdf','mywindow','width=600,height=800')"}
         View/Print Catalog
-      %button#mode
-        Entry Mode
-      %ul{:style => 'width: 130px'}
-        %li
-          %a{:href => '#direct'}
-            Direct
-        %li
-          %a{:href => '#catalog'}
-            By Catalog Number
+     
     .inner
       %form#lot.form{:action=> "/auctions/#{params[:auction_id]}/lots/new"}
         %table.table{:'data-bind' =>  "dataTable: { dataSource: lots, rowTemplate: 'lotsListTemplate', columns: ['catalog_number', 'number', 'consignee_text', 'description', 'low','high','qty_available',null], 

@@ -1,15 +1,5 @@
 :javascript
   $(function(){
-    $("button#import").button({
-          icons: {
-            primary: "ui-icon-transfer-e-w",
-            secondary: "ui-icon-triangle-1-s"
-          }
-        }).next().menu({
-          select: function(event, ui) {
-            $(this).hide();
-          }
-        }).popup();
     ko.applyBindings(viewModel);
     $("#tabs").verticalTabs();
   });
@@ -249,23 +239,7 @@
       %button#new{:'data-bind' => "click : newBidder, icon: 'ui-icon-plus'"}=pat(:new)
       %button#checkin{:'data-bind' => "click : searchCustomers, icon: 'ui-icon-person'"} Check-in
       %button#reload{:'data-bind' => "click : load, icon: 'ui-icon-refresh'"}=pat(:reload)
-      %button#import{:'data-bind' => "click : load, image: 'ui-icon-transfer-e-w', imageSecondary: 'ui-icon-triangle-1-s'"}
-        Import / Export
-      %ul
-        %li
-          %a{:href=>"#"}
-            Import From CSV
-        %li
-          %a{:href=>"#"}
-            Import From Excel
-        %li
-          %br
-        %li
-          %a{:href=>"#"}
-            Export To CSV
-        %li
-          %a{:href=>"#"}
-            Export To Excel
+      
     .inner
       %table.table{:'data-bind' =>  "dataTable: { dataSource: displayedBidders, rowTemplate: 'bidderRow', columns: ['number', 'first_name', 'last_name', 'status', null], 
                                          options:{sPaginationType:'full_numbers' } }"}

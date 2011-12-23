@@ -12,8 +12,8 @@ AuctionNow.controllers :sales, :parent => :auctions do
     end
   end
   
-  post :new do
-    sale = Sale.new(params[:sale])
+  post :new, :provides => [:json] do
+    sale = Sale.new(parse_json(request))
     if(!@auction.add_sale(sale))
       return {:errors => sale.errors,
               :errors_full => sale.errors.full_messages}.to_json

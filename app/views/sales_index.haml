@@ -22,12 +22,10 @@
 
   reset = function(){
     // TODO : kind of a weird mish-mash between dom and view-model handling.
-    viewModel.lastErrorsFull("");
     $('#sale')[0].reset();
     $('#qty').val('1');
     $('#lot').focus();
-    viewModel.currentLotNumber("");
-    viewModel.currentSale().consignee_id("");
+    viewModel.newSale().consignee_id("");
   }
 
   models.Sale.prototype.remove = function(){
@@ -47,20 +45,24 @@
   
   
   var viewModel = {
-      currentLotNumber: new ko.observable(""),
-      currentSale: new ko.observable(new models.Sale()),
-      lastErrorsFull: new ko.observable(""),
+      newSale: new ko.observable(new models.Sale()),
       sales: new ko.observableArray([]),
       lots : new ko.observableArray([]),
       addSale: function() {
-        util.ajaxSubmit($("#sale"), function(results){
-              if(results.errors){
-                viewModel.lastErrorsFull(results.errors_full);
-              } else {
-                viewModel.sales.unshift(models.parseSale(results));
+        $.ajax({
+          url:  "sales/new.json",
+          type: "post",
+          data: ko.tempToJSON(viewModel.newSale),
+          contentType: "application/json",
+          success: function(result) {
+            if(result.errors){
+              $.growlError("Unable to Create Sale",result.errors_full); 
+            } else {
+                viewModel.sales.unshift(models.parseSale(result));
                 $.growlUI("Sale Recorded",null,1000); 
-                reset();
-              }
+                viewModel.newSale().reset();
+            }
+          }
         });
       }
   };
@@ -81,7 +83,7 @@
 
   viewModel.currentLot = ko.dependentObservable(function() {
       var result = ko.utils.arrayFirst(viewModel.lots(), 
-             function(lot) { return lot.number() == viewModel.currentLotNumber(); }
+             function(lot) { return lot.number() == viewModel.newSale().lot(); }
       );
       return result || {};
   }, viewModel);
@@ -105,18 +107,21 @@
     write: function(value){
         var consignee = models.getConsigneeByCode(value);
         var id = consignee ? consignee.id : "";
-        viewModel.currentSale().consignee_id(id);
+        viewModel.newSale().consignee_id(id);
     }
   }, viewModel);
 
   viewModel.currentConsigneeCode.subscribe(function(value) {
       var consignee = models.getConsigneeByCode(value);
       var id = consignee ? consignee.id : "";
-      viewModel.currentSale().consignee_id(id);
+      viewModel.newSale().consignee_id(id);
   });
 
-.flash
-  .message.error{:'data-bind' => "text: lastErrorsFull, visible: lastErrorsFull()"}
+  viewModel.currentLot.subscribe(function(value){
+      viewModel.newSale().consignee_id(value.consignee_id());
+      viewModel.newSale().description(value.description());
+  });
+
 .block
   .content
     #title
@@ -150,29 +155,31 @@
               %td{:valign => 'top'}
                 %input.text_field.required{:id => 'lot', :type => 'text',
                        :name => 'sale[lot]', :style => "width:50px",
-                       :'data-bind' => "value:currentLotNumber"}
+                       :'data-bind' => "value:newSale().lot"}
                 .floating-error
               %td{:valign => 'top'}
                 %input.text_field{:type => 'hidden', :name=> 'sale[consignee_id]', 
-                        :'data-bind' => "value: currentSale().consignee_id"}
+                        :'data-bind' => "value: newSale().consignee_id.temp"}
                 %input.text_field.required{:type => 'text', :name=> 'sale[consignee_code]', 
-                        :style => "width:50px", :'data-bind' => "value: currentConsigneeCode"}
+                        :style => "width:50px", :'data-bind' => "value: newSale().consignee_code.temp"}
                 .floating-error
                 %br
-                %span{:'data-bind' => 'text:currentSale().consignee_text'}
+                %span{:'data-bind' => 'text:newSale().consignee_text.temp'}
               %td{:valign => 'top'}
                 %textarea.text_area.required.text_area{:name => 'sale[description]', 
-                       :style => "width:200px", :'data-bind' => "text: currentLot().description"}
+                       :style => "width:200px", :'data-bind' => "value: newSale().description.temp"}
                 .floating-error
               %td{:valign => 'top'}
-                %input.text_field.required{:type => 'text', :name=> 'sale[bidder]', 
+                %input.text_field.required{:name=> 'sale[bidder]', :'data-bind' => "value: newSale().bidder.temp",
                       :remote => "sales/check_bidder_number", :style => "width:50px"}
                 .floating-error
               %td{:valign => 'top'}
-                %input.text_field.required{:type => 'text', :name => 'sale[price]', :style => "width:50px"}
+                %input.text_field.required{:type => 'text', :name => 'sale[price]', :style => "width:50px",
+                      :'data-bind' => "value: newSale().price.temp"}
                 .floating-error
               %td{:valign => 'top'}
-                %input.text_field.required{:id => 'qty', :type => 'text', :name => 'sale[quantity]', :style => "width:30px"}
+                %input.text_field.required{:id => 'qty', :type => 'text', :name => 'sale[quantity]', :style => "width:30px",
+                      :'data-bind' => "value: newSale().quantity.temp"}
                 .floating-error
               %td.required{:valign => 'top'}
                 %input.form_button{:id => 'submit', :type => 'submit', :name => 'Submit',:tabindex => "6"}

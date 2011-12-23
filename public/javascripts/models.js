@@ -272,10 +272,29 @@ var models = new function() {
             },
             owner: self
         });
+        
+        this.consignee_code.temp = ko.dependentObservable({
+            read: function () {
+                var con = models.getConsigneeById(this.consignee_id.temp());
+                return (con == undefined ? null : con.code);
+            },
+            write: function (value) {
+                var con = models.getConsigneeByCode(value);
+                this.consignee_id.temp(con == undefined ? null : con.id);
+            },
+            owner: self
+        });
     
         this.consignee_text = ko.dependentObservable(
             function () {
                 var con = models.getConsigneeById(this.consignee_id());
+                return (con == undefined ? "" : "(" + con.code + ")" + " " + con.name);
+            }, self
+            );
+         
+        this.consignee_text.temp = ko.dependentObservable(
+            function () {
+                var con = models.getConsigneeById(this.consignee_id.temp());
                 return (con == undefined ? "" : "(" + con.code + ")" + " " + con.name);
             }, self
             );
