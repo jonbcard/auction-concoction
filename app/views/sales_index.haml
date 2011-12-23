@@ -1,3 +1,33 @@
+-content_for(:context_panel) do
+  #options.block{}
+    %h3 Current Lot Information
+    .content{:'data-bind' => "visible: showLotInfo"}
+      %table.table
+        %tr
+          %td
+            %label Lot Number
+          %td
+            %span{:'data-bind' => "text : currentLot().number"}
+        %tr
+          %td
+            %label Consignee
+          %td
+            %span{:'data-bind' => "text : currentLot().consignee_text"}
+        %tr
+          %td
+            %label Description
+          %td
+            %span{:'data-bind' => "text : currentLot().description"}
+        %tr
+          %td
+            %label Total Qty.
+          %td
+            %span{:'data-bind' => "text : currentLot().qty_available"}
+     
+    .content{:'data-bind' => "visible: !viewModel.showLotInfo()"}
+      N/A
+
+
 :javascript
   $(function(){  
     $("button#mode").button({icons: {
@@ -15,18 +45,9 @@
        submitHandler: function() {
          viewModel.addSale();
        },
-     });
-    reset();
+    });
     ko.applyBindings(viewModel);
   });
-
-  reset = function(){
-    // TODO : kind of a weird mish-mash between dom and view-model handling.
-    $('#sale')[0].reset();
-    $('#qty').val('1');
-    $('#lot').focus();
-    viewModel.newSale().consignee_id("");
-  }
 
   models.Sale.prototype.remove = function(){
     var self = this;
@@ -42,7 +63,6 @@
       }
     });
   }
-  
   
   var viewModel = {
       newSale: new ko.observable(new models.Sale()),
@@ -89,15 +109,16 @@
   }, viewModel);
 
  
+  viewModel.showLotInfo = ko.dependentObservable(function(){
+      return this.currentLot().number != undefined;
+  }, viewModel);
+
   viewModel.currentConsignee = ko.dependentObservable(function() {
     
     var consignee_id = ko.utils.unwrapObservable(viewModel.currentLot().consignee_id);
     return consignee_id ? models.getConsigneeById(consignee_id) : {};
 
   }, viewModel);
-
-   
-
 
   viewModel.currentConsigneeCode = ko.dependentObservable({
     read: function() {
@@ -118,8 +139,12 @@
   });
 
   viewModel.currentLot.subscribe(function(value){
-      viewModel.newSale().consignee_id(value.consignee_id());
-      viewModel.newSale().description(value.description());
+      if(value.consignee_id){
+         viewModel.newSale().consignee_id(value.consignee_id());
+      }
+      if(value.description){
+         viewModel.newSale().description(value.description());
+      }
   });
 
 .block
