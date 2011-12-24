@@ -20,6 +20,13 @@
             %span{:'data-bind' => "text : currentLot().description"}
         %tr
           %td
+            %label Estimate
+          %td
+            %span{:'data-bind' => "text : currentLot().low"} 
+            to 
+            %span{:'data-bind' => "text : currentLot().high"}
+        %tr
+          %td
             %label Total Qty.
           %td
             %span{:'data-bind' => "text : currentLot().qty_available"}
@@ -65,6 +72,7 @@
   }
   
   var viewModel = {
+      activeSale: new ko.model(),
       newSale: new ko.observable(new models.Sale()),
       sales: new ko.observableArray([]),
       lots : new ko.observableArray([]),
@@ -85,6 +93,34 @@
           }
         });
       }
+  };
+
+  models.Sale.prototype.edit = function(){
+    viewModel.activeSale(this);
+    var editTitle = "Sale of Lot " + this.lot();
+    $("#editDialog").dialog({title:editTitle,height:430,width:740});
+    $("#tabs").verticalTabs();
+  }
+
+  models.Sale.prototype.save = function(){
+    // Handles saving the record only
+    var wrapper = this;
+    var id = wrapper().id;
+
+    wrapper.save("sales/" + id() + ".json", function(){
+      $("#editDialog").dialog("close");
+      $.growlUI('Sale Saved'); 
+    });
+  }.bind(viewModel.activeSale);
+
+  $.get("lots.json", function(data) {
+    var allLots = ko.mapToModelList(models.Lot, data);
+    viewModel.lots(allLots);
+  });
+
+  this.cancel = function(){
+    viewModel.activeSale.reset();
+    $("#editDialog").dialog("close");
   };
 
   $.get("sales.json", function(data) {
@@ -223,5 +259,60 @@
   %td
     %span{:'data-bind' => "text: quantity"}
   %td
+    %span.clickable{:'data-bind' => "click: edit, clickBubble: false"}
+      =image_tag 'page_white_edit.png'
     %span.clickable{:'data-bind' => "click: remove, clickBubble: false"}
       =image_tag 'page_white_delete.png'
+
+#editDialog{ :style=>"display:none;"}
+  %div{:'data-bind' => "template: {name:'saleTabs', data: viewModel.activeSale}"}
+
+%script#saleTabs{:type => "text/x-jquery-tmpl"}
+  #tabs
+    %ul
+      %li 
+        %a{:href => "#lot-edit"}Edit General 
+    #lot-edit{:style => "float:right"}
+      %div{:'data-bind' => "template: {name:'saleForm', data: viewModel.activeSale}"}
+
+%script#saleForm{:type => "text/x-jquery-tmpl"}
+  .flash
+    .message.error{:'data-bind' => "visible: viewModel.activeSale.hasErrors()"}
+      Errors occurred while saving changes to this sale.
+  %form.form{:id => 'editForm', :'data-bind' => "submit: save"}
+    .group
+      %label Lot Number:
+      %span.error{:'data-bind' => "text: lot.errors"}
+      %br
+      %input.short{:'data-bind' => "value: lot.temp"}
+    .group
+      %label Consignee:
+      %span.error{:'data-bind' => "text: consignee_id.errors"}
+      %br
+      %input.short{:'data-bind' => "value: consignee_code.temp"}
+      %span{:'data-bind' => 'text:consignee_text.temp'}
+    .group
+      %label Description:
+      %span.error{:'data-bind' => "text: description.errors"}
+      %br
+      %textarea.text_area{:'data-bind' => "value: description.temp"}
+    .group
+      %label Bidder:
+      %span.error{:'data-bind' => "text: bidder.errors"}
+      %br
+      %input.short{:'data-bind' => "value: bidder.temp"}
+    .group
+      %label Price:
+      %span.error{:'data-bind' => "text: price.errors"}
+      %br
+      %input.short{:'data-bind' => "value: price.temp"}
+    .group
+      %label Quantity:
+      %span.error{:'data-bind' => "text: quantity.errors"}
+      %br
+      %input.short{:'data-bind' => "value: quantity.temp"}
+    
+    %button.form_button{:type => 'submit'}
+      Save
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    =link_to("Cancel", "", :class => :button_to, :'data-bind' => "click : cancel")

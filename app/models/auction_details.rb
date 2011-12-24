@@ -50,6 +50,17 @@ class AuctionDetails
       return false
     end
   end
+  
+  ##
+  # Validate then save an existing sale.
+  def update_sale(sale)
+    if sale.valid?
+      AuctionDetails.set({:_id => id, "sales._id" => sale.id},
+        "sales.$" => sale.to_mongo)
+    else
+      return false
+    end
+  end
 
   ##
   # Check whether the given bidder number corresponds to an 'ACTIVE' bidder
