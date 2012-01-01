@@ -44,7 +44,7 @@
             $.growlUI("Customer Saved"); 
         });
       }
-    }
+    }.bind(viewModel.activeCustomer);
   }
 
   var viewModel = function(){

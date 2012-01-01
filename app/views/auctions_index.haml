@@ -198,7 +198,7 @@
             $.growlUI('Auction Saved'); 
         });
       }
-    }
+    }.bind(viewModel.activeAuction);
 
     this.remove = function(){
       var self = this;
@@ -388,15 +388,15 @@
       %div{:style => 'padding-left:0px;padding-right:0px;'}
         %table.table
           %tbody{:'data-bind' => "template: {name:'auctionRow', foreach: upcomingAuctions()}"}
-            %tr{:'data-bind' => "visible: upcomingAuctions().length == 0"}
-              %td No Upcoming Auctions
+          %tr{:'data-bind' => "visible: upcomingAuctions().length == 0"}
+            %td No Upcoming Auctions
           
       %h3="&nbsp;&nbsp;&nbsp;Recent Auctions"
       %div{:style => 'padding-left:0px;padding-right:0px;'}
         %table.table
           %tbody{:'data-bind' => "template: {name:'auctionRow', foreach: recentAuctions()}"}
-            %tr{:'data-bind' => "visible: recentAuctions().length == 0"}
-              %td No Recent Auctions
+          %tr{:'data-bind' => "visible: recentAuctions().length == 0"}
+            %td No Recent Auctions
       
 .block 
   .content

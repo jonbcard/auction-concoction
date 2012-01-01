@@ -3,8 +3,7 @@
 
 :javascript
   $(function(){
-    var viewModel =  locationsViewModel();
-    ko.applyBindings(viewModel);
+    ko.applyBindings(viewModel());
   });
 
   function LocationModel(viewModel){
@@ -45,10 +44,10 @@
               $.growlUI("Location Saved"); 
         });
       }
-    }
+    }.bind(viewModel.activeLocation);
   }
 
-  var locationsViewModel = function(){
+  viewModel = function(){
     this.locations = ko.observableArray([]);
     this.activeLocation = ko.model();
     this.numberFilter = new ko.observable("");

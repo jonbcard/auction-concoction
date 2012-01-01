@@ -41,7 +41,7 @@
               $.growlUI("Account Saved"); 
         });
       }
-    }
+    }.bind(viewModel.activeAccount);
   }
 
   viewModel = function(){

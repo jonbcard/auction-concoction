@@ -73,7 +73,7 @@
               $.growlUI("Profile Saved"); 
         });
       }
-    }
+    }.bind(viewModel.activeProfile);
   }
 
   viewModel = function(){

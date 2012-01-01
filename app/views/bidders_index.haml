@@ -73,7 +73,7 @@
             $.growlUI("Bidder Saved"); 
         });
       }
-    }
+    }.bind(viewModel.activeBidder);
   }
 
   function biddersViewModel(){
