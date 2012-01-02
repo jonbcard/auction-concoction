@@ -29,13 +29,14 @@ class BidderReceipt
     self.sub_total = sum
 
     # Add the bidder's fee
-    params = AppParameters.get
-    self.fee_percent = params.fee_percent.nil? ? 0 : params.fee_percent
-    self.fee_amount = fee_percent.nil? ? Money.new(0) : Money.new(sub_total.cents * (self.fee_percent/100.0))
+    
+    #params = AppParameters.get
+    #self.fee_percent = params.fee_percent.nil? ? 0 : params.fee_percent
+    #self.fee_amount = fee_percent.nil? ? Money.new(0) : Money.new(sub_total.cents * (self.fee_percent/100.0))
 
     # Finally, add the taxes
-    add_tax_line(params.tax_line1_name, params.tax_line1_percent) unless params.tax_line1_percent.blank?
-    add_tax_line(params.tax_line2_name, params.tax_line2_percent) unless params.tax_line2_percent.blank?
+    #add_tax_line(params.tax_line1_name, params.tax_line1_percent) unless params.tax_line1_percent.blank?
+    #add_tax_line(params.tax_line2_name, params.tax_line2_percent) unless params.tax_line2_percent.blank?
 
     self.total = sub_total + fee_amount + (@tax_total || Money.new(0))
   end
@@ -48,26 +49,4 @@ class BidderReceipt
       @tax_total = Money.new(0) if @tax_total.nil?
       @tax_total += tax_line.amount
     end
-end
-
- class TaxLine
-    include MongoMapper::EmbeddedDocument
-
-    key  :name,         String,  :required => true
-    key  :percent,      Integer, :required => true
-    key  :amount,       Money,   :required => true
-    
-  end
-
-class Purchase
-  include MongoMapper::EmbeddedDocument
-
-  key  :lot,          String,  :required => true
-  key  :description,  String,  :required => true
-  key  :price,        Money,   :required => true
-  key  :quantity,     Integer, :required => true
-
-  def item_total
-    Money.new(price.cents*quantity)
-  end
 end

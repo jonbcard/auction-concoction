@@ -1,0 +1,32 @@
+-if @invoices.empty?
+  Bidder has not purchased any items in this auction.  
+-else
+  :javascript
+    
+    invoiceViewModel = {
+      invoices : #{@invoices.to_json}
+    }
+    ko.applyBindings(invoiceViewModel, document.getElementById('invoices'));
+    
+  #invoices{:'data-bind'=>'template: { name: "invoiceTemplate", foreach: invoices }'}
+  
+  %script#invoiceTemplate{:type => 'text/html'}
+    %table.table
+      %thead
+        %tr
+          %th.first{:style => "width: 38px"} Lot
+          %th{:style => "width: 320px"} Description
+          %th{:style => "width: 60px"} Price
+          %th{:style => "width: 36px"} Qty.
+          %th.last{:style => "width: 60px"} Total
+      %tbody{:'data-bind'=>'template: { name: "purchaseRow", foreach: purchases }'}        
+      %tr
+        %td{:colspan=>4} Subtotal:
+
+  %script#purchaseRow{:type => 'text/html'}
+    %tr
+      %td{:'data-bind' => 'text: $data.lot'}
+      %td{:'data-bind' => 'text: $data.description'}
+      %td{:'data-bind' => 'text: $data.price'}
+      %td{:'data-bind' => 'text: $data.quantity'}
+      %td{:'data-bind' => 'text: $data.price'}

@@ -32,7 +32,7 @@ class Sale
   def js_datapoints
     "[#{truncated_js_time}, #{quantity}, #{price*quantity}]"
   end
-
+  
   private
     def truncated_js_time
       year = sale_time.getlocal.year

@@ -29,10 +29,18 @@
     });
   }.bind(viewModel);
 
+  viewModel.addSurcharge = function(){
+    this.params().surcharge_types.push({code:"",text:"",amount:""})
+  }.bind(viewModel);
+
 
   viewModel.cancel = function(){
     this.params(new Parameters(util.getJSON("parameters.json")));
   }.bind(viewModel);
+
+  $(".removeSurcharge").live("click", function() {
+    viewModel.params().surcharge_types.remove(ko.dataFor(this));
+  });
 
 .block
   .content
@@ -82,10 +90,26 @@
         .group
           %label Surcharges
           %table.table{:style => "width:600px"}
-            %tr
-              %th.first Code
-              %th Display Text
-              %th.last Amount
+            %thead
+              %tr
+                %th.first Code
+                %th Display Text
+                %th Amount
+                %th.last 
+            %tbody{:'data-bind' => 'foreach: params().surcharge_types'}
+              %tr
+                %td
+                  %input.short{:'data-bind' => 'value: $data.code'}
+                %td
+                  %input{:'data-bind' => 'value: $data.text'}
+                %td
+                  $
+                  %input.short{:'data-bind' => 'value: $data.amount'}
+                %td
+                  %span.clickable.removeSurcharge
+                    =image_tag 'page_white_delete.png'
+            
+          %a{:href => '#', :'data-bind' => 'click: addSurcharge'} Add Surcharge
         .group.navform.wat-cf
           %button.form_button{:type => "submit"}
             =pat(:save)

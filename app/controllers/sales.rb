@@ -37,11 +37,6 @@ AuctionNow.controllers :sales, :parent => :auctions do
   end
 
   post :destroy, :with => :id do
-    if @auction.remove_sale(params[:id])
-      flash[:notice] = 'Sale was successfully removed.'
-    else
-      flash[:error] = 'Sale could not be removed. The associated bidder may already be checked out.'
-    end
-    redirect url(:sales, :index, :auction_id => params[:auction_id])
+    @auction.remove_sale(params[:id])
   end
 end

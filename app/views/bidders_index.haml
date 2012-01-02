@@ -82,10 +82,10 @@
     this.search = ko.observable();
     this.searchResults = ko.observableArray([]);
     this.showInactive = new ko.observable(false);
-    this.autonumber = ko.storedObservable(false, "bidder.autoNumber");
+    this.autonumber = ko.observable(false).extend({stored:"bidder.autoNumber"});
 
     // view model functions
-    this.displayedBidders = ko.dependentObservable(function() {
+    this.displayedBidders = ko.computed(function() {
       return ko.utils.arrayFilter(this.bidders(), function(bidder) {
         return this.showInactive() || bidder.status() == 'ACTIVE';
       });
@@ -174,9 +174,11 @@
   #tabs
     %ul
       %li 
-        %a{:href => "#bidder-edit"} Edit General 
+        %a{:href => "#bidder-edit"} Edit General
       %li 
-        %a{:href => "bidders/purchases/${id}"} Purchases 
+        %a{:href => "bidders/invoices/${id}"} Invoice and Pay  
+      %li 
+        %a{:href => "bidders/purchases/${id}"} All Purchases 
     #bidder-edit{:style => "float:right"}
       %div{:'data-bind' => "template: {name:'bidderForm', data: activeBidder}"}
 

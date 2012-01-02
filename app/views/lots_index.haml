@@ -53,9 +53,9 @@
   }
 
   var viewModel = {
-      autoNumber: new ko.storedObservable(false, "lot.autoNumber"),
-      showLowHigh: new ko.storedObservable(false, "lot.showLowHigh"),
-      fromCatalog: new ko.storedObservable(false, "lot.fromCatalog"),
+      autoNumber: new ko.observable(false).extend({stored:"lot.autoNumber"}),
+      showLowHigh: new ko.observable(false).extend({stored:"lot.showLowHigh"}),
+      fromCatalog: new ko.observable(false).extend({stored:"lot.fromCatalog"}),
       newLot: new ko.observable(new models.Lot()),
       activeLot: new ko.model(),
       lastErrorsFull: new ko.observable(""),

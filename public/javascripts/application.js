@@ -353,23 +353,6 @@ ko.property = function(initialValue, errors) {
     return result;
 };
 
-ko.storedObservable = function(initialValue, name) {
-    if(localStorage.hasOwnProperty(name)){
-        try{
-            initialValue = JSON.parse(localStorage.getItem(name));
-        }catch(e){};
-    } else {
-        localStorage.setItem(name,  JSON.stringify(initialValue));
-    }
-    var result = ko.observable(initialValue);
-    
-    result.subscribe(function(newValue) {
-        localStorage.setItem(name,  JSON.stringify(newValue));
-    });
-    
-    return result;
-}
-
 ko.saveModel = function(model, url, successHandler){
     $.ajax({
         url:  url,
@@ -397,4 +380,47 @@ ko.mapToModelList = function(modelType, data, viewModel){
         return ko.mapToModel(model, json);
     });
     return results;
+}
+
+ko.extenders.currency = function(target) {
+    //create a writeable computed observable to intercept writes
+    var result = ko.computed({
+        read: target,  //always return the original observables value
+        write: function(newValue) {
+            var current = target(),
+                roundingMultiplier = Math.pow(10, 2),
+                newValueAsNum = isNaN(newValue) ? 0 : parseFloat(newValue),
+                valueToWrite = Math.round(newValueAsNum * roundingMultiplier) / roundingMultiplier;
+ 
+            //only write if it changed
+            if (valueToWrite !== current) {
+                target(valueToWrite);
+            } else {
+                //if the rounded value is the same, but a different value was written, force a notification for the current field
+                if (newValue != current) {
+                    target.notifySubscribers(valueToWrite);
+                }
+            }
+        }
+    });
+ 
+    //initialize with current value to make sure it is rounded appropriately
+    result(target());
+    return result;
+};
+
+ko.extenders.stored = function(target, name) {
+    // Initialize to/from local storage when the observable is created
+    if(localStorage.hasOwnProperty(name)){
+        try{
+            target(JSON.parse(localStorage.getItem(name)));
+        }catch(e){};
+    } else {
+        localStorage.setItem(name,  JSON.stringify(target()));
+    }
+    
+    target.subscribe(function(newValue) {
+        localStorage.setItem(name,  JSON.stringify(newValue));
+    });
+    return target;
 }

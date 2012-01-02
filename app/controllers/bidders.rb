@@ -14,12 +14,22 @@ AuctionNow.controllers :bidders, :parent => :auctions do
     end
   end
   
-  get :purchases, :with=> :id, :provides => [:html] do
+  get :purchases, :with => :id, :provides => [:html] do
     bidder = @details.bidders.find(params[:id])
     @purchases = bidder.all_sales
     partial "templates/bidder_purchases"
   end
   
+  get :invoices, :with => :id, :provides => [:html] do
+    bidder = @details.bidders.find(params[:id])
+    @invoices = Array.new(bidder.invoices) || []
+    temp_invoice = bidder.create_initial_invoice
+    if not temp_invoice.nil?
+      @invoices.unshift(temp_invoice)
+    end
+    partial "templates/bidder_invoices"
+  end
+    
   get :next_number, :provides => [:json] do
     # TODO: better support for multi-user registration w/ reservation system
     val = @details.next_bidder_num
