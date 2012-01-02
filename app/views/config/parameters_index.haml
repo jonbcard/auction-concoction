@@ -24,13 +24,29 @@
   }
 
   viewModel.save = function(){
-    this.params.save("parameters/update.json", function(result){
-      $.growlUI("Parameters Saved"); 
+    wrapper = viewModel.params;
+    $.ajax({
+      url:  "parameters/update.json",
+      type: "post",
+      data: ko.toJSON(wrapper()),
+      contentType: "application/json",
+      success: function(result) {
+        if(result.errors){
+          wrapper.applyErrors(result.errors);
+        } else {
+          wrapper.reset();
+          $.growlUI("Parameters Saved"); 
+        }
+      }
     });
   }.bind(viewModel);
 
   viewModel.addSurcharge = function(){
-    this.params().surcharge_types.push({code:"",text:"",amount:""})
+    this.params().surcharge_types.push({
+        code:"",
+        text:"",
+        amount:ko.observable(0).extend({currency:""})
+    });
   }.bind(viewModel);
 
 

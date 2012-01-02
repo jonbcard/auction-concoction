@@ -256,13 +256,13 @@ ko.model = function(initialValue) {
      
     result.hasErrors = ko.observable(false);
     
-    // Clear all errrors from the properties
+    // Clear all errors from the properties
     result.clearErrors = function(){
         result.hasErrors(false);
         var edited = result();
         for(var prop in edited){
-            if(ko.isProperty(edited[prop])){
-                edited[prop].errors("");
+            if(edited[prop].hasOwnProperty("errors")){
+                edited[prop].errors(null);
             }
         }
     }
@@ -273,7 +273,7 @@ ko.model = function(initialValue) {
         result.hasErrors(true);
         var edited = result();
         for(var prop in errors){
-            if(edited.hasOwnProperty(prop) && ko.isProperty(edited[prop])){
+            if(edited.hasOwnProperty(prop) && edited[prop].hasOwnProperty("errors")){
                 edited[prop].errors(errors[prop]);
             }
         }
@@ -331,24 +331,8 @@ ko.model = function(initialValue) {
 };
   
 ko.property = function(initialValue, errors) {
-    var result = ko.observable(initialValue);
-    result.errors = ko.observable(errors);
-    result.temp = ko.observable(initialValue);
     
-    result.subscribe(function(newValue) {
-        // Ensure the temp value is kept up-to-date with change to the observable..
-        // TODO: maybe just make temp a dependent-observable?
-        result.temp(newValue);
-    });
-    
-    result.commit = function(){
-        result(result.temp());
-    };
-    
-    result.reset = function(){
-        result.temp(result());
-    }
-    
+    var result = ko.observable(initialValue).extend({errors:errors,temp:null})    
     result.__ko_proto__ = ko.property;
     return result;
 };
@@ -387,10 +371,9 @@ ko.extenders.currency = function(target) {
     var result = ko.computed({
         read: target,  //always return the original observables value
         write: function(newValue) {
-            var current = target(),
-                roundingMultiplier = Math.pow(10, 2),
-                newValueAsNum = isNaN(newValue) ? 0 : parseFloat(newValue),
-                valueToWrite = Math.round(newValueAsNum * roundingMultiplier) / roundingMultiplier;
+            var current = target();
+            var newValueAsNum = isNaN(newValue) ? 0 : parseFloat(newValue);
+            var valueToWrite = (Math.round(newValueAsNum * 100) / 100).toFixed(2);
  
             //only write if it changed
             if (valueToWrite !== current) {
@@ -422,5 +405,31 @@ ko.extenders.stored = function(target, name) {
     target.subscribe(function(newValue) {
         localStorage.setItem(name,  JSON.stringify(newValue));
     });
+    return target;
+}
+
+ko.extenders.errors = function(target, errors) {
+    target.errors = ko.observable(errors);
+    
+    return target;
+}
+
+ko.extenders.temp = function(target) {
+    target.temp = ko.observable(target());
+    
+    target.subscribe(function(newValue) {
+        // Ensure the temp value is kept up-to-date with change to the observable..
+        // TODO: maybe just make temp a dependent-observable?
+        target.temp(newValue);
+    });
+    
+    target.commit = function(){
+        target(target.temp());
+    };
+    
+    target.reset = function(){
+        target.temp(target());
+    }
+    
     return target;
 }
