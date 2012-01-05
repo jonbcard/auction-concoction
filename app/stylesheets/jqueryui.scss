@@ -620,3 +620,7 @@ body .ui-tooltip { border-width:2px; }
 .ui-tabs-vertical .ui-tabs-nav li a { display:block; }
 .ui-tabs-vertical .ui-tabs-nav li.ui-state-active {background-color: #fff !important; background: url(/images/arrow.png) no-repeat 4px; background-position:right; }
 .ui-tabs-vertical .ui-tabs-panel {float: right;}
+
+.ui-combobox-button { margin-left: -1px; }
+.ui-combobox-button .ui-button-text { padding: 0.35em; } 
+.ui-autocomplete-input { margin: 0; padding: 0.48em 0 0.47em 0.45em; }

@@ -1,15 +1,10 @@
 -if @invoices.empty?
   Bidder has not purchased any items in this auction.  
 -else
-  :javascript
-    
-    invoiceViewModel = {
-      invoices : #{@invoices.to_json}
-    }
-    ko.applyBindings(invoiceViewModel, document.getElementById('invoices'));
-    
   #invoices{:'data-bind'=>'template: { name: "invoiceTemplate", foreach: invoices }'}
-  
+
+  =select_tag 'surcharge', :id=> "surcharge", :options => access_control.roles  
+
   %script#invoiceTemplate{:type => 'text/html'}
     %table.table
       %thead
@@ -30,3 +25,11 @@
       %td{:'data-bind' => 'text: $data.price'}
       %td{:'data-bind' => 'text: $data.quantity'}
       %td{:'data-bind' => 'text: $data.price'}
+
+  :javascript    
+    invoiceViewModel = {
+      invoices : #{@invoices.to_json || []}
+    }
+    
+    ko.applyBindings(invoiceViewModel, document.getElementById('invoices'));
+    $("#surcharge").combobox();

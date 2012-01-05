@@ -73,7 +73,7 @@
   
   var viewModel = {
       activeSale: new ko.model(),
-      newSale: new ko.observable(new models.Sale()),
+      newSale: new ko.model(new models.Sale()),
       sales: new ko.observableArray([]),
       lots : new ko.observableArray([]),
       addSale: function() {
@@ -88,7 +88,8 @@
             } else {
                 viewModel.sales.unshift(models.parseSale(result));
                 $.growlUI("Sale Recorded",null,1000); 
-                viewModel.newSale().reset();
+                viewModel.newSale(new models.Sale());
+                $('#lot').focus();
             }
           }
         });
@@ -118,7 +119,7 @@
     viewModel.lots(allLots);
   });
 
-  this.cancel = function(){
+  var cancel = function(){
     viewModel.activeSale.reset();
     $("#editDialog").dialog("close");
   };
