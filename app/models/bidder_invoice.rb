@@ -51,14 +51,14 @@ class BidderInvoice
     end
 end
 
- class TaxLine
-    include MongoMapper::EmbeddedDocument
+class TaxLine
+  include MongoMapper::EmbeddedDocument
 
-    key  :name,         String,  :required => true
-    key  :percent,      Integer, :required => true
-    key  :amount,       Money,   :required => true
+  key  :name,         String,  :required => true
+  key  :percent,      Integer, :required => true
+  key  :amount,       Money,   :required => true
     
-  end
+end
 
 class Purchase
   include MongoMapper::EmbeddedDocument

@@ -43,10 +43,10 @@
 
   viewModel.addSurcharge = function(){
     this.params().surcharge_types.push({
-        code:"",
         text:"",
         amount:ko.observable(0).extend({currency:""})
     });
+    
   }.bind(viewModel);
 
 
@@ -108,14 +108,11 @@
           %table.table{:style => "width:600px"}
             %thead
               %tr
-                %th.first Code
                 %th Display Text
                 %th Amount
                 %th.last 
             %tbody{:'data-bind' => 'foreach: params().surcharge_types'}
               %tr
-                %td
-                  %input.short{:'data-bind' => 'value: $data.code'}
                 %td
                   %input{:'data-bind' => 'value: $data.text'}
                 %td

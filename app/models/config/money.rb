@@ -19,7 +19,6 @@ class Money
   end
   
   def as_json(*options)
-    # not reflexive
-    format
+    format(:symbol => false)
   end
 end

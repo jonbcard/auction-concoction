@@ -158,8 +158,8 @@
               %th{:'data-bind' => "visible : fromCatalog"} Catalog #
               %th Consignee
               %th Description
-              %th{:'data-bind' => "visible : showLowHigh"}=pat(:low)
-              %th{:'data-bind' => "visible : showLowHigh"}=pat(:high)
+              %th{:'data-bind' => "visible : showLowHigh"}=pat(:low) + " ($)"
+              %th{:'data-bind' => "visible : showLowHigh"}=pat(:high)  + " ($)"
               %th Qty.
               %th.last
             %tr
@@ -207,8 +207,10 @@
   %td
     %span{:'data-bind' => "text: description"}
   %td{:'data-bind' => "visible : viewModel.showLowHigh"}
+    $
     %span{:'data-bind' => "text: low"}
   %td{:'data-bind' => "visible : viewModel.showLowHigh"}
+    $
     %span{:'data-bind' => "text: high"}
   %td
     %span{:'data-bind' => "text: qty_available"}
@@ -251,12 +253,12 @@
       %br
       %textarea.text_area{:'data-bind' => "value: description.temp"}
     .group
-      %label Low Estimate:
+      %label Low Estimate ($):
       %span.error{:'data-bind' => "text: low.errors"}
-      %br
+      %br 
       %input.short{:'data-bind' => "value: low.temp"}
     .group
-      %label High Estimate:
+      %label High Estimate ($):
       %span.error{:'data-bind' => "text: high.errors"}
       %br
       %input.short{:'data-bind' => "value: high.temp"}

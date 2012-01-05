@@ -27,6 +27,9 @@ AuctionNow.controllers :bidders, :parent => :auctions do
     if not temp_invoice.nil?
       @invoices.unshift(temp_invoice)
     end
+    
+    @surcharge_types = AppParameter.get.surcharge_types
+    
     partial "templates/bidder_invoices"
   end
     

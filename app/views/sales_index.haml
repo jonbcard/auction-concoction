@@ -210,7 +210,7 @@
               %th Consignee
               %th Description
               %th Bidder
-              %th Price
+              %th Price ($)
               %th Qty.
               %th.last
             %tr
@@ -256,6 +256,7 @@
   %td
     %span{:'data-bind' => "text: bidder"} 
   %td
+    $
     %span{:'data-bind' => "text: price"} 
   %td
     %span{:'data-bind' => "text: quantity"}
@@ -303,7 +304,7 @@
       %br
       %input.short{:'data-bind' => "value: bidder.temp"}
     .group
-      %label Price:
+      %label Price ($):
       %span.error{:'data-bind' => "text: price.errors"}
       %br
       %input.short{:'data-bind' => "value: price.temp"}

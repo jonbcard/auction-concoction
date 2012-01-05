@@ -18,6 +18,7 @@ class AppParameters
   key  :allow_bidder_autoregister, Boolean
 
   one  :default_profile,   :class_name => 'Profile'
+  many :surcharge_types
   
   attachment :file
   
@@ -26,4 +27,12 @@ class AppParameters
   validates_numericality_of :tax_line2_percent, :if => lambda {not tax_line2_percent.blank? }
   validates_presence_of :tax_line1_name, :if => lambda { not tax_line1_percent.blank? }
   validates_presence_of :tax_line2_name, :if => lambda { not tax_line2_percent.blank? }
+end
+
+class SurchargeType
+  include MongoMapper::EmbeddedDocument
+
+  key  :text,         String,  :required => true
+  key  :amount,       Money,   :required => true
+    
 end
