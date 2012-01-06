@@ -3,6 +3,11 @@
     ko.applyBindings(viewModel);
   });
 
+  var SurchargeType = function(data) {
+    ko.mapping.fromJS(data, {}, this);
+    this.amount = this.amount.extend({currency:""});
+  }
+
   function Parameters(json){
     this.company_name = ko.property(json.company_name);
     this.profile_id = ko.property(json.profile_id);
@@ -15,7 +20,11 @@
     this.bidder_autonumber_start = ko.property(json.bidder_autonumber_start || 1);
     this.permanent_autonumber_start = ko.property(json.permanent_autonumber_start || 1000);
 
-    this.surcharge_types = ko.observableArray(json.surcharge_types || []);
+    this.surcharge_types = ko.mapping.fromJS(json.surcharge_types || [], {
+      create: function(options) {
+        return new SurchargeType(options.data);
+      }
+    });
   }
 
   viewModel = {
@@ -42,10 +51,7 @@
   }.bind(viewModel);
 
   viewModel.addSurcharge = function(){
-    this.params().surcharge_types.push({
-        text:"",
-        amount:ko.observable(0).extend({currency:""})
-    });
+    this.params().surcharge_types.push(new SurchargeType());
     
   }.bind(viewModel);
 
@@ -105,11 +111,11 @@
                 %span.error{:'data-bind' => "text: params().tax_line2_percent.errors"}
         .group
           %label Surcharge Types
-          %table.table{:style => "width:600px"}
+          %table.table{:style => "width:400px"}
             %thead
               %tr
                 %th Display Text
-                %th Amount
+                %th Amount ($)
                 %th.last 
             %tbody{:'data-bind' => 'foreach: params().surcharge_types'}
               %tr

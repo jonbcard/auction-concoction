@@ -2,34 +2,132 @@
   Bidder has not purchased any items in this auction.  
 -else
   #invoices{:'data-bind'=>'template: { name: "invoiceTemplate", foreach: invoices }'}
-
-  =select_tag 'surcharge', :id=> "surcharge", :options => access_control.roles  
-
+    
   %script#invoiceTemplate{:type => 'text/html'}
     %table.table
       %thead
         %tr
-          %th.first{:style => "width: 38px"} Lot
+          %th.first{:style => "width: 38px"} Lot #
           %th{:style => "width: 320px"} Description
-          %th{:style => "width: 60px"} Price
+          %th{:style => "width: 60px"} Price ($)
           %th{:style => "width: 36px"} Qty.
-          %th.last{:style => "width: 60px"} Total
-      %tbody{:'data-bind'=>'template: { name: "purchaseRow", foreach: purchases }'}        
+          %th{:style => "width: 60px"} Total ($)
+          %th.last
+      
+      %tbody{:'data-bind'=>'template: { name: "purchaseRow", foreach: purchases }'}     
+      %tbody{:'data-bind'=>'template: { name: "surchargeRow", foreach: surcharges }'}       
       %tr
         %td{:colspan=>4} Subtotal:
+        %td
+          $
+          %span{:'data-bind' => 'text: subtotal'}
+
+      
+      %tr
+        %td{:colspan => "5"}
+          %form
+            %span{:'data-bind' => "visible: !showSurchargeSelect()"}
+              %a{:href => "#", :'data-bind' => "click: showSurcharge"}
+                Add Surcharge
+            %span{:'data-bind' => "visible: showSurchargeSelect()"}
+              %select{:'data-bind' => "options: invoiceViewModel.surchargeTypes, optionsText: 'display_value', value: selectedSurcharge, optionsCaption: 'Choose Surcharge...'"}
+
+  %script#surchargeRow{:type => 'text/html'}
+    %tr
+      %td
+      %td{:'data-bind' => 'text: $data.text'}
+      %td
+      %td
+      %td
+        $
+        %span{:'data-bind' => 'text: $data.amount'}
+      %td
+        %span.clickable.removeSurcharge
+          =image_tag 'page_white_delete.png'
 
   %script#purchaseRow{:type => 'text/html'}
     %tr
       %td{:'data-bind' => 'text: $data.lot'}
       %td{:'data-bind' => 'text: $data.description'}
-      %td{:'data-bind' => 'text: $data.price'}
+      %td
+        $
+        %span{:'data-bind' => 'text: $data.price'}
       %td{:'data-bind' => 'text: $data.quantity'}
-      %td{:'data-bind' => 'text: $data.price'}
+      %td
+        $
+        %span{:'data-bind' => 'text: $data.price'}
+      %td
 
   :javascript    
+    var Invoice = function(data) {
+      ko.mapping.fromJS(data, {}, this);
+      
+      if(this.surcharges == undefined){
+        this.surcharges = new ko.observableArray([]);
+      }
+       
+      this.showSurchargeSelect = ko.observable(false);
+      this.selectedSurcharge = ko.observable();
+
+      this.selectedSurcharge.subscribe(function(val){
+        
+        if(val){
+          this.surcharges.push(val);
+        }
+        this.selectedSurcharge(null);
+        this.showSurchargeSelect(false);
+      }, this);
+
+      this.showSurcharge = function(){
+        this.showSurchargeSelect(true);
+      }
+
+      this.subtotal = ko.computed(function() {
+        var sum = 0;
+        $.each(this.purchases(), function(index, line) { 
+          sum = sum + parseFloat(line.price())
+        })
+        $.each(this.surcharges(), function(index, line) { 
+          sum = sum + parseFloat(line.amount())
+        });
+
+        return sum.toFixed(2);
+      }, this);
+    }
+
+    var SurchargeType = function(data) {
+      ko.mapping.fromJS(data, {}, this);
+    
+      this.display_value = ko.computed(function() {
+        return this.text() + "  |  $ " + this.amount();
+      }, this);
+    }
+
     invoiceViewModel = {
-      invoices : #{@invoices.to_json || []}
+      invoices : ko.mapping.fromJS(#{@invoices.to_json || []}, {
+        create: function(options) {
+          return new Invoice(options.data);
+        }
+      }),
+      surchargeTypes: ko.mapping.fromJS(#{@app_params.surcharge_types.to_json || []}, {
+        create: function(options) {
+          return new SurchargeType(options.data);
+        }
+      })
     }
     
+    createSurcharge = function(){
+      $("#add_surcharge_link").toggle();
+      $("#add_surcharge_select").toggle();
+    }
+
     ko.applyBindings(invoiceViewModel, document.getElementById('invoices'));
     $("#surcharge").combobox();
+    $(".removeSurcharge").live("click", function() {
+      var context = ko.contextFor(this);
+      context.$parent.surcharges.remove(context.$data);
+    });
+
+    
+
+    

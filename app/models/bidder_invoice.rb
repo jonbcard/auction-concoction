@@ -30,13 +30,14 @@ class BidderInvoice
     self.sub_total = sum
 
     # Add the bidder's fee
+    
     params = AppParameters.get
-    self.fee_percent = params.fee_percent.nil? ? 0 : params.fee_percent
-    self.fee_amount = fee_percent.nil? ? Money.new(0) : Money.new(sub_total.cents * (self.fee_percent/100.0))
+    #self.fee_percent = params.fee_percent.nil? ? 0 : params.fee_percent
+    #self.fee_amount = fee_percent.nil? ? Money.new(0) : Money.new(sub_total.cents * (self.fee_percent/100.0))
 
     # Finally, add the taxes
-    add_tax_line(params.tax_line1_name, params.tax_line1_percent) unless params.tax_line1_percent.blank?
-    add_tax_line(params.tax_line2_name, params.tax_line2_percent) unless params.tax_line2_percent.blank?
+    #add_tax_line(params.tax_line1_name, params.tax_line1_percent) unless params.tax_line1_percent.blank?
+    #add_tax_line(params.tax_line2_name, params.tax_line2_percent) unless params.tax_line2_percent.blank?
 
     self.total = sub_total + fee_amount + (@tax_total || Money.new(0))
   end
@@ -76,8 +77,8 @@ end
 class Surcharge
   include MongoMapper::EmbeddedDocument
 
-  key  :surcharge_text,          String
-  key  :price,        Money,   :required => true
+  key  :surcharge_text,   String
+  key  :price,            Money,   :required => true
 end
 
 

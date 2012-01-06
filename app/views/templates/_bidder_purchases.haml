@@ -3,11 +3,11 @@
 -else
   %table.table
     %tr
-      %th.first{:style => "width: 38px"} Lot
+      %th.first{:style => "width: 38px"} Lot #
       %th{:style => "width: 320px"} Description
-      %th{:style => "width: 60px"} Price
+      %th{:style => "width: 60px"} Price ($)
       %th{:style => "width: 36px"} Qty.
-      %th.last{:style => "width: 60px"} Total
+      %th.last{:style => "width: 60px"} Total ($)
     -subtotal = Money.new(0) 
     -@purchases.each do |sale|
       -tot = sale.price*sale.quantity
@@ -15,9 +15,9 @@
       %tr
         %td=sale.lot
         %td=sale.description
-        %td $#{sale.price}
+        %td $ #{sale.price}
         %td=sale.quantity
-        %td $#{tot}
+        %td $ #{tot}
     %tr
       %td{:colspan=>4} Subtotal:
-      %td $#{subtotal}  
+      %td $ #{subtotal}  

@@ -28,7 +28,8 @@ AuctionNow.controllers :bidders, :parent => :auctions do
       @invoices.unshift(temp_invoice)
     end
     
-    @surcharge_types = AppParameter.get.surcharge_types
+    @app_params = AppParameters.get
+    @surcharge_types = @app_params.surcharge_types.map{|s| [s.text, s.amount]}
     
     partial "templates/bidder_invoices"
   end

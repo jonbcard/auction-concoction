@@ -11,9 +11,9 @@
           %tr
             %th.first Lot
             %th Description
-            %th Price/Unit
+            %th Price/Unit ($)
             %th Qty
-            %th.last Total
+            %th.last Total ($)
           -@receipt.purchases.each do |sale|
             %tr
               %td=sale.lot
