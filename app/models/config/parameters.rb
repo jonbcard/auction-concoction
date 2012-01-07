@@ -27,6 +27,13 @@ class AppParameters
   validates_numericality_of :tax_line2_percent, :if => lambda {not tax_line2_percent.blank? }
   validates_presence_of :tax_line1_name, :if => lambda { not tax_line1_percent.blank? }
   validates_presence_of :tax_line2_name, :if => lambda { not tax_line2_percent.blank? }
+  
+  def all_taxes
+    taxes = []
+    taxes << {:name => tax_line1_name, :percent => tax_line1_percent} if not tax_line1_name.blank?
+    taxes << {:name => tax_line2_name, :percent => tax_line2_percent} if not tax_line2_name.blank?
+    taxes
+  end
 end
 
 class SurchargeType

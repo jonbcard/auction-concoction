@@ -1,9 +1,7 @@
 -if @invoices.empty?
   Bidder has not purchased any items in this auction.  
 -else
-  #invoices{:'data-bind'=>'template: { name: "invoiceTemplate", foreach: invoices }'}
-    
-  %script#invoiceTemplate{:type => 'text/html'}
+  #invoices{:'data-bind'=>'foreach: invoices'}
     %table.table
       %thead
         %tr
@@ -11,18 +9,10 @@
           %th{:style => "width: 320px"} Description
           %th{:style => "width: 60px"} Price ($)
           %th{:style => "width: 36px"} Qty.
-          %th{:style => "width: 60px"} Total ($)
+          %th{:style => "width: 70px"} Total ($)
           %th.last
-      
       %tbody{:'data-bind'=>'template: { name: "purchaseRow", foreach: purchases }'}     
-      %tbody{:'data-bind'=>'template: { name: "surchargeRow", foreach: surcharges }'}       
-      %tr
-        %td{:colspan=>4} Subtotal:
-        %td
-          $
-          %span{:'data-bind' => 'text: subtotal'}
-
-      
+      %tbody{:'data-bind'=>'template: { name: "surchargeRow", foreach: surcharges }'}     
       %tr
         %td{:colspan => "5"}
           %form
@@ -30,8 +20,28 @@
               %a{:href => "#", :'data-bind' => "click: showSurcharge"}
                 Add Surcharge
             %span{:'data-bind' => "visible: showSurchargeSelect()"}
-              %select{:'data-bind' => "options: invoiceViewModel.surchargeTypes, optionsText: 'display_value', value: selectedSurcharge, optionsCaption: 'Choose Surcharge...'"}
-
+              %select{:'data-bind' => "options: invoiceViewModel.surchargeTypes, optionsText: 'display_value', value: selectedSurcharge, optionsCaption: 'Choose Surcharge...'"}  
+        %td
+      %tr
+        %td{:colspan=>4} Subtotal:
+        %td
+          $
+          %span{:'data-bind' => 'text: subtotal'}
+        %td
+      / ko foreach: taxes
+      %tr
+        %td 
+        %td{:align => "right", :'data-bind' => "text: $data.name"}
+        %td
+          %span{:'data-bind' => "text: $data.percent"}
+          \%
+        %td
+        %td
+          $
+          %span{:'data-bind' => "text: $parent.tax_amount($data.percent)"}
+        %td
+          
+      / /ko
   %script#surchargeRow{:type => 'text/html'}
     %tr
       %td
@@ -55,7 +65,7 @@
       %td{:'data-bind' => 'text: $data.quantity'}
       %td
         $
-        %span{:'data-bind' => 'text: $data.price'}
+        %span{:'data-bind' => 'text: ($data.price()* $data.quantity()).toFixed(2)'}
       %td
 
   :javascript    
@@ -70,22 +80,28 @@
       this.selectedSurcharge = ko.observable();
 
       this.selectedSurcharge.subscribe(function(val){
-        
         if(val){
           this.surcharges.push(val);
+          this.selectedSurcharge(null);
+          this.showSurchargeSelect(false);
         }
-        this.selectedSurcharge(null);
-        this.showSurchargeSelect(false);
       }, this);
 
       this.showSurcharge = function(){
         this.showSurchargeSelect(true);
       }
 
+      this.taxes = #{@app_params.all_taxes.to_json}
+
+      this.tax_amount = function(percent) {
+        var multiplier = parseFloat(percent)/100;
+        return (this.subtotal() * multiplier).toFixed(2);
+      }.bind(this);
+
       this.subtotal = ko.computed(function() {
         var sum = 0;
         $.each(this.purchases(), function(index, line) { 
-          sum = sum + parseFloat(line.price())
+          sum = sum + (parseFloat(line.price()) * parseInt(line.quantity()));
         })
         $.each(this.surcharges(), function(index, line) { 
           sum = sum + parseFloat(line.amount())
@@ -93,6 +109,7 @@
 
         return sum.toFixed(2);
       }, this);
+
     }
 
     var SurchargeType = function(data) {
@@ -101,6 +118,10 @@
       this.display_value = ko.computed(function() {
         return this.text() + "  |  $ " + this.amount();
       }, this);
+    }
+
+    var BiddersFee = function(){
+
     }
 
     invoiceViewModel = {
@@ -115,7 +136,7 @@
         }
       })
     }
-    
+
     createSurcharge = function(){
       $("#add_surcharge_link").toggle();
       $("#add_surcharge_select").toggle();
@@ -123,6 +144,7 @@
 
     ko.applyBindings(invoiceViewModel, document.getElementById('invoices'));
     $("#surcharge").combobox();
+
     $(".removeSurcharge").live("click", function() {
       var context = ko.contextFor(this);
       context.$parent.surcharges.remove(context.$data);
