@@ -1,5 +1,12 @@
 # PROJECT AUCTION #
 
+Operational software for brick-and-mortar auction houses. This is a toy project tinkering with:
+
+* KnockoutJS
+* Ruby
+* Sinatra
+* Padrino
+* MongoMapper
 
 ## RUNNING THE PROJECT ##
 
